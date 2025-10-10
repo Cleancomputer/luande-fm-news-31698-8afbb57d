@@ -18,14 +18,28 @@ const ChatWidget = () => {
 
   return (
     <>
-      {/* Chat Button */}
-      <Button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-xl z-50"
-        size="icon"
-      >
-        {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
-      </Button>
+      {/* Chat Button with Label */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+        {/* Animated Label */}
+        {!isOpen && (
+          <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-lg animate-fade-in">
+            <p className="text-sm font-semibold whitespace-nowrap animate-pulse">
+              Fale conosco
+            </p>
+            {/* Arrow pointer */}
+            <div className="absolute bottom-0 right-6 transform translate-y-1/2 rotate-45 w-2 h-2 bg-primary"></div>
+          </div>
+        )}
+        
+        {/* Chat Button */}
+        <Button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-14 h-14 rounded-full shadow-xl hover:scale-110 transition-transform duration-300"
+          size="icon"
+        >
+          {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+        </Button>
+      </div>
 
       {/* Chat Window */}
       {isOpen && (

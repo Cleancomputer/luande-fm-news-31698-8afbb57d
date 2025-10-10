@@ -15,10 +15,19 @@ const VLibras = () => {
       }
     };
 
-    // Criar div do VLibras
+    // Criar div do VLibras de forma mais explícita
     const vlibrasDiv = document.createElement("div");
     vlibrasDiv.setAttribute("vw", "");
     vlibrasDiv.className = "enabled";
+    
+    // Estrutura completa do VLibras
+    vlibrasDiv.innerHTML = `
+      <div vw-access-button class="active"></div>
+      <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+      </div>
+    `;
+    
     document.body.appendChild(vlibrasDiv);
 
     return () => {

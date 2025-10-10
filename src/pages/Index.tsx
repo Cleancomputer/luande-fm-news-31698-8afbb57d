@@ -3,6 +3,7 @@ import DateTimeBanner from "@/components/layout/DateTimeBanner";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import NewsCard from "@/components/news/NewsCard";
+import NewsCarousel from "@/components/news/NewsCarousel";
 import PopularNews from "@/components/widgets/PopularNews";
 import Poll from "@/components/widgets/Poll";
 import ChatWidget from "@/components/widgets/ChatWidget";
@@ -84,6 +85,17 @@ const Index = () => {
       <Header />
       
       <main className="flex-1">
+        {/* News Carousel Section */}
+        <section className="container mx-auto px-4 py-8">
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+              <span className="w-1 h-8 bg-primary"></span>
+              Destaques
+            </h2>
+          </div>
+          <NewsCarousel items={newsItems} />
+        </section>
+
         {/* Hero Section */}
         <section className="container mx-auto px-4 py-8">
           <NewsCard {...featuredNews} featured />
