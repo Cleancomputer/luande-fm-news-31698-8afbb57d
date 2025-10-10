@@ -27,6 +27,24 @@ const VLibras = () => {
       }
     };
 
+    // Adicionar estilos customizados para posicionar o VLibras
+    const style = document.createElement("style");
+    style.innerHTML = `
+      div[vw-access-button] {
+        position: fixed !important;
+        right: 0 !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        bottom: auto !important;
+        z-index: 40 !important;
+      }
+      
+      div[vw-plugin-wrapper] {
+        right: 0 !important;
+      }
+    `;
+    document.head.appendChild(style);
+
     return () => {
       // Limpar ao desmontar o componente
       const existingScript = document.querySelector('script[src="https://vlibras.gov.br/app/vlibras-plugin.js"]');
@@ -36,6 +54,9 @@ const VLibras = () => {
       const existingDiv = document.querySelector('[vw]');
       if (existingDiv && existingDiv.parentNode) {
         existingDiv.parentNode.removeChild(existingDiv);
+      }
+      if (style.parentNode) {
+        style.parentNode.removeChild(style);
       }
     };
   }, []);
