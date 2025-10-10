@@ -2,6 +2,18 @@ import { useEffect } from "react";
 
 const VLibras = () => {
   useEffect(() => {
+    // Criar div do VLibras primeiro
+    const vlibrasDiv = document.createElement("div");
+    vlibrasDiv.setAttribute("vw", "");
+    vlibrasDiv.className = "enabled";
+    vlibrasDiv.innerHTML = `
+      <div vw-access-button class="active"></div>
+      <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+      </div>
+    `;
+    document.body.appendChild(vlibrasDiv);
+
     // Carregar o script do VLibras
     const script = document.createElement("script");
     script.src = "https://vlibras.gov.br/app/vlibras-plugin.js";
@@ -15,28 +27,15 @@ const VLibras = () => {
       }
     };
 
-    // Criar div do VLibras de forma mais explícita
-    const vlibrasDiv = document.createElement("div");
-    vlibrasDiv.setAttribute("vw", "");
-    vlibrasDiv.className = "enabled";
-    
-    // Estrutura completa do VLibras
-    vlibrasDiv.innerHTML = `
-      <div vw-access-button class="active"></div>
-      <div vw-plugin-wrapper>
-        <div class="vw-plugin-top-wrapper"></div>
-      </div>
-    `;
-    
-    document.body.appendChild(vlibrasDiv);
-
     return () => {
-      // Limpar o script ao desmontar o componente
-      if (script.parentNode) {
-        document.body.removeChild(script);
+      // Limpar ao desmontar o componente
+      const existingScript = document.querySelector('script[src="https://vlibras.gov.br/app/vlibras-plugin.js"]');
+      if (existingScript && existingScript.parentNode) {
+        existingScript.parentNode.removeChild(existingScript);
       }
-      if (vlibrasDiv.parentNode) {
-        document.body.removeChild(vlibrasDiv);
+      const existingDiv = document.querySelector('[vw]');
+      if (existingDiv && existingDiv.parentNode) {
+        existingDiv.parentNode.removeChild(existingDiv);
       }
     };
   }, []);
