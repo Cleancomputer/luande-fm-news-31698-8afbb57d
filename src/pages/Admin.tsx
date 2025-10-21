@@ -10,6 +10,8 @@ import { AppSidebar } from "@/components/admin/AppSidebar";
 import Dashboard from "@/components/admin/Dashboard";
 import ContentManager from "@/components/admin/content/ContentManager";
 import PollsManager from "@/components/admin/PollsManager";
+import Analytics from "@/components/admin/Analytics";
+import Notifications from "@/components/admin/Notifications";
 import Reports from "@/components/admin/Reports";
 import SettingsManager from "@/components/admin/SettingsManager";
 
@@ -102,6 +104,8 @@ const Admin = () => {
               <Route path="/" element={<Dashboard />} />
               <Route path="/content" element={<ContentManager />} />
               <Route path="/polls" element={<PollsManager />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/notifications" element={<Notifications />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<SettingsManager />} />
             </Routes>

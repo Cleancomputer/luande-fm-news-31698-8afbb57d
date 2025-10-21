@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      article_analytics: {
+        Row: {
+          article_id: string | null
+          avg_read_time: number | null
+          created_at: string | null
+          date: string | null
+          id: string
+          traffic_source: string | null
+          unique_views: number | null
+          views: number | null
+        }
+        Insert: {
+          article_id?: string | null
+          avg_read_time?: number | null
+          created_at?: string | null
+          date?: string | null
+          id?: string
+          traffic_source?: string | null
+          unique_views?: number | null
+          views?: number | null
+        }
+        Update: {
+          article_id?: string | null
+          avg_read_time?: number | null
+          created_at?: string | null
+          date?: string | null
+          id?: string
+          traffic_source?: string | null
+          unique_views?: number | null
+          views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_analytics_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       article_versions: {
         Row: {
           article_id: string | null
@@ -187,6 +228,47 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_history: {
+        Row: {
+          article_id: string | null
+          body: string
+          category: string | null
+          id: string
+          sent_at: string | null
+          title: string
+          total_clicked: number | null
+          total_sent: number | null
+        }
+        Insert: {
+          article_id?: string | null
+          body: string
+          category?: string | null
+          id?: string
+          sent_at?: string | null
+          title: string
+          total_clicked?: number | null
+          total_sent?: number | null
+        }
+        Update: {
+          article_id?: string | null
+          body?: string
+          category?: string | null
+          id?: string
+          sent_at?: string | null
+          title?: string
+          total_clicked?: number | null
+          total_sent?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_history_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       poll_votes: {
         Row: {
           created_at: string | null
@@ -243,6 +325,36 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          categories: string[] | null
+          created_at: string | null
+          endpoint: string
+          id: string
+          p256dh: string
+          user_id: string | null
+        }
+        Insert: {
+          auth: string
+          categories?: string[] | null
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_id?: string | null
+        }
+        Update: {
+          auth?: string
+          categories?: string[] | null
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -279,6 +391,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      register_article_view: {
+        Args: { p_article_id: string; p_traffic_source: string }
+        Returns: undefined
       }
     }
     Enums: {

@@ -1,4 +1,4 @@
-import { FileText, BarChart3, Settings, FileBarChart, Instagram, LayoutDashboard } from "lucide-react";
+import { FileText, BarChart3, Settings, FileBarChart, Instagram, LayoutDashboard, Bell, TrendingUp } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -17,13 +17,15 @@ const menuItems = [
   { title: "Dashboard", path: "/admin", icon: LayoutDashboard },
   { title: "Conteúdo", path: "/admin/content", icon: FileText },
   { title: "Enquetes", path: "/admin/polls", icon: BarChart3 },
+  { title: "Analytics", path: "/admin/analytics", icon: TrendingUp },
+  { title: "Notificações", path: "/admin/notifications", icon: Bell },
   { title: "Instagram", path: "/admin/instagram", icon: Instagram },
   { title: "Relatórios", path: "/admin/reports", icon: FileBarChart },
   { title: "Configurações", path: "/admin/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, setOpen } = useSidebar();
 
   return (
     <Sidebar className={state === "collapsed" ? "w-14" : "w-60"} collapsible="icon">
@@ -40,10 +42,11 @@ export function AppSidebar() {
                     <NavLink
                       to={item.path}
                       end
+                      onClick={() => setOpen(false)}
                       className={({ isActive }) =>
                         isActive
-                          ? "bg-muted text-primary font-medium"
-                          : "hover:bg-muted/50"
+                          ? "bg-gradient-to-r from-primary to-purple-600 text-white font-medium"
+                          : "hover:bg-gradient-to-r hover:from-primary/10 hover:to-purple-600/10 transition-all"
                       }
                     >
                       <item.icon className="h-4 w-4" />
