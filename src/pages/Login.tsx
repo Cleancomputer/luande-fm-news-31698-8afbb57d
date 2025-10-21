@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Shield } from "lucide-react";
+import { Shield, ArrowLeft } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -46,6 +46,15 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4">
+      <Button
+        variant="ghost"
+        className="absolute top-4 left-4"
+        onClick={() => navigate("/")}
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Voltar ao Portal
+      </Button>
+      
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
