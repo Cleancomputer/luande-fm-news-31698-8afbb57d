@@ -14,39 +14,122 @@ export type Database = {
   }
   public: {
     Tables: {
+      article_versions: {
+        Row: {
+          article_id: string | null
+          category: string
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          image_url: string | null
+          media_gallery: Json | null
+          subtitle: string | null
+          tags: string[] | null
+          title: string
+          version: number
+        }
+        Insert: {
+          article_id?: string | null
+          category: string
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          media_gallery?: Json | null
+          subtitle?: string | null
+          tags?: string[] | null
+          title: string
+          version: number
+        }
+        Update: {
+          article_id?: string | null
+          category?: string
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          media_gallery?: Json | null
+          subtitle?: string | null
+          tags?: string[] | null
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_versions_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       articles: {
         Row: {
+          article_type: string | null
           author_id: string | null
           category: string
           content: string
           created_at: string | null
+          featured: boolean | null
+          featured_position: string | null
           id: string
           image_url: string | null
+          media_gallery: Json | null
           published: boolean | null
+          scheduled_at: string | null
+          slug: string | null
+          status: string | null
+          subtitle: string | null
+          tags: string[] | null
           title: string
           updated_at: string | null
+          version: number | null
         }
         Insert: {
+          article_type?: string | null
           author_id?: string | null
           category: string
           content: string
           created_at?: string | null
+          featured?: boolean | null
+          featured_position?: string | null
           id?: string
           image_url?: string | null
+          media_gallery?: Json | null
           published?: boolean | null
+          scheduled_at?: string | null
+          slug?: string | null
+          status?: string | null
+          subtitle?: string | null
+          tags?: string[] | null
           title: string
           updated_at?: string | null
+          version?: number | null
         }
         Update: {
+          article_type?: string | null
           author_id?: string | null
           category?: string
           content?: string
           created_at?: string | null
+          featured?: boolean | null
+          featured_position?: string | null
           id?: string
           image_url?: string | null
+          media_gallery?: Json | null
           published?: boolean | null
+          scheduled_at?: string | null
+          slug?: string | null
+          status?: string | null
+          subtitle?: string | null
+          tags?: string[] | null
           title?: string
           updated_at?: string | null
+          version?: number | null
         }
         Relationships: []
       }
@@ -65,6 +148,42 @@ export type Database = {
           id?: string
           instagram_url?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      media_library: {
+        Row: {
+          created_at: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string
+          id: string
+          metadata: Json | null
+          mime_type: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type: string
+          id?: string
+          metadata?: Json | null
+          mime_type?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string
+          id?: string
+          metadata?: Json | null
+          mime_type?: string | null
+          uploaded_by?: string | null
         }
         Relationships: []
       }
@@ -150,6 +269,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_slug: {
+        Args: { title: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
