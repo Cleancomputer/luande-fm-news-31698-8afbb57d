@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X, Search, Shield } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import logo from "@/assets/logo.png";
@@ -44,15 +45,27 @@ const Header = () => {
             </div>
           </div>
 
-          {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden text-foreground"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </Button>
+          <div className="flex items-center gap-3">
+            {/* Admin Link */}
+            <Link 
+              to="/login" 
+              className="flex items-center gap-2 text-foreground hover:text-accent transition-colors px-3 py-2 rounded-lg hover:bg-muted"
+              title="Acesso Administrativo"
+            >
+              <Shield className="h-5 w-5" />
+              <span className="hidden sm:inline text-sm font-medium">Admin</span>
+            </Link>
+
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden text-foreground"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
+          </div>
         </div>
 
         {/* Search Bar - Mobile */}
