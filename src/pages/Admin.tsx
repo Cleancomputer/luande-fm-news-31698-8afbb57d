@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { toast } from "sonner";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/admin/AppSidebar";
+import Dashboard from "@/components/admin/Dashboard";
 import ArticlesManager from "@/components/admin/ArticlesManager";
 import PollsManager from "@/components/admin/PollsManager";
-import InstagramConfig from "@/components/admin/InstagramConfig";
+import Reports from "@/components/admin/Reports";
+import SettingsManager from "@/components/admin/SettingsManager";
 
 const Admin = () => {
   const { user, signOut, loading } = useAuth();
@@ -76,39 +79,36 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Painel Administrativo</h1>
-          <Button onClick={handleSignOut} variant="outline">
-            <LogOut className="w-4 h-4 mr-2" />
-            Sair
-          </Button>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar />
+        
+        <div className="flex-1 flex flex-col">
+          <header className="border-b bg-card sticky top-0 z-10">
+            <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <SidebarTrigger />
+                <h1 className="text-2xl font-bold">Painel Administrativo</h1>
+              </div>
+              <Button onClick={handleSignOut} variant="outline">
+                <LogOut className="w-4 h-4 mr-2" />
+                Sair
+              </Button>
+            </div>
+          </header>
+
+          <main className="flex-1 container mx-auto px-4 py-8">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/articles" element={<ArticlesManager />} />
+              <Route path="/polls" element={<PollsManager />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/settings" element={<SettingsManager />} />
+            </Routes>
+          </main>
         </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="articles" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-md">
-            <TabsTrigger value="articles">Matérias</TabsTrigger>
-            <TabsTrigger value="polls">Enquetes</TabsTrigger>
-            <TabsTrigger value="instagram">Instagram</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="articles">
-            <ArticlesManager />
-          </TabsContent>
-
-          <TabsContent value="polls">
-            <PollsManager />
-          </TabsContent>
-
-          <TabsContent value="instagram">
-            <InstagramConfig />
-          </TabsContent>
-        </Tabs>
-      </main>
-    </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
