@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X, Search, Shield } from "lucide-react";
+import { Menu, X, Search, Shield, Radio } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +46,18 @@ const Header = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Botão Rádio Ao Vivo */}
+            <a 
+              href="http://play.radios.com.br/13735" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-foreground hover:text-accent transition-colors px-3 py-2 rounded-lg hover:bg-muted"
+              title="Ouvir LuandeFM Ao Vivo"
+            >
+              <Radio className="h-6 w-6 sm:h-5 sm:w-5 animate-pulse" />
+              <span className="hidden sm:inline text-sm font-medium">Ao Vivo</span>
+            </a>
+
             {/* Admin Link - Visível em todos os dispositivos */}
             <Link 
               to="/login" 
