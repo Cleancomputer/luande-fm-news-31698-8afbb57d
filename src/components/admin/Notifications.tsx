@@ -293,16 +293,16 @@ const Notifications = () => {
                   <div className="space-y-2">
                     <Label>Filtrar por Categoria</Label>
                     <Select
-                      value={formData.category}
+                      value={formData.category || "all"}
                       onValueChange={(value) =>
-                        setFormData({ ...formData, category: value })
+                        setFormData({ ...formData, category: value === "all" ? "" : value })
                       }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Todas as categorias" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todas</SelectItem>
+                        <SelectItem value="all">Todas</SelectItem>
                         {CATEGORIES.map((cat) => (
                           <SelectItem key={cat} value={cat}>
                             {cat}
