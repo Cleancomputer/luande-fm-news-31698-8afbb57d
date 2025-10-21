@@ -5,8 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { toast } from "sonner";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/admin/AppSidebar";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import Dashboard from "@/components/admin/Dashboard";
 import ContentManager from "@/components/admin/content/ContentManager";
 import PollsManager from "@/components/admin/PollsManager";
@@ -81,38 +80,44 @@ const Admin = () => {
   }
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <AppSidebar />
-        
-        <div className="flex-1 flex flex-col">
-          <header className="border-b bg-card sticky top-0 z-10">
-            <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <SidebarTrigger />
-                <h1 className="text-2xl font-bold">Painel Administrativo</h1>
-              </div>
-              <Button onClick={handleSignOut} variant="outline">
-                <LogOut className="w-4 h-4 mr-2" />
-                Sair
-              </Button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+      <AdminSidebar />
+      
+      {/* Main Content - com margem para o sidebar */}
+      <div className="lg:ml-72 min-h-screen flex flex-col">
+        {/* Header */}
+        <header className="sticky top-0 z-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 shadow-sm">
+          <div className="px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div className="ml-16 lg:ml-0">
+              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                Painel Administrativo
+              </h1>
             </div>
-          </header>
+            <Button 
+              onClick={handleSignOut} 
+              variant="outline"
+              className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Sair</span>
+            </Button>
+          </div>
+        </header>
 
-          <main className="flex-1 container mx-auto px-4 py-8">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/content" element={<ContentManager />} />
-              <Route path="/polls" element={<PollsManager />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/settings" element={<SettingsManager />} />
-            </Routes>
-          </main>
-        </div>
+        {/* Page Content */}
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/content" element={<ContentManager />} />
+            <Route path="/polls" element={<PollsManager />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/settings" element={<SettingsManager />} />
+          </Routes>
+        </main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 };
 
