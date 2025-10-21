@@ -15,7 +15,7 @@ import {
 
 const menuItems = [
   { title: "Dashboard", path: "/admin", icon: LayoutDashboard },
-  { title: "Matérias", path: "/admin/articles", icon: FileText },
+  { title: "Conteúdo", path: "/admin/content", icon: FileText },
   { title: "Enquetes", path: "/admin/polls", icon: BarChart3 },
   { title: "Instagram", path: "/admin/instagram", icon: Instagram },
   { title: "Relatórios", path: "/admin/reports", icon: FileBarChart },

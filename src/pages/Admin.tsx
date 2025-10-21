@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/admin/AppSidebar";
 import Dashboard from "@/components/admin/Dashboard";
-import ArticlesManager from "@/components/admin/ArticlesManager";
+import ContentManager from "@/components/admin/content/ContentManager";
 import PollsManager from "@/components/admin/PollsManager";
 import Reports from "@/components/admin/Reports";
 import SettingsManager from "@/components/admin/SettingsManager";
@@ -100,7 +100,7 @@ const Admin = () => {
           <main className="flex-1 container mx-auto px-4 py-8">
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/articles" element={<ArticlesManager />} />
+              <Route path="/content" element={<ContentManager />} />
               <Route path="/polls" element={<PollsManager />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<SettingsManager />} />
