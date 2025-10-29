@@ -136,9 +136,11 @@ const PublishedArticles = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleEdit = (article: Article) => {
-    // Redirecionar para o editor com o artigo
-    window.location.href = `/admin/content?edit=${article.id}`;
+  const handleEdit = async (article: Article) => {
+    // Carregar o artigo e redirecionar para a aba de editor
+    const event = new CustomEvent('edit-article', { detail: article });
+    window.dispatchEvent(event);
+    window.location.href = `/admin/content`;
   };
 
   const formatDate = (date: string) => {

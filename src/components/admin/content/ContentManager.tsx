@@ -69,6 +69,7 @@ const ContentManager = () => {
     featured_position: '',
     tags: [] as string[],
     scheduled_at: '',
+    media_gallery: [] as { url: string; type: 'image' | 'video'; caption?: string }[],
   });
   const [tagInput, setTagInput] = useState('');
   const [showPreview, setShowPreview] = useState(false);
@@ -176,6 +177,7 @@ const ContentManager = () => {
         tags: formData.tags || [],
         scheduled_at: formData.scheduled_at || null,
         author_id: user.id,
+        media_gallery: formData.media_gallery || [],
       };
 
       if (editingId) {
@@ -225,6 +227,7 @@ const ContentManager = () => {
       featured_position: article.featured_position || '',
       tags: article.tags || [],
       scheduled_at: article.scheduled_at || '',
+      media_gallery: (article as any).media_gallery || [],
     });
     setEditingId(article.id);
   };
@@ -281,6 +284,7 @@ const ContentManager = () => {
       featured_position: '',
       tags: [],
       scheduled_at: '',
+      media_gallery: [],
     });
     setEditingId(null);
     setVersions([]);
@@ -478,75 +482,107 @@ const ContentManager = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="image-url">Imagem de Capa</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="image-url"
-                      type="url"
-                      value={formData.image_url}
-                      onChange={(e) =>
-                        setFormData({ ...formData, image_url: e.target.value })
+                  <Label htmlFor="media-files">Galeria de Mídia (até 3 imagens + 1 vídeo)</Label>
+                  <Input
+                    id="media-files"
+                    type="file"
+                    accept="image/*,video/*"
+                    multiple
+                    onChange={async (e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (!user) return;
+
+                      const images = files.filter(f => f.type.startsWith('image/'));
+                      const videos = files.filter(f => f.type.startsWith('video/'));
+
+                      if (images.length > 3) {
+                        toast.error('Máximo de 3 imagens permitidas');
+                        return;
                       }
-                      placeholder="URL da imagem ou escolha da biblioteca"
-                    />
-                    <Input
-                      id="image-file"
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file && user) {
-                          try {
-                            const fileExt = file.name.split('.').pop();
-                            const fileName = `${Math.random()}.${fileExt}`;
-                            const filePath = `${user.id}/${fileName}`;
+                      if (videos.length > 1) {
+                        toast.error('Máximo de 1 vídeo permitido');
+                        return;
+                      }
 
-                            const { error: uploadError } = await supabase.storage
-                              .from('media')
-                              .upload(filePath, file);
+                      try {
+                        const uploadedMedia: { url: string; type: 'image' | 'video' }[] = [];
 
-                            if (uploadError) throw uploadError;
+                        for (const file of files) {
+                          const fileExt = file.name.split('.').pop();
+                          const fileName = `${Math.random()}.${fileExt}`;
+                          const filePath = `${user.id}/${fileName}`;
 
-                            const { data: { publicUrl } } = supabase.storage
-                              .from('media')
-                              .getPublicUrl(filePath);
+                          const { error: uploadError } = await supabase.storage
+                            .from('media')
+                            .upload(filePath, file);
 
-                            await supabase
-                              .from('media_library')
-                              .insert({
-                                file_name: file.name,
-                                file_path: publicUrl,
-                                file_type: file.type,
-                                file_size: file.size,
-                                mime_type: file.type,
-                                uploaded_by: user.id,
-                              });
+                          if (uploadError) throw uploadError;
 
-                            setFormData({ ...formData, image_url: publicUrl });
-                            toast.success('Imagem carregada com sucesso!');
-                          } catch (error) {
-                            console.error('Erro ao fazer upload:', error);
-                            toast.error('Erro ao enviar imagem');
-                          }
+                          const { data: { publicUrl } } = supabase.storage
+                            .from('media')
+                            .getPublicUrl(filePath);
+
+                          await supabase
+                            .from('media_library')
+                            .insert({
+                              file_name: file.name,
+                              file_path: publicUrl,
+                              file_type: file.type,
+                              file_size: file.size,
+                              mime_type: file.type,
+                              uploaded_by: user.id,
+                            });
+
+                          uploadedMedia.push({
+                            url: publicUrl,
+                            type: file.type.startsWith('image/') ? 'image' : 'video',
+                          });
                         }
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => document.getElementById('image-file')?.click()}
-                      title="Escolher imagem do dispositivo"
-                    >
-                      <Image className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  {formData.image_url && (
-                    <img
-                      src={formData.image_url}
-                      alt="Preview"
-                      className="w-full h-48 object-cover rounded mt-2"
-                    />
+
+                        setFormData({ 
+                          ...formData, 
+                          media_gallery: [...formData.media_gallery, ...uploadedMedia],
+                          image_url: uploadedMedia[0]?.url || formData.image_url
+                        });
+                        toast.success('Mídias carregadas com sucesso!');
+                      } catch (error) {
+                        console.error('Erro ao fazer upload:', error);
+                        toast.error('Erro ao enviar mídias');
+                      }
+                    }}
+                  />
+                  {formData.media_gallery.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+                      {formData.media_gallery.map((media, idx) => (
+                        <div key={idx} className="relative">
+                          {media.type === 'image' ? (
+                            <img
+                              src={media.url}
+                              alt={`Mídia ${idx + 1}`}
+                              className="w-full h-32 object-cover rounded"
+                            />
+                          ) : (
+                            <video
+                              src={media.url}
+                              className="w-full h-32 object-cover rounded"
+                              controls
+                            />
+                          )}
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="destructive"
+                            className="absolute top-1 right-1"
+                            onClick={() => {
+                              const newGallery = formData.media_gallery.filter((_, i) => i !== idx);
+                              setFormData({ ...formData, media_gallery: newGallery });
+                            }}
+                          >
+                            ×
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
 

@@ -150,7 +150,47 @@ const Article = () => {
             </div>
           </div>
 
-          {article.image_url && (
+          {article.media_gallery && article.media_gallery.length > 0 ? (
+            <div className="mb-8">
+              {article.media_gallery.length === 1 ? (
+                <div className="rounded-lg overflow-hidden">
+                  {article.media_gallery[0].type === 'image' ? (
+                    <img
+                      src={article.media_gallery[0].url}
+                      alt={article.title}
+                      className="w-full h-auto object-cover"
+                    />
+                  ) : (
+                    <video
+                      src={article.media_gallery[0].url}
+                      className="w-full h-auto"
+                      controls
+                    />
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {article.media_gallery.map((media: any, index: number) => (
+                    <div key={index} className="rounded-lg overflow-hidden">
+                      {media.type === 'image' ? (
+                        <img
+                          src={media.url}
+                          alt={`${article.title} - Imagem ${index + 1}`}
+                          className="w-full h-auto object-cover cursor-pointer"
+                        />
+                      ) : (
+                        <video
+                          src={media.url}
+                          className="w-full h-auto"
+                          controls
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : article.image_url && (
             <div className="mb-8 rounded-lg overflow-hidden">
               <img
                 src={article.image_url}
@@ -165,27 +205,6 @@ const Article = () => {
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
 
-          {article.media_gallery && article.media_gallery.length > 0 && (
-            <div className="mb-8">
-              <h3 className="text-2xl font-bold mb-4">Galeria de Mídia</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {article.media_gallery.map((media: any, index: number) => (
-                  <div key={index} className="rounded-lg overflow-hidden">
-                    <img
-                      src={media.url}
-                      alt={media.caption || `Imagem ${index + 1}`}
-                      className="w-full h-auto object-cover"
-                    />
-                    {media.caption && (
-                      <p className="text-sm text-muted-foreground mt-2 px-2">
-                        {media.caption}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {article.tags && article.tags.length > 0 && (
             <div className="mb-8">
