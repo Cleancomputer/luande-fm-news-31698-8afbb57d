@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import Dashboard from "@/components/admin/Dashboard";
 import ContentManager from "@/components/admin/content/ContentManager";
+import PublishedArticles from "@/components/admin/PublishedArticles";
 import PollsManager from "@/components/admin/PollsManager";
 import Analytics from "@/components/admin/Analytics";
 import Notifications from "@/components/admin/Notifications";
@@ -109,6 +110,7 @@ const Admin = () => {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/content" element={<ContentManager />} />
+            <Route path="/published" element={<PublishedArticles />} />
             <Route path="/polls" element={<PollsManager />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/notifications" element={<Notifications />} />

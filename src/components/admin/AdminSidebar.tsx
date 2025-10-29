@@ -1,4 +1,4 @@
-import { FileText, BarChart3, Settings, FileBarChart, Instagram, LayoutDashboard, Bell, TrendingUp, Menu, X } from "lucide-react";
+import { FileText, BarChart3, Settings, FileBarChart, Instagram, LayoutDashboard, Bell, TrendingUp, Menu, X, Eye } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 
@@ -16,6 +16,13 @@ const menuItems = [
     icon: FileText,
     gradient: "from-purple-500 to-pink-500",
     color: "text-purple-500"
+  },
+  { 
+    title: "Matérias Publicadas", 
+    path: "/admin/published", 
+    icon: Eye,
+    gradient: "from-teal-500 to-cyan-500",
+    color: "text-teal-500"
   },
   { 
     title: "Enquetes", 
