@@ -21,6 +21,26 @@ const Index = () => {
 
   useEffect(() => {
     loadArticles();
+
+    // Realtime subscription for articles
+    const articlesChannel = supabase
+      .channel('articles-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'articles'
+        },
+        () => {
+          loadArticles();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(articlesChannel);
+    };
   }, []);
 
   const loadArticles = async () => {

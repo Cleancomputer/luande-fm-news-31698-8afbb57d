@@ -147,11 +147,13 @@ const ArticlesManager = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mundo">Mundo</SelectItem>
-                  <SelectItem value="politica">Política</SelectItem>
                   <SelectItem value="esportes">Esportes</SelectItem>
+                  <SelectItem value="politica">Política</SelectItem>
                   <SelectItem value="tecnologia">Tecnologia</SelectItem>
+                  <SelectItem value="mundo">Mundo</SelectItem>
                   <SelectItem value="musica">Música</SelectItem>
+                  <SelectItem value="policia">Polícia</SelectItem>
+                  <SelectItem value="outros">Outros</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -39,7 +39,7 @@ interface NotificationHistory {
   total_clicked: number;
 }
 
-const CATEGORIES = ['Esportes', 'Política', 'Tecnologia', 'Mundo', 'Música', 'Outros'];
+const CATEGORIES = ['Esportes', 'Política', 'Tecnologia', 'Mundo', 'Música', 'Polícia', 'Outros'];
 
 const Notifications = () => {
   const { user } = useAuth();

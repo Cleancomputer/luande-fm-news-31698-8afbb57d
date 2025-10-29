@@ -18,6 +18,37 @@ const Poll = () => {
   useEffect(() => {
     loadPolls();
     checkIfVoted();
+
+    // Realtime subscription for polls and votes
+    const pollsChannel = supabase
+      .channel('polls-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'polls'
+        },
+        () => {
+          loadPolls();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'poll_votes'
+        },
+        () => {
+          loadPolls();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(pollsChannel);
+    };
   }, []);
 
   const loadPolls = async () => {
