@@ -4,8 +4,6 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import TextAlign from '@tiptap/extension-text-align';
-import FontFamily from '@tiptap/extension-font-family';
-import { TextStyle } from '@tiptap/extension-text-style';
 import { Button } from '@/components/ui/button';
 import {
   Bold,
@@ -29,22 +27,11 @@ import {
 import { useState } from 'react';
 import EmojiPicker from 'emoji-picker-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface RichTextEditorProps {
   content: string;
   onChange: (content: string) => void;
 }
-
-const FONT_FAMILIES = [
-  { label: 'Padrão', value: 'inherit' },
-  { label: 'Arial', value: 'Arial, sans-serif' },
-  { label: 'Times New Roman', value: 'Times New Roman, serif' },
-  { label: 'Courier New', value: 'Courier New, monospace' },
-  { label: 'Georgia', value: 'Georgia, serif' },
-  { label: 'Verdana', value: 'Verdana, sans-serif' },
-  { label: 'Comic Sans', value: 'Comic Sans MS, cursive' },
-];
 
 export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -67,8 +54,6 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
-      TextStyle,
-      FontFamily,
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -228,37 +213,6 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         >
           <AlignJustify className="h-4 w-4" />
         </Button>
-
-        <div className="w-px h-6 bg-border mx-1" />
-
-        {/* Fonte */}
-        <Select
-          value="inherit"
-          onValueChange={(value) => {
-            if (value !== 'inherit') {
-              editor.chain().focus().run();
-              const selection = editor.state.selection;
-              editor.view.dispatch(
-                editor.view.state.tr.addMark(
-                  selection.from,
-                  selection.to,
-                  editor.schema.marks.textStyle.create({ style: `font-family: ${value}` })
-                )
-              );
-            }
-          }}
-        >
-          <SelectTrigger className="h-8 w-[140px]">
-            <SelectValue placeholder="Fonte" />
-          </SelectTrigger>
-          <SelectContent>
-            {FONT_FAMILIES.map((font) => (
-              <SelectItem key={font.value} value={font.value}>
-                <span style={{ fontFamily: font.value }}>{font.label}</span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
 
         <div className="w-px h-6 bg-border mx-1" />
 
