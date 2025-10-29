@@ -141,64 +141,63 @@ const ContentManager = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      toast.error('Usuário não autenticado');
+      return;
+    }
+
+    if (!formData.title || !formData.content) {
+      toast.error('Título e conteúdo são obrigatórios');
+      return;
+    }
 
     try {
-      // Corrigir scheduled_at para null se vazio
-      const scheduledAt = formData.scheduled_at ? formData.scheduled_at : null;
-      
       const articleData = {
         title: formData.title,
-        subtitle: formData.subtitle,
+        subtitle: formData.subtitle || null,
         content: formData.content,
         category: formData.category,
-        image_url: formData.image_url,
-        published: true, // Sempre publicar quando salvar
+        image_url: formData.image_url || null,
+        published: true,
         status: 'published',
         article_type: formData.article_type,
         featured: formData.featured,
         featured_position: formData.featured_position || null,
-        tags: formData.tags,
-        scheduled_at: scheduledAt,
+        tags: formData.tags || [],
+        scheduled_at: formData.scheduled_at || null,
         author_id: user.id,
       };
 
       if (editingId) {
-        // Salvar versão anterior
-        const currentArticle = articles.find((a) => a.id === editingId);
-        if (currentArticle) {
-          await supabase.from('article_versions').insert({
-            article_id: editingId,
-            version: currentArticle.version || 1,
-            title: currentArticle.title,
-            subtitle: currentArticle.subtitle,
-            content: currentArticle.content,
-            image_url: currentArticle.image_url,
-            category: currentArticle.category,
-            tags: currentArticle.tags,
-            created_by: user.id,
-          });
-        }
-
+        // Atualizar artigo existente
         const { error } = await supabase
           .from('articles')
           .update(articleData)
           .eq('id', editingId);
 
-        if (error) throw error;
-        toast.success('Notícia atualizada e publicada com sucesso!');
+        if (error) {
+          console.error('Erro ao atualizar:', error);
+          throw error;
+        }
+        toast.success('Matéria atualizada e publicada!');
       } else {
-        const { error } = await supabase.from('articles').insert(articleData);
+        // Criar novo artigo
+        const { error } = await supabase
+          .from('articles')
+          .insert([articleData]);
 
-        if (error) throw error;
-        toast.success('Notícia criada e publicada com sucesso!');
+        if (error) {
+          console.error('Erro ao criar:', error);
+          throw error;
+        }
+        toast.success('Matéria criada e publicada!');
       }
 
       resetForm();
-      loadArticles();
-    } catch (error) {
-      console.error('Erro ao salvar artigo:', error);
-      toast.error('Erro ao salvar artigo');
+      await loadArticles();
+    } catch (error: any) {
+      console.error('Erro completo:', error);
+      toast.error(`Erro ao salvar: ${error.message || 'Tente novamente'}`);
     }
   };
 
