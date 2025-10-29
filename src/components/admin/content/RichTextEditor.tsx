@@ -25,13 +25,21 @@ import {
   Smile,
 } from 'lucide-react';
 import { useState } from 'react';
-import EmojiPicker from 'emoji-picker-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface RichTextEditorProps {
   content: string;
   onChange: (content: string) => void;
 }
+
+const COMMON_EMOJIS = [
+  '😀', '😃', '😄', '😁', '😅', '😂', '🤣', '😊', '😇', '🙂',
+  '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛',
+  '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🥸', '🤩', '🥳',
+  '👍', '👎', '👏', '🙌', '🤝', '✌️', '🤞', '🤟', '🤘', '👌',
+  '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔',
+  '⭐', '✨', '💫', '🌟', '💥', '🔥', '💯', '✅', '❌', '⚠️',
+];
 
 export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -97,8 +105,8 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     }
   };
 
-  const addEmoji = (emojiData: any) => {
-    editor.chain().focus().insertContent(emojiData.emoji).run();
+  const addEmoji = (emoji: string) => {
+    editor.chain().focus().insertContent(emoji).run();
     setShowEmojiPicker(false);
   };
 
@@ -234,8 +242,19 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
               <Smile className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <EmojiPicker onEmojiClick={addEmoji} />
+          <PopoverContent className="w-auto p-2">
+            <div className="grid grid-cols-10 gap-1">
+              {COMMON_EMOJIS.map((emoji, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => addEmoji(emoji)}
+                  className="text-2xl hover:bg-muted p-1 rounded transition-colors"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
           </PopoverContent>
         </Popover>
 
