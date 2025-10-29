@@ -23,6 +23,7 @@ import {
   FileText,
   Image,
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Article {
   id: string;
@@ -43,7 +44,7 @@ interface Article {
   version?: number;
 }
 
-const CATEGORIES = ['Esportes', 'Política', 'Tecnologia', 'Mundo', 'Música', 'Outros'];
+const CATEGORIES = ['Esportes', 'Política', 'Tecnologia', 'Mundo', 'Música', 'Polícia', 'Outros'];
 const ARTICLE_TYPES = ['article', 'nota-rapida', 'coluna', 'blog', 'review'];
 const FEATURED_POSITIONS = ['manchete', 'topo', 'destaque-lateral'];
 
@@ -68,6 +69,7 @@ const ContentManager = () => {
     scheduled_at: '',
   });
   const [tagInput, setTagInput] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     loadArticles();
@@ -142,8 +144,22 @@ const ContentManager = () => {
     if (!user) return;
 
     try {
+      // Corrigir scheduled_at para null se vazio
+      const scheduledAt = formData.scheduled_at ? formData.scheduled_at : null;
+      
       const articleData = {
-        ...formData,
+        title: formData.title,
+        subtitle: formData.subtitle,
+        content: formData.content,
+        category: formData.category,
+        image_url: formData.image_url,
+        published: true, // Sempre publicar quando salvar
+        status: 'published',
+        article_type: formData.article_type,
+        featured: formData.featured,
+        featured_position: formData.featured_position || null,
+        tags: formData.tags,
+        scheduled_at: scheduledAt,
         author_id: user.id,
       };
 
@@ -170,12 +186,12 @@ const ContentManager = () => {
           .eq('id', editingId);
 
         if (error) throw error;
-        toast.success('Artigo atualizado com sucesso!');
+        toast.success('Notícia atualizada e publicada com sucesso!');
       } else {
         const { error } = await supabase.from('articles').insert(articleData);
 
         if (error) throw error;
-        toast.success('Artigo criado com sucesso!');
+        toast.success('Notícia criada e publicada com sucesso!');
       }
 
       resetForm();
@@ -284,6 +300,28 @@ const ContentManager = () => {
       tags: version.tags || [],
     });
     toast.success('Versão restaurada! Clique em Salvar para aplicar.');
+  };
+
+  const handlePreview = () => {
+    if (!formData.title || !formData.content) {
+      toast.error('Preencha título e conteúdo para visualizar');
+      return;
+    }
+    setShowPreview(true);
+  };
+
+  const formatDate = (date: string) => {
+    const now = new Date();
+    const articleDate = new Date(date);
+    const diffInHours = Math.floor((now.getTime() - articleDate.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Agora mesmo';
+    if (diffInHours < 24) return `Há ${diffInHours} hora${diffInHours > 1 ? 's' : ''}`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `Há ${diffInDays} dia${diffInDays > 1 ? 's' : ''}`;
+    
+    return articleDate.toLocaleDateString('pt-BR');
   };
 
   return (
@@ -525,19 +563,8 @@ const ContentManager = () => {
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="published"
-                      checked={formData.published}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, published: checked })
-                      }
-                    />
-                    <Label htmlFor="published">Publicar Imediatamente</Label>
-                  </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="scheduled">Agendar Publicação</Label>
+                    <Label htmlFor="scheduled">Agendar Publicação (Opcional)</Label>
                     <Input
                       id="scheduled"
                       type="datetime-local"
@@ -546,15 +573,22 @@ const ContentManager = () => {
                         setFormData({ ...formData, scheduled_at: e.target.value })
                       }
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Deixe em branco para publicar imediatamente
+                    </p>
                   </div>
                 </div>
 
                 <div className="flex gap-2">
                   <Button type="submit">
                     <Save className="h-4 w-4 mr-2" />
-                    Salvar
+                    Salvar e Publicar
                   </Button>
-                  <Button type="button" variant="outline">
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={handlePreview}
+                  >
                     <Eye className="h-4 w-4 mr-2" />
                     Pré-visualizar
                   </Button>
@@ -661,6 +695,45 @@ const ContentManager = () => {
           </TabsContent>
         )}
       </Tabs>
+
+      {/* Preview Dialog */}
+      <Dialog open={showPreview} onOpenChange={setShowPreview}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Pré-visualização da Notícia</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            {formData.image_url && (
+              <img
+                src={formData.image_url}
+                alt={formData.title}
+                className="w-full h-64 object-cover rounded-lg"
+              />
+            )}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Badge>{formData.category}</Badge>
+                {formData.tags.map((tag) => (
+                  <Badge key={tag} variant="outline">{tag}</Badge>
+                ))}
+              </div>
+              <h1 className="text-4xl font-bold">{formData.title}</h1>
+              {formData.subtitle && (
+                <p className="text-xl text-muted-foreground">{formData.subtitle}</p>
+              )}
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span>Por: Redação LuandêFM</span>
+                <span>•</span>
+                <span>{formatDate(new Date().toISOString())}</span>
+              </div>
+            </div>
+            <div 
+              className="prose prose-slate max-w-none"
+              dangerouslySetInnerHTML={{ __html: formData.content }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
