@@ -478,12 +478,56 @@ const ContentManager = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, image_url: e.target.value })
                       }
-                      placeholder="URL da imagem"
+                      placeholder="URL da imagem ou escolha da biblioteca"
+                    />
+                    <Input
+                      id="image-file"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file && user) {
+                          try {
+                            const fileExt = file.name.split('.').pop();
+                            const fileName = `${Math.random()}.${fileExt}`;
+                            const filePath = `${user.id}/${fileName}`;
+
+                            const { error: uploadError } = await supabase.storage
+                              .from('media')
+                              .upload(filePath, file);
+
+                            if (uploadError) throw uploadError;
+
+                            const { data: { publicUrl } } = supabase.storage
+                              .from('media')
+                              .getPublicUrl(filePath);
+
+                            await supabase
+                              .from('media_library')
+                              .insert({
+                                file_name: file.name,
+                                file_path: publicUrl,
+                                file_type: file.type,
+                                file_size: file.size,
+                                mime_type: file.type,
+                                uploaded_by: user.id,
+                              });
+
+                            setFormData({ ...formData, image_url: publicUrl });
+                            toast.success('Imagem carregada com sucesso!');
+                          } catch (error) {
+                            console.error('Erro ao fazer upload:', error);
+                            toast.error('Erro ao enviar imagem');
+                          }
+                        }
+                      }}
                     />
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => setShowMediaLibrary(!showMediaLibrary)}
+                      onClick={() => document.getElementById('image-file')?.click()}
+                      title="Escolher imagem do dispositivo"
                     >
                       <Image className="h-4 w-4" />
                     </Button>
