@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Youtube, Twitter, Mail, MapPin, Phone } from "lucide-react";
+import { Facebook, Instagram, Youtube, Mail, MapPin, Phone } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Footer = () => {
@@ -65,6 +65,11 @@ const Footer = () => {
                   Tecnologia
                 </a>
               </li>
+              <li>
+                <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
+                  Polícia
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -75,13 +80,12 @@ const Footer = () => {
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-1 text-primary flex-shrink-0" />
                 <span className="text-muted-foreground">
-                  Rua das Notícias, 123<br />
-                  Luanda, Angola
+                  Avenida 7 de junho N° 598
                 </span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-muted-foreground">+244 123 456 789</span>
+                <span className="text-muted-foreground">7999801-5049</span>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-primary flex-shrink-0" />
@@ -99,32 +103,31 @@ const Footer = () => {
             </p>
             <div className="flex gap-4">
               <a
-                href="#"
+                href="https://www.facebook.com/LUANDEFM/?locale=pt_BR"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-secondary smooth-transition"
                 aria-label="Facebook"
               >
                 <Facebook className="h-5 w-5" />
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/radioluandefm/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-secondary smooth-transition"
                 aria-label="Instagram"
               >
                 <Instagram className="h-5 w-5" />
               </a>
               <a
-                href="#"
+                href="https://www.youtube.com/@luandefm9842"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-secondary smooth-transition"
                 aria-label="YouTube"
               >
                 <Youtube className="h-5 w-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-secondary smooth-transition"
-                aria-label="Twitter"
-              >
-                <Twitter className="h-5 w-5" />
               </a>
             </div>
           </div>
