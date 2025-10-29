@@ -27,9 +27,16 @@ interface RichTextEditorProps {
 export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        heading: {
+          levels: [1, 2, 3],
+        },
+      }),
       Link.configure({
         openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-primary underline',
+        },
       }),
       Image,
       Youtube,
@@ -38,6 +45,13 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm sm:prose lg:prose-lg focus:outline-none min-h-[300px] cursor-text',
+        style: 'white-space: pre-wrap;',
+      },
+    },
+    autofocus: 'end',
   });
 
   if (!editor) {
@@ -163,10 +177,15 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           <Redo className="h-4 w-4" />
         </Button>
       </div>
-      <EditorContent
-        editor={editor}
-        className="prose prose-sm max-w-none p-4 min-h-[300px] focus:outline-none"
-      />
+      <div 
+        onClick={() => editor?.chain().focus().run()}
+        className="cursor-text"
+      >
+        <EditorContent
+          editor={editor}
+          className="prose prose-sm max-w-none p-4 min-h-[300px]"
+        />
+      </div>
     </div>
   );
 };
