@@ -19,9 +19,9 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-card shadow-lg">
+    <header className="sticky top-0 z-50 shadow-lg">
       {/* Main Header */}
-      <div className="container mx-auto px-4 py-6">
+      <div className="bg-primary container mx-auto px-4 py-6">
         <div className="flex items-center justify-between gap-6">
           {/* Logo */}
           <a href="/" className="flex items-center transition-transform hover:scale-105">
@@ -51,7 +51,7 @@ const Header = () => {
               href="http://play.radios.com.br/13735" 
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-foreground hover:text-accent transition-colors px-3 py-2 rounded-lg hover:bg-muted"
+              className="flex items-center gap-2 text-primary-foreground hover:text-accent transition-colors px-3 py-2 rounded-lg hover:bg-primary-foreground/10"
               title="Ouvir LuandeFM Ao Vivo"
             >
               <Radio className="h-6 w-6 sm:h-5 sm:w-5 animate-pulse" />
@@ -61,7 +61,7 @@ const Header = () => {
             {/* Admin Link - Visível em todos os dispositivos */}
             <Link 
               to="/login" 
-              className="flex items-center gap-2 text-foreground hover:text-accent transition-colors px-3 py-2 rounded-lg hover:bg-muted"
+              className="flex items-center gap-2 text-primary-foreground hover:text-accent transition-colors px-3 py-2 rounded-lg hover:bg-primary-foreground/10"
               title="Acesso Administrativo"
             >
               <Shield className="h-6 w-6 sm:h-5 sm:w-5" />
@@ -72,7 +72,7 @@ const Header = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden text-foreground"
+              className="lg:hidden text-primary-foreground hover:bg-primary-foreground/10"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
