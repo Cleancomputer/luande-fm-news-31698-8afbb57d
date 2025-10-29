@@ -1,3 +1,6 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
 import BreakingNews from "@/components/layout/BreakingNews";
 import DateTimeBanner from "@/components/layout/DateTimeBanner";
 import Header from "@/components/layout/Header";
@@ -10,73 +13,64 @@ import ChatWidget from "@/components/widgets/ChatWidget";
 import ContactForm from "@/components/widgets/ContactForm";
 import VLibras from "@/components/layout/VLibras";
 
-import heroImage from "@/assets/news-hero.jpg";
-import sportsImage from "@/assets/news-sports.jpg";
-import techImage from "@/assets/news-tech.jpg";
-import musicImage from "@/assets/news-music.jpg";
-import politicsImage from "@/assets/news-politics.jpg";
-import worldImage from "@/assets/news-world.jpg";
-
 const Index = () => {
-  const featuredNews = {
-    title: "Grandes transformações marcam o início de nova era na capital",
-    excerpt: "Mudanças significativas trazem esperança e renovação para milhares de moradores. Projetos ambiciosos prometem modernização e desenvolvimento sustentável para os próximos anos.",
-    image: heroImage,
-    category: "Destaque",
-    author: "Redação LuandêFM",
-    date: "Há 2 horas"
+  const navigate = useNavigate();
+  const [articles, setArticles] = useState<any[]>([]);
+  const [featuredArticle, setFeaturedArticle] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadArticles();
+  }, []);
+
+  const loadArticles = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('published', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const featured = data?.find(article => article.featured);
+      setFeaturedArticle(featured);
+      setArticles(data || []);
+    } catch (error) {
+      console.error('Erro ao carregar artigos:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const newsItems = [
-    {
-      title: "Time local conquista vitória histórica em competição nacional",
-      excerpt: "Com desempenho impressionante, equipe garante classificação e emociona torcedores.",
-      image: sportsImage,
-      category: "Esportes",
-      author: "João Silva",
-      date: "Há 3 horas"
-    },
-    {
-      title: "Inovação tecnológica promete revolucionar setor de energia",
-      excerpt: "Nova solução sustentável pode transformar a forma como produzimos e consumimos energia.",
-      image: techImage,
-      category: "Tecnologia",
-      author: "Maria Santos",
-      date: "Há 5 horas"
-    },
-    {
-      title: "Festival de música reúne milhares em evento memorável",
-      excerpt: "Grandes artistas se apresentam em espetáculo que celebra a cultura e diversidade musical.",
-      image: musicImage,
-      category: "Música",
-      author: "Pedro Costa",
-      date: "Há 6 horas"
-    },
-    {
-      title: "Novas políticas públicas são anunciadas pelo governo",
-      excerpt: "Medidas visam melhorar qualidade de vida e promover desenvolvimento social sustentável.",
-      image: politicsImage,
-      category: "Política",
-      author: "Ana Ferreira",
-      date: "Há 8 horas"
-    },
-    {
-      title: "Conferência internacional debate desafios globais",
-      excerpt: "Líderes mundiais se reúnem para discutir soluções para problemas que afetam todo o planeta.",
-      image: worldImage,
-      category: "Mundo",
-      author: "Carlos Mendes",
-      date: "Há 10 horas"
-    },
-    {
-      title: "Novos investimentos em infraestrutura são anunciados",
-      excerpt: "Projetos de modernização prometem melhorar mobilidade urbana e qualidade dos serviços.",
-      image: heroImage,
-      category: "Cidades",
-      author: "Luísa Oliveira",
-      date: "Há 12 horas"
-    }
-  ];
+  const handleArticleClick = (slug: string) => {
+    navigate(`/artigo/${slug}`);
+  };
+
+  const formatDate = (date: string) => {
+    const now = new Date();
+    const articleDate = new Date(date);
+    const diffInHours = Math.floor((now.getTime() - articleDate.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Agora mesmo';
+    if (diffInHours < 24) return `Há ${diffInHours} hora${diffInHours > 1 ? 's' : ''}`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `Há ${diffInDays} dia${diffInDays > 1 ? 's' : ''}`;
+    
+    return articleDate.toLocaleDateString('pt-BR');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando notícias...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -86,20 +80,45 @@ const Index = () => {
       
       <main className="flex-1">
         {/* News Carousel Section */}
-        <section className="container mx-auto px-4 py-8">
-          <div className="mb-6">
-            <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
-              <span className="w-1 h-8 bg-primary"></span>
-              Destaques
-            </h2>
-          </div>
-          <NewsCarousel items={newsItems} />
-        </section>
+        {articles.length > 0 && (
+          <section className="container mx-auto px-4 py-8">
+            <div className="mb-6">
+              <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+                <span className="w-1 h-8 bg-primary"></span>
+                Destaques
+              </h2>
+            </div>
+            <NewsCarousel 
+              items={articles.slice(0, 6).map(article => ({
+                title: article.title,
+                excerpt: article.subtitle || article.content.substring(0, 150) + '...',
+                image: article.image_url || '/placeholder.svg',
+                category: article.category,
+                author: 'Redação LuandêFM',
+                date: formatDate(article.created_at),
+                slug: article.slug
+              }))}
+              onArticleClick={handleArticleClick}
+            />
+          </section>
+        )}
 
         {/* Hero Section */}
-        <section className="container mx-auto px-4 py-8">
-          <NewsCard {...featuredNews} featured />
-        </section>
+        {featuredArticle && (
+          <section className="container mx-auto px-4 py-8">
+            <div onClick={() => handleArticleClick(featuredArticle.slug)} className="cursor-pointer">
+              <NewsCard
+                title={featuredArticle.title}
+                excerpt={featuredArticle.subtitle || featuredArticle.content.substring(0, 200) + '...'}
+                image={featuredArticle.image_url || '/placeholder.svg'}
+                category={featuredArticle.category}
+                author="Redação LuandêFM"
+                date={formatDate(featuredArticle.created_at)}
+                featured
+              />
+            </div>
+          </section>
+        )}
 
         {/* Main Content Grid */}
         <section className="container mx-auto px-4 py-8">
@@ -111,11 +130,28 @@ const Index = () => {
                   <span className="w-1 h-8 bg-primary"></span>
                   Últimas Notícias
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {newsItems.map((news, index) => (
-                    <NewsCard key={index} {...news} />
-                  ))}
-                </div>
+                {articles.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground text-lg">
+                      Nenhuma notícia publicada ainda. Acompanhe nosso portal para as últimas atualizações!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {articles.filter(a => !a.featured).slice(0, 6).map((article) => (
+                      <div key={article.id} onClick={() => handleArticleClick(article.slug)} className="cursor-pointer">
+                        <NewsCard
+                          title={article.title}
+                          excerpt={article.subtitle || article.content.substring(0, 150) + '...'}
+                          image={article.image_url || '/placeholder.svg'}
+                          category={article.category}
+                          author="Redação LuandêFM"
+                          date={formatDate(article.created_at)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Video Section */}
