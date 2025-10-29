@@ -51,6 +51,8 @@ const FEATURED_POSITIONS = ['manchete', 'topo', 'destaque-lateral'];
 const ContentManager = () => {
   const { user } = useAuth();
   const [articles, setArticles] = useState<Article[]>([]);
+  const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
   const [versions, setVersions] = useState<any[]>([]);
@@ -80,6 +82,14 @@ const ContentManager = () => {
       loadVersions(editingId);
     }
   }, [editingId]);
+
+  useEffect(() => {
+    if (categoryFilter === 'all') {
+      setFilteredArticles(articles);
+    } else {
+      setFilteredArticles(articles.filter(article => article.category === categoryFilter));
+    }
+  }, [articles, categoryFilter]);
 
   // Auto-save draft every 30 seconds
   useEffect(() => {
@@ -660,8 +670,32 @@ const ContentManager = () => {
         </TabsContent>
 
         <TabsContent value="list">
+          <Card className="mb-4">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                <Label htmlFor="category-filter">Filtrar por Categoria:</Label>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as Categorias</SelectItem>
+                    {CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Badge variant="secondary">
+                  {filteredArticles.length} {filteredArticles.length === 1 ? 'matéria' : 'matérias'}
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+          
           <div className="grid gap-4">
-            {articles.map((article) => (
+            {filteredArticles.map((article) => (
               <Card key={article.id}>
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start">
