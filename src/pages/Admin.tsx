@@ -94,14 +94,24 @@ const Admin = () => {
                 Painel Administrativo
               </h1>
             </div>
-            <Button 
-              onClick={handleSignOut} 
-              variant="outline"
-              className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Sair</span>
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => window.open("/", "_blank")} 
+                variant="outline"
+                className="border-primary/20 text-primary hover:bg-primary/10 hover:border-primary/30"
+              >
+                <span className="hidden sm:inline">Ver Portal</span>
+                <span className="sm:hidden">Portal</span>
+              </Button>
+              <Button 
+                onClick={handleSignOut} 
+                variant="outline"
+                className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Sair</span>
+              </Button>
+            </div>
           </div>
         </header>
 
