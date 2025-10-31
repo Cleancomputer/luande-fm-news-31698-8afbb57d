@@ -4,8 +4,7 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import TextAlign from '@tiptap/extension-text-align';
-import FontFamily from '@tiptap/extension-font-family';
-import { TextStyle } from '@tiptap/extension-text-style';
+import { TextStyleKit } from '@tiptap/extension-text-style';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -56,9 +55,10 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           levels: [1, 2, 3],
         },
       }),
-      TextStyle,
-      FontFamily.configure({
-        types: ['textStyle'],
+      TextStyleKit.configure({
+        fontFamily: {
+          types: ['textStyle'],
+        },
       }),
       Link.configure({
         openOnClick: false,
