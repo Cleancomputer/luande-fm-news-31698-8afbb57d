@@ -151,8 +151,10 @@ const PublishedArticles = () => {
       const event = new CustomEvent('edit-article', { detail: data });
       window.dispatchEvent(event);
       
-      // Redirecionar para a página de conteúdo
-      window.location.href = `/admin?tab=content`;
+      // Pequeno delay para garantir que o evento foi processado antes de redirecionar
+      setTimeout(() => {
+        window.location.href = '/admin';
+      }, 100);
     } catch (error) {
       console.error('Erro ao carregar artigo:', error);
       toast.error('Erro ao carregar artigo para edição');

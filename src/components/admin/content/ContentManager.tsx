@@ -76,6 +76,36 @@ const ContentManager = () => {
 
   useEffect(() => {
     loadArticles();
+
+    // Listener para edição de artigos publicados
+    const handleEditArticle = (event: any) => {
+      const article = event.detail;
+      if (article) {
+        setFormData({
+          title: article.title,
+          subtitle: article.subtitle || '',
+          content: article.content,
+          category: article.category,
+          image_url: article.image_url || '',
+          published: article.published,
+          status: article.status,
+          article_type: article.article_type,
+          featured: article.featured,
+          featured_position: article.featured_position || '',
+          tags: article.tags || [],
+          scheduled_at: article.scheduled_at || '',
+          media_gallery: article.media_gallery || [],
+        });
+        setEditingId(article.id);
+        toast.success('Artigo carregado para edição');
+      }
+    };
+
+    window.addEventListener('edit-article', handleEditArticle);
+
+    return () => {
+      window.removeEventListener('edit-article', handleEditArticle);
+    };
   }, []);
 
   useEffect(() => {

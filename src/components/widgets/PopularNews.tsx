@@ -21,37 +21,62 @@ const PopularNews = () => {
 
   const loadPopularNews = async () => {
     try {
-      const { data, error } = await supabase
+      // Primeiro, tentar buscar artigos com analytics
+      const { data: analyticsData, error: analyticsError } = await supabase
         .from('article_analytics')
         .select(`
           article_id,
+          views,
           articles!inner(title, slug, published)
         `)
         .eq('articles.published', true)
-        .order('views', { ascending: false })
+        .order('views', { ascending: false });
+
+      if (analyticsError) throw analyticsError;
+
+      if (analyticsData && analyticsData.length > 0) {
+        // Agrupar por article_id e somar views
+        const grouped = analyticsData.reduce((acc: any, curr: any) => {
+          const articleId = curr.article_id;
+          if (!acc[articleId]) {
+            acc[articleId] = {
+              title: curr.articles.title,
+              slug: curr.articles.slug,
+              views: 0
+            };
+          }
+          acc[articleId].views += curr.views || 0;
+          return acc;
+        }, {});
+
+        const sorted = Object.values(grouped)
+          .sort((a: any, b: any) => b.views - a.views)
+          .slice(0, 5) as PopularNewsItem[];
+
+        if (sorted.length > 0) {
+          setPopularNews(sorted);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Se não houver dados de analytics, buscar as últimas matérias publicadas
+      const { data: latestArticles, error: latestError } = await supabase
+        .from('articles')
+        .select('title, slug')
+        .eq('published', true)
+        .order('created_at', { ascending: false })
         .limit(5);
 
-      if (error) throw error;
+      if (latestError) throw latestError;
 
-      // Agrupar por article_id e somar views
-      const grouped = data?.reduce((acc: any, curr: any) => {
-        const articleId = curr.article_id;
-        if (!acc[articleId]) {
-          acc[articleId] = {
-            title: curr.articles.title,
-            slug: curr.articles.slug,
-            views: 0
-          };
-        }
-        acc[articleId].views += curr.views || 0;
-        return acc;
-      }, {});
+      const formattedLatest = (latestArticles || []).map(article => ({
+        title: article.title,
+        slug: article.slug,
+        views: 0
+      }));
 
-      const sorted = Object.values(grouped || {})
-        .sort((a: any, b: any) => b.views - a.views)
-        .slice(0, 5) as PopularNewsItem[];
-
-      setPopularNews(sorted);
+      setPopularNews(formattedLatest);
     } catch (error) {
       console.error('Erro ao carregar notícias populares:', error);
     } finally {
@@ -121,9 +146,11 @@ const PopularNews = () => {
                     <h4 className="text-sm font-medium line-clamp-2 group-hover:text-primary smooth-transition mb-1">
                       {news.title}
                     </h4>
-                    <span className="text-xs text-muted-foreground">
-                      {formatViews(news.views)} visualizações
-                    </span>
+                    {news.views > 0 && (
+                      <span className="text-xs text-muted-foreground">
+                        {formatViews(news.views)} visualizações
+                      </span>
+                    )}
                   </div>
                 </div>
               </li>
