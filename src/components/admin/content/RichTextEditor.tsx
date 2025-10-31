@@ -28,7 +28,7 @@ import {
   Smile,
   Type,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface RichTextEditorProps {
@@ -84,6 +84,13 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     },
     autofocus: 'end',
   });
+
+  // Atualizar o conteúdo do editor quando a prop content mudar
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
 
   if (!editor) {
     return null;
