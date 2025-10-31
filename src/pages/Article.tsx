@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Clock, User, ArrowLeft, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import VLibras from "@/components/layout/VLibras";
+import { MediaGalleryCarousel } from "@/components/article/MediaGalleryCarousel";
 
 interface Article {
   id: string;
@@ -151,45 +152,10 @@ const Article = () => {
           </div>
 
           {article.media_gallery && article.media_gallery.length > 0 ? (
-            <div className="mb-8">
-              {article.media_gallery.length === 1 ? (
-                <div className="rounded-lg overflow-hidden">
-                  {article.media_gallery[0].type === 'image' ? (
-                    <img
-                      src={article.media_gallery[0].url}
-                      alt={article.title}
-                      className="w-full h-auto object-cover"
-                    />
-                  ) : (
-                    <video
-                      src={article.media_gallery[0].url}
-                      className="w-full h-auto"
-                      controls
-                    />
-                  )}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {article.media_gallery.map((media: any, index: number) => (
-                    <div key={index} className="rounded-lg overflow-hidden">
-                      {media.type === 'image' ? (
-                        <img
-                          src={media.url}
-                          alt={`${article.title} - Imagem ${index + 1}`}
-                          className="w-full h-auto object-cover cursor-pointer"
-                        />
-                      ) : (
-                        <video
-                          src={media.url}
-                          className="w-full h-auto"
-                          controls
-                        />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <MediaGalleryCarousel 
+              media={article.media_gallery} 
+              title={article.title} 
+            />
           ) : article.image_url && (
             <div className="mb-8 rounded-lg overflow-hidden">
               <img

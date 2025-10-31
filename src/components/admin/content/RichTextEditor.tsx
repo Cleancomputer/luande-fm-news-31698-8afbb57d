@@ -4,7 +4,10 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import TextAlign from '@tiptap/extension-text-align';
+import FontFamily from '@tiptap/extension-font-family';
+import { TextStyle } from '@tiptap/extension-text-style';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Bold,
   Italic,
@@ -18,11 +21,13 @@ import {
   Youtube as YoutubeIcon,
   Heading1,
   Heading2,
+  Heading3,
   AlignLeft,
   AlignCenter,
   AlignRight,
   AlignJustify,
   Smile,
+  Type,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -50,6 +55,10 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         heading: {
           levels: [1, 2, 3],
         },
+      }),
+      TextStyle,
+      FontFamily.configure({
+        types: ['textStyle'],
       }),
       Link.configure({
         openOnClick: false,
@@ -113,6 +122,35 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   return (
     <div className="border rounded-lg">
       <div className="border-b bg-muted/30 p-2 flex flex-wrap gap-1">
+        {/* Seleção de Fonte */}
+        <Select
+          value={editor.getAttributes('textStyle').fontFamily || 'Arial'}
+          onValueChange={(value) => {
+            if (value === 'default') {
+              editor.chain().focus().unsetFontFamily().run();
+            } else {
+              editor.chain().focus().setFontFamily(value).run();
+            }
+          }}
+        >
+          <SelectTrigger className="w-[140px] h-8 text-xs">
+            <SelectValue placeholder="Fonte" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="default">Padrão</SelectItem>
+            <SelectItem value="Arial">Arial</SelectItem>
+            <SelectItem value="Times New Roman">Times New Roman</SelectItem>
+            <SelectItem value="Courier New">Courier New</SelectItem>
+            <SelectItem value="Georgia">Georgia</SelectItem>
+            <SelectItem value="Verdana">Verdana</SelectItem>
+            <SelectItem value="Comic Sans MS">Comic Sans MS</SelectItem>
+            <SelectItem value="Impact">Impact</SelectItem>
+            <SelectItem value="Roboto">Roboto</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <div className="w-px h-6 bg-border mx-1" />
+
         {/* Formatação de texto */}
         <Button
           type="button"
@@ -149,6 +187,25 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           className={editor.isActive('heading', { level: 2 }) ? 'bg-muted' : ''}
         >
           <Heading2 className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          className={editor.isActive('heading', { level: 3 }) ? 'bg-muted' : ''}
+        >
+          <Heading3 className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          onClick={() => editor.chain().focus().setParagraph().run()}
+          className={editor.isActive('paragraph') ? 'bg-muted' : ''}
+          title="Parágrafo normal"
+        >
+          <Type className="h-4 w-4" />
         </Button>
 
         <div className="w-px h-6 bg-border mx-1" />

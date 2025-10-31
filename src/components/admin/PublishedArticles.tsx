@@ -137,10 +137,26 @@ const PublishedArticles = () => {
   };
 
   const handleEdit = async (article: Article) => {
-    // Carregar o artigo e redirecionar para a aba de editor
-    const event = new CustomEvent('edit-article', { detail: article });
-    window.dispatchEvent(event);
-    window.location.href = `/admin/content`;
+    try {
+      // Carregar o artigo completo do banco de dados
+      const { data, error } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('id', article.id)
+        .single();
+
+      if (error) throw error;
+
+      // Enviar evento com todos os dados do artigo
+      const event = new CustomEvent('edit-article', { detail: data });
+      window.dispatchEvent(event);
+      
+      // Redirecionar para a página de conteúdo
+      window.location.href = `/admin?tab=content`;
+    } catch (error) {
+      console.error('Erro ao carregar artigo:', error);
+      toast.error('Erro ao carregar artigo para edição');
+    }
   };
 
   const formatDate = (date: string) => {
