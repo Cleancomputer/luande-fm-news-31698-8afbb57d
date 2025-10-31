@@ -14,6 +14,7 @@ import Analytics from "@/components/admin/Analytics";
 import Notifications from "@/components/admin/Notifications";
 import Reports from "@/components/admin/Reports";
 import SettingsManager from "@/components/admin/SettingsManager";
+import MessagesManager from "@/components/admin/MessagesManager";
 
 const Admin = () => {
   const { user, signOut, loading } = useAuth();
@@ -124,6 +125,7 @@ const Admin = () => {
             <Route path="/polls" element={<PollsManager />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/notifications" element={<Notifications />} />
+            <Route path="/messages" element={<MessagesManager />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<SettingsManager />} />
           </Routes>

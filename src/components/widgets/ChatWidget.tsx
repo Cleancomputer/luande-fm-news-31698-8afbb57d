@@ -3,16 +3,59 @@ import { MessageCircle, X, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
+import { z } from "zod";
+
+const chatSchema = z.object({
+  name: z.string().trim().min(1, "Nome é obrigatório").max(100, "Nome muito longo"),
+  email: z.string().trim().email("Email inválido").max(255, "Email muito longo"),
+  message: z.string().trim().min(1, "Mensagem é obrigatória").max(1000, "Mensagem muito longa")
+});
 
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
 
-  const handleSend = () => {
-    if (message.trim()) {
-      // Aqui você pode adicionar a lógica de envio da mensagem
-      console.log("Mensagem enviada:", message);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      // Validar dados
+      const validated = chatSchema.parse({ name, email, message });
+
+      setSending(true);
+
+      const { error } = await supabase
+        .from('chat_messages')
+        .insert([{
+          name: validated.name,
+          email: validated.email,
+          message: validated.message
+        }]);
+
+      if (error) throw error;
+
+      toast.success("Mensagem enviada com sucesso! Entraremos em contato em breve.");
+      
+      // Limpar formulário
+      setName("");
+      setEmail("");
       setMessage("");
+      setIsOpen(false);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const firstError = error.errors[0];
+        toast.error(firstError.message);
+      } else {
+        console.error('Erro ao enviar mensagem:', error);
+        toast.error("Erro ao enviar mensagem. Tente novamente.");
+      }
+    } finally {
+      setSending(false);
     }
   };
 
@@ -26,7 +69,6 @@ const ChatWidget = () => {
             <p className="text-sm font-semibold whitespace-nowrap animate-pulse">
               Fale conosco
             </p>
-            {/* Arrow pointer */}
             <div className="absolute bottom-0 right-6 transform translate-y-1/2 rotate-45 w-2 h-2 bg-primary"></div>
           </div>
         )}
@@ -47,33 +89,61 @@ const ChatWidget = () => {
           <CardHeader className="gradient-primary text-primary-foreground">
             <CardTitle className="text-lg flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
-              Chat ao Vivo
+              Fale Conosco
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4">
-            <div className="space-y-4">
-              {/* Chat Messages Area */}
-              <div className="h-64 overflow-y-auto space-y-3 p-2 bg-muted rounded-lg">
-                <div className="bg-card p-3 rounded-lg shadow-sm">
-                  <p className="text-sm font-semibold text-primary">Atendente LuandêFM</p>
-                  <p className="text-sm mt-1">Olá! Como podemos ajudar você hoje?</p>
-                </div>
-              </div>
-
-              {/* Input Area */}
-              <div className="flex gap-2">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
                 <Input
+                  placeholder="Seu nome"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  maxLength={100}
+                  disabled={sending}
+                />
+              </div>
+              <div>
+                <Input
+                  type="email"
+                  placeholder="Seu email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  maxLength={255}
+                  disabled={sending}
+                />
+              </div>
+              <div>
+                <textarea
+                  placeholder="Sua mensagem..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder="Digite sua mensagem..."
-                  className="flex-1"
+                  required
+                  maxLength={1000}
+                  disabled={sending}
+                  className="w-full min-h-[120px] p-3 border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary bg-background"
                 />
-                <Button onClick={handleSend} size="icon">
-                  <Send className="h-4 w-4" />
-                </Button>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {message.length}/1000 caracteres
+                </p>
               </div>
-            </div>
+              <Button 
+                type="submit" 
+                className="w-full"
+                disabled={sending}
+              >
+                {sending ? (
+                  "Enviando..."
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Enviar Mensagem
+                  </>
+                )}
+              </Button>
+            </form>
           </CardContent>
         </Card>
       )}
