@@ -184,7 +184,7 @@ const Index = () => {
                   <div className="aspect-video bg-muted rounded-lg overflow-hidden">
                     <iframe
                       className="w-full h-full"
-                      src="https://www.youtube.com/embed/Ob-P4WDxbfY"
+                      src="https://www.youtube.com/embed/i6506oIwmJE"
                       title="LuandêFM - Vídeo 1"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
@@ -193,7 +193,7 @@ const Index = () => {
                   <div className="aspect-video bg-muted rounded-lg overflow-hidden">
                     <iframe
                       className="w-full h-full"
-                      src="https://www.youtube.com/embed/0xGPvOXL7cI"
+                      src="https://www.youtube.com/embed/fizu3ynz-pk"
                       title="LuandêFM - Vídeo 2"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
