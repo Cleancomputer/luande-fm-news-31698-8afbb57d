@@ -136,29 +136,13 @@ const PublishedArticles = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleEdit = async (article: Article) => {
-    try {
-      // Carregar o artigo completo do banco de dados
-      const { data, error } = await supabase
-        .from('articles')
-        .select('*')
-        .eq('id', article.id)
-        .single();
-
-      if (error) throw error;
-
-      // Enviar evento com todos os dados do artigo
-      const event = new CustomEvent('edit-article', { detail: data });
-      window.dispatchEvent(event);
-      
-      // Pequeno delay para garantir que o evento foi processado antes de redirecionar
-      setTimeout(() => {
-        window.location.href = '/admin';
-      }, 100);
-    } catch (error) {
-      console.error('Erro ao carregar artigo:', error);
-      toast.error('Erro ao carregar artigo para edição');
-    }
+  const handleEdit = (article: Article) => {
+    // Salvar artigo no localStorage para edição
+    localStorage.setItem('editingArticle', JSON.stringify(article));
+    
+    // Redirecionar para a página de conteúdo
+    toast.success('Carregando artigo para edição...');
+    window.location.href = '/admin/content';
   };
 
   const formatDate = (date: string) => {

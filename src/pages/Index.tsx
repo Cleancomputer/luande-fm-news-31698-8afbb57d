@@ -158,7 +158,7 @@ const Index = () => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {articles.filter(a => !a.featured).slice(0, 6).map((article) => (
+                    {articles.slice(0, 6).map((article) => (
                       <div key={article.id} onClick={() => handleArticleClick(article.slug)} className="cursor-pointer">
                         <NewsCard
                           title={article.title}

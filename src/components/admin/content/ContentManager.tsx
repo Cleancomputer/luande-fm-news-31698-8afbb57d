@@ -77,35 +77,37 @@ const ContentManager = () => {
   useEffect(() => {
     loadArticles();
 
-    // Listener para edição de artigos publicados
-    const handleEditArticle = (event: any) => {
-      const article = event.detail;
-      if (article) {
+    // Verificar se há um artigo para editar no localStorage
+    const editingArticle = localStorage.getItem('editingArticle');
+    if (editingArticle) {
+      try {
+        const article = JSON.parse(editingArticle);
         setFormData({
-          title: article.title,
+          title: article.title || '',
           subtitle: article.subtitle || '',
-          content: article.content,
-          category: article.category,
+          content: article.content || '',
+          category: article.category || 'Outros',
           image_url: article.image_url || '',
-          published: article.published,
-          status: article.status,
-          article_type: article.article_type,
-          featured: article.featured,
+          published: article.published || false,
+          status: article.status || 'draft',
+          article_type: article.article_type || 'article',
+          featured: article.featured || false,
           featured_position: article.featured_position || '',
           tags: article.tags || [],
           scheduled_at: article.scheduled_at || '',
           media_gallery: article.media_gallery || [],
         });
         setEditingId(article.id);
-        toast.success('Artigo carregado para edição');
+        
+        // Limpar o localStorage
+        localStorage.removeItem('editingArticle');
+        
+        toast.success('Artigo carregado para edição!');
+      } catch (error) {
+        console.error('Erro ao carregar artigo do localStorage:', error);
+        localStorage.removeItem('editingArticle');
       }
-    };
-
-    window.addEventListener('edit-article', handleEditArticle);
-
-    return () => {
-      window.removeEventListener('edit-article', handleEditArticle);
-    };
+    }
   }, []);
 
   useEffect(() => {
