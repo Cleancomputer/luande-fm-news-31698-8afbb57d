@@ -4,7 +4,8 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import TextAlign from '@tiptap/extension-text-align';
-import { TextStyleKit } from '@tiptap/extension-text-style';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { FontFamily } from '@tiptap/extension-font-family';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -54,20 +55,30 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         heading: {
           levels: [1, 2, 3],
         },
-      }),
-      TextStyleKit.configure({
-        fontFamily: {
-          types: ['textStyle'],
+        paragraph: {
+          HTMLAttributes: {
+            class: 'mb-4',
+          },
         },
       }),
+      TextStyle,
+      FontFamily,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
           class: 'text-primary underline',
         },
       }),
-      Image,
-      Youtube,
+      Image.configure({
+        HTMLAttributes: {
+          class: 'max-w-full h-auto rounded-lg my-4',
+        },
+      }),
+      Youtube.configure({
+        HTMLAttributes: {
+          class: 'w-full aspect-video my-4',
+        },
+      }),
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
@@ -78,8 +89,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg focus:outline-none min-h-[300px] cursor-text',
-        style: 'white-space: pre-wrap;',
+        class: 'prose prose-lg max-w-none focus:outline-none min-h-[300px] p-4',
       },
     },
     autofocus: 'end',
@@ -346,12 +356,9 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       </div>
       <div 
         onClick={() => editor?.chain().focus().run()}
-        className="cursor-text"
+        className="cursor-text min-h-[300px]"
       >
-        <EditorContent
-          editor={editor}
-          className="prose prose-sm max-w-none p-4 min-h-[300px]"
-        />
+        <EditorContent editor={editor} />
       </div>
     </div>
   );
