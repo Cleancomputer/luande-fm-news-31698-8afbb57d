@@ -4,8 +4,6 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import TextAlign from '@tiptap/extension-text-align';
-import { TextStyle } from '@tiptap/extension-text-style';
-import { FontFamily } from '@tiptap/extension-font-family';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -61,8 +59,6 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           },
         },
       }),
-      TextStyle,
-      FontFamily,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -139,34 +135,6 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   return (
     <div className="border rounded-lg">
       <div className="border-b bg-muted/30 p-2 flex flex-wrap gap-1">
-        {/* Seleção de Fonte */}
-        <Select
-          value={editor.getAttributes('textStyle').fontFamily || 'Arial'}
-          onValueChange={(value) => {
-            if (value === 'default') {
-              editor.chain().focus().unsetFontFamily().run();
-            } else {
-              editor.chain().focus().setFontFamily(value).run();
-            }
-          }}
-        >
-          <SelectTrigger className="w-[140px] h-8 text-xs">
-            <SelectValue placeholder="Fonte" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="default">Padrão</SelectItem>
-            <SelectItem value="Arial">Arial</SelectItem>
-            <SelectItem value="Times New Roman">Times New Roman</SelectItem>
-            <SelectItem value="Courier New">Courier New</SelectItem>
-            <SelectItem value="Georgia">Georgia</SelectItem>
-            <SelectItem value="Verdana">Verdana</SelectItem>
-            <SelectItem value="Comic Sans MS">Comic Sans MS</SelectItem>
-            <SelectItem value="Impact">Impact</SelectItem>
-            <SelectItem value="Roboto">Roboto</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <div className="w-px h-6 bg-border mx-1" />
 
         {/* Formatação de texto */}
         <Button
