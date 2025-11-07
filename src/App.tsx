@@ -11,11 +11,6 @@ import Admin from "./pages/Admin";
 import CreateAdmin from "./pages/CreateAdmin";
 import Article from "./pages/Article";
 
-/**
- * Main App Component
- * Configured for Vercel deployment with proper provider hierarchy
- * Works on desktop and mobile devices
- */
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
