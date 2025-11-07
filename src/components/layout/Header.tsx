@@ -1,22 +1,33 @@
 import { useState } from "react";
 import { Menu, X, Search, Shield, Radio } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import logo from "@/assets/logo.png";
 
 const categories = [
-  { name: "Política", href: "#politica" },
-  { name: "Esportes", href: "#esportes" },
-  { name: "Entretenimento", href: "#entretenimento" },
-  { name: "Música", href: "#musica" },
-  { name: "Tecnologia", href: "#tecnologia" },
-  { name: "Cidades", href: "#cidades" },
-  { name: "Mundo", href: "#mundo" }
+  { name: "Política", href: "/categoria/Política" },
+  { name: "Polícia", href: "/categoria/Polícia" },
+  { name: "Esportes", href: "/categoria/Esportes" },
+  { name: "Entretenimento", href: "/categoria/Entretenimento" },
+  { name: "Música", href: "/categoria/Música" },
+  { name: "Tecnologia", href: "/categoria/Tecnologia" },
+  { name: "Cidades", href: "/categoria/Cidades" },
+  { name: "Mundo", href: "/categoria/Mundo" }
 ];
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/busca?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 shadow-lg">
@@ -29,21 +40,24 @@ const Header = () => {
           </a>
 
           {/* Search Bar - Desktop */}
-          <div className="hidden lg:flex flex-1 max-w-2xl">
+          <form onSubmit={handleSearch} className="hidden lg:flex flex-1 max-w-2xl">
             <div className="relative w-full">
               <Input 
                 type="search" 
                 placeholder="Buscar notícias..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pr-12 h-12 text-base border-2 focus:border-accent"
               />
               <Button 
+                type="submit"
                 size="icon" 
                 className="absolute right-1 top-1 h-10 w-10 gradient-yellow-glow hover:opacity-90"
               >
                 <Search className="h-5 w-5" />
               </Button>
             </div>
-          </div>
+          </form>
 
           <div className="flex items-center gap-2">
             {/* Botão Rádio Ao Vivo */}
@@ -81,21 +95,24 @@ const Header = () => {
         </div>
 
         {/* Search Bar - Mobile */}
-        <div className="lg:hidden mt-4">
+        <form onSubmit={handleSearch} className="lg:hidden mt-4">
           <div className="relative">
             <Input 
               type="search" 
               placeholder="Buscar notícias..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pr-12 h-12 border-2 focus:border-accent"
             />
             <Button 
+              type="submit"
               size="icon" 
               className="absolute right-1 top-1 h-10 w-10 gradient-yellow-glow hover:opacity-90"
             >
               <Search className="h-5 w-5" />
             </Button>
           </div>
-        </div>
+        </form>
       </div>
 
       {/* Categories Navigation */}
@@ -105,13 +122,13 @@ const Header = () => {
           <ul className="hidden lg:flex items-center justify-center gap-2 py-4">
             {categories.map((category) => (
               <li key={category.name}>
-                <a
-                  href={category.href}
+                <Link
+                  to={category.href}
                   className="relative px-5 py-2.5 text-sm font-semibold text-foreground hover:text-accent smooth-transition group"
                 >
                   {category.name}
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-accent group-hover:w-full smooth-transition"></span>
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -121,13 +138,13 @@ const Header = () => {
             <ul className="lg:hidden py-4 space-y-1">
               {categories.map((category) => (
                 <li key={category.name}>
-                  <a
-                    href={category.href}
+                  <Link
+                    to={category.href}
                     className="block px-4 py-3 text-base font-medium text-foreground hover:text-accent hover:bg-muted smooth-transition rounded-lg"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {category.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

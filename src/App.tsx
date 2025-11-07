@@ -10,6 +10,8 @@ import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import CreateAdmin from "./pages/CreateAdmin";
 import Article from "./pages/Article";
+import Category from "./pages/Category";
+import Search from "./pages/Search";
 import LoadingScreen from "./components/layout/LoadingScreen";
 
 // Create QueryClient outside component to avoid recreation on every render
@@ -52,6 +54,8 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/artigo/:slug" element={<Article />} />
+            <Route path="/categoria/:category" element={<Category />} />
+            <Route path="/busca" element={<Search />} />
             <Route path="/login" element={<Login />} />
             <Route path="/create-admin" element={<CreateAdmin />} />
             <Route path="/admin/*" element={<Admin />} />
