@@ -17,7 +17,6 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: 'es2015',
-    minify: 'terser',
     cssMinify: true,
     rollupOptions: {
       output: {
