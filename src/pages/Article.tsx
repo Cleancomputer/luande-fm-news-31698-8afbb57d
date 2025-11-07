@@ -62,13 +62,8 @@ const Article = () => {
   };
 
   const handleShare = async () => {
-    // Ensure we're in browser environment
-    if (typeof window === 'undefined') return;
-    
     const url = window.location.href;
-    
-    // Check if Web Share API is available (mobile browsers)
-    if (typeof navigator !== 'undefined' && navigator.share) {
+    if (navigator.share) {
       try {
         await navigator.share({
           title: article?.title,
@@ -76,20 +71,11 @@ const Article = () => {
           url: url,
         });
       } catch (error) {
-        // User cancelled or error occurred
-        if ((error as Error).name !== 'AbortError') {
-          console.error('Erro ao compartilhar:', error);
-        }
+        console.error('Erro ao compartilhar:', error);
       }
-    } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      // Fallback to clipboard API
-      try {
-        await navigator.clipboard.writeText(url);
-        toast.success('Link copiado para a área de transferência!');
-      } catch (error) {
-        console.error('Erro ao copiar link:', error);
-        toast.error('Não foi possível copiar o link');
-      }
+    } else {
+      navigator.clipboard.writeText(url);
+      toast.success('Link copiado para a área de transferência!');
     }
   };
 
