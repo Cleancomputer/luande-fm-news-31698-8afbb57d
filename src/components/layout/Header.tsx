@@ -24,9 +24,9 @@ const Header = () => {
       <div className="bg-primary container mx-auto px-4 py-6">
         <div className="flex items-center justify-between gap-6">
           {/* Logo */}
-          <Link to="/" className="flex items-center transition-transform hover:scale-105">
-            <img src={logo} alt="LuandêFM" className="h-16 sm:h-20 w-auto" />
-          </Link>
+          <a href="/" className="flex items-center transition-transform hover:scale-105">
+            <img src={logo} alt="LuandêFM" className="h-20 w-auto" />
+          </a>
 
           {/* Search Bar - Desktop */}
           <div className="hidden lg:flex flex-1 max-w-2xl">
@@ -105,16 +105,13 @@ const Header = () => {
           <ul className="hidden lg:flex items-center justify-center gap-2 py-4">
             {categories.map((category) => (
               <li key={category.name}>
-                <button
-                  onClick={() => {
-                    const element = document.querySelector(category.href);
-                    element?.scrollIntoView({ behavior: 'smooth' });
-                  }}
+                <a
+                  href={category.href}
                   className="relative px-5 py-2.5 text-sm font-semibold text-foreground hover:text-accent smooth-transition group"
                 >
                   {category.name}
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-accent group-hover:w-full smooth-transition"></span>
-                </button>
+                </a>
               </li>
             ))}
           </ul>
@@ -124,16 +121,13 @@ const Header = () => {
             <ul className="lg:hidden py-4 space-y-1">
               {categories.map((category) => (
                 <li key={category.name}>
-                  <button
-                    onClick={() => {
-                      const element = document.querySelector(category.href);
-                      element?.scrollIntoView({ behavior: 'smooth' });
-                      setIsMenuOpen(false);
-                    }}
-                    className="w-full text-left block px-4 py-3 text-base font-medium text-foreground hover:text-accent hover:bg-muted smooth-transition rounded-lg"
+                  <a
+                    href={category.href}
+                    className="block px-4 py-3 text-base font-medium text-foreground hover:text-accent hover:bg-muted smooth-transition rounded-lg"
+                    onClick={() => setIsMenuOpen(false)}
                   >
                     {category.name}
-                  </button>
+                  </a>
                 </li>
               ))}
             </ul>
