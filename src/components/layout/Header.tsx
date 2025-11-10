@@ -7,13 +7,15 @@ import logo from "@/assets/logo.png";
 
 const categories = [
   { name: "Política", href: "/categoria/Política" },
-  { name: "Polícia", href: "/categoria/Polícia" },
+  { name: "Policial", href: "/categoria/Policial" },
   { name: "Esportes", href: "/categoria/Esportes" },
   { name: "Entretenimento", href: "/categoria/Entretenimento" },
   { name: "Música", href: "/categoria/Música" },
   { name: "Tecnologia", href: "/categoria/Tecnologia" },
   { name: "Cidades", href: "/categoria/Cidades" },
-  { name: "Mundo", href: "/categoria/Mundo" }
+  { name: "Mundo", href: "/categoria/Mundo" },
+  { name: "Sergipe", href: "/categoria/Sergipe" },
+  { name: "Educação", href: "/categoria/Educação" }
 ];
 
 const Header = () => {
