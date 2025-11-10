@@ -15,7 +15,8 @@ const categories = [
   { name: "Cidades", href: "/categoria/Cidades" },
   { name: "Mundo", href: "/categoria/Mundo" },
   { name: "Sergipe", href: "/categoria/Sergipe" },
-  { name: "Educação", href: "/categoria/Educação" }
+  { name: "Educação", href: "/categoria/Educação" },
+  { name: "Acidente", href: "/categoria/Acidente" }
 ];
 
 const Header = () => {

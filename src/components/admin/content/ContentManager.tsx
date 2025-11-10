@@ -44,7 +44,7 @@ interface Article {
   version?: number;
 }
 
-const CATEGORIES = ['Política', 'Policial', 'Esportes', 'Entretenimento', 'Música', 'Tecnologia', 'Cidades', 'Mundo', 'Sergipe', 'Educação'];
+const CATEGORIES = ['Política', 'Policial', 'Esportes', 'Entretenimento', 'Música', 'Tecnologia', 'Cidades', 'Mundo', 'Sergipe', 'Educação', 'Acidente'];
 const ARTICLE_TYPES = ['article', 'nota-rapida', 'coluna', 'blog', 'review'];
 const FEATURED_POSITIONS = ['manchete', 'topo', 'destaque-lateral'];
 
