@@ -57,7 +57,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         },
         paragraph: {
           HTMLAttributes: {
-            class: 'mb-4',
+            style: 'margin-bottom: 1em; line-height: 1.6;',
           },
         },
       }),
