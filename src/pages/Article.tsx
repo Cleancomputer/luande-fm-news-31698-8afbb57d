@@ -6,9 +6,9 @@ import Footer from "@/components/layout/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, User, ArrowLeft, Share2 } from "lucide-react";
-import { toast } from "sonner";
 import VLibras from "@/components/layout/VLibras";
 import { MediaGalleryCarousel } from "@/components/article/MediaGalleryCarousel";
+import { ShareDialog } from "@/components/article/ShareDialog";
 
 interface Article {
   id: string;
@@ -28,6 +28,7 @@ const Article = () => {
   const navigate = useNavigate();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
 
   useEffect(() => {
     loadArticle();
@@ -61,37 +62,8 @@ const Article = () => {
     }
   };
 
-  const handleShare = async () => {
-    try {
-      const url = window.location.href;
-      const shareData = {
-        title: article?.title || 'LuandêFM Portal',
-        text: article?.subtitle || article?.title || 'Confira esta notícia',
-        url: url,
-      };
-
-      // Tentar usar Web Share API se disponível
-      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-        try {
-          await navigator.share(shareData);
-          return;
-        } catch (shareError: any) {
-          // Se usuário cancelou, não fazer nada
-          if (shareError.name === 'AbortError') {
-            return;
-          }
-          // Se deu erro, cair no fallback abaixo
-        }
-      }
-      
-      // Fallback: copiar para clipboard
-      await navigator.clipboard.writeText(url);
-      toast.success('Link copiado! Cole e compartilhe onde quiser.');
-      
-    } catch (error) {
-      console.error('Erro ao compartilhar:', error);
-      toast.error('Não foi possível compartilhar. Tente novamente.');
-    }
+  const handleShare = () => {
+    setShareDialogOpen(true);
   };
 
   if (loading) {
@@ -204,6 +176,13 @@ const Article = () => {
 
       <Footer />
       <VLibras />
+      
+      <ShareDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        title={article.title}
+        url={window.location.href}
+      />
     </div>
   );
 };
