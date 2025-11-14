@@ -12,8 +12,9 @@ import Poll from "@/components/widgets/Poll";
 import ChatWidget from "@/components/widgets/ChatWidget";
 import ContactForm from "@/components/widgets/ContactForm";
 import VLibras from "@/components/layout/VLibras";
-import SubmitContent from "@/components/widgets/SubmitContent";
 import WeatherWidget from "@/components/widgets/WeatherWidget";
+import { Button } from "@/components/ui/button";
+import { Send } from "lucide-react";
 import EconomyWidget from "@/components/widgets/EconomyWidget";
 import HoroscopeWidget from "@/components/widgets/HoroscopeWidget";
 import AdSpace from "@/components/widgets/AdSpace";
@@ -215,13 +216,20 @@ const Index = () => {
 
             {/* Sidebar */}
             <aside className="lg:w-80 space-y-6">
-              <AdSpace position="sidebar" />
               <WeatherWidget />
               <EconomyWidget />
               <HoroscopeWidget />
+              <Button 
+                onClick={() => navigate('/enviar-noticia')} 
+                className="w-full h-auto py-6 text-lg font-bold gradient-primary hover:opacity-90 transition-opacity"
+                size="lg"
+              >
+                <Send className="h-6 w-6 mr-2" />
+                Nos Envie Sua Notícia
+              </Button>
+              <AdSpace position="sidebar" />
               <PopularNews />
               <Poll />
-              <SubmitContent />
               <ContactForm />
             </aside>
           </div>
