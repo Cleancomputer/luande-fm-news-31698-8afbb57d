@@ -144,6 +144,24 @@ const Index = () => {
                 />
               )}
 
+              {/* YouTube Mini Player - Mobile Only (below carousel, above latest news) */}
+              <div className="lg:hidden">
+                <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+                  <span className="w-1 h-6 bg-red-600"></span>
+                  Ao Vivo
+                </h3>
+                <div className="aspect-video rounded-lg overflow-hidden shadow-lg mb-6">
+                  <iframe
+                    className="w-full h-full"
+                    src="https://www.youtube.com/embed/live_stream?channel=UCS35bHapJqRtfG9kcq9f9FA&autoplay=0&mute=0"
+                    title="LuandeFM Ao Vivo - Mobile"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </div>
+
               {/* Latest News Section */}
               <div>
                 <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
@@ -169,8 +187,8 @@ const Index = () => {
 
             {/* Right Column - Widgets + Mini Player */}
             <div className="space-y-6">
-              {/* YouTube Mini Player - Fixed Sticky on Desktop */}
-              <div className="lg:sticky lg:top-4">
+              {/* YouTube Mini Player - Desktop Only - Fixed Sticky */}
+              <div className="hidden lg:block sticky top-4 z-10">
                 <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
                   <span className="w-1 h-6 bg-red-600"></span>
                   Ao Vivo
@@ -178,7 +196,7 @@ const Index = () => {
                 <div className="aspect-video rounded-lg overflow-hidden shadow-lg mb-6">
                   <iframe
                     className="w-full h-full"
-                    src="https://www.youtube.com/embed/live_stream?channel=UCS35bHapJqRtfG9kcq9f9FA&autoplay=1&mute=1"
+                    src="https://www.youtube.com/embed/live_stream?channel=UCS35bHapJqRtfG9kcq9f9FA&autoplay=0&mute=0"
                     title="LuandeFM Ao Vivo - Mini"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
