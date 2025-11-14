@@ -39,7 +39,7 @@ const Header = () => {
         <div className="flex items-center justify-between gap-6">
           {/* Logo */}
           <a href="/" className="flex items-center transition-transform hover:scale-105">
-            <img src={logo} alt="LuandêFM" className="h-20 w-auto" />
+            <img src={logo} alt="Portal Luande" className="h-20 w-auto" />
           </a>
 
           {/* Search Bar - Desktop */}
@@ -119,7 +119,7 @@ const Header = () => {
       </div>
 
       {/* Categories Navigation */}
-      <nav className="border-t border-border/50">
+      <nav className="bg-primary border-t border-border/50">
         <div className="container mx-auto px-4">
           {/* Desktop Navigation */}
           <ul className="hidden lg:flex items-center justify-center gap-2 py-4">
@@ -127,7 +127,7 @@ const Header = () => {
               <li key={category.name}>
                 <Link
                   to={category.href}
-                  className="relative px-5 py-2.5 text-sm font-semibold text-foreground hover:text-accent smooth-transition group"
+                  className="relative px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:text-accent smooth-transition group"
                 >
                   {category.name}
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-accent group-hover:w-full smooth-transition"></span>
@@ -143,7 +143,7 @@ const Header = () => {
                 <li key={category.name}>
                   <Link
                     to={category.href}
-                    className="block px-4 py-3 text-base font-medium text-foreground hover:text-accent hover:bg-muted smooth-transition rounded-lg"
+                    className="block px-4 py-3 text-base font-medium text-primary-foreground hover:text-accent hover:bg-primary-foreground/10 smooth-transition rounded-lg"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {category.name}
