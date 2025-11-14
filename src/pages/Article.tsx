@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, User, ArrowLeft, Share2 } from "lucide-react";
+import { toast } from "sonner";
 import VLibras from "@/components/layout/VLibras";
 import { MediaGalleryCarousel } from "@/components/article/MediaGalleryCarousel";
 import { ShareDialog } from "@/components/article/ShareDialog";
