@@ -54,7 +54,7 @@ const Index = () => {
         .from('articles')
         .select('*')
         .eq('published', true)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false});
 
       if (error) throw error;
 
@@ -117,97 +117,124 @@ const Index = () => {
             </Link>
           </div>
         </section>
-
-        {/* YouTube Live Player */}
-        <section className="container mx-auto px-4 py-6">
-          <div className="bg-card rounded-lg shadow-lg overflow-hidden">
-            <div className="aspect-video">
-              <iframe
-                width="100%"
-                height="100%"
-                src="https://www.youtube.com/embed/live_stream?channel=UCvosUrZ89ajMHNWNWNwBngg&autoplay=1&mute=0"
-                title="Portal Luande - Ao Vivo"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              ></iframe>
-            </div>
-            <div className="p-4 bg-red-600 text-white">
-              <h3 className="text-xl font-bold">🔴 Assista Ao Vivo - Portal Luande FM</h3>
-              <p className="text-sm opacity-90">Acompanhe nossa programação ao vivo no YouTube</p>
-            </div>
-          </div>
-        </section>
         
         {/* Top Ad Space */}
         <div className="container mx-auto px-4 py-4">
           <AdSpace position="header" />
         </div>
 
-        {/* News Carousel Section */}
-        {articles.length > 0 && (
-          <section className="container mx-auto px-4 py-8">
-            <div className="mb-6">
-              <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
-                <span className="gradient-text">Em Destaque</span>
-              </h2>
-            </div>
-            <NewsCarousel items={articles.slice(0, 5).map(a => ({
-              title: a.title,
-              excerpt: a.subtitle || '',
-              image: a.image_url || '',
-              category: a.category,
-              author: 'Portal Luande',
-              date: formatDate(a.created_at)
-            }))} />
-          </section>
-        )}
-
         {/* Main Content Grid */}
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* News Grid - Últimas Notícias */}
+        <div className="container mx-auto px-4 mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Featured Articles */}
             <div className="lg:col-span-2 space-y-8">
-              <h2 className="text-2xl font-bold mb-4">Últimas Notícias</h2>
-              <div className="grid md:grid-cols-2 gap-6">
-                {articles.slice(5, 13).map((article) => (
-                  <NewsCard
-                    key={article.id}
-                    title={article.title}
-                    excerpt={article.subtitle || ''}
-                    image={article.image_url || ''}
-                    category={article.category}
-                    author="Portal Luande"
-                    date={formatDate(article.created_at)}
-                  />
-                ))}
+              {/* Featured Carousel */}
+              {articles.length > 0 && (
+                <NewsCarousel 
+                  items={articles.slice(0, 5).map(article => ({
+                    title: article.title,
+                    excerpt: article.subtitle || article.content.substring(0, 150) + '...',
+                    image: article.image_url || '/placeholder.svg',
+                    category: article.category,
+                    author: 'Redação LuandêFM',
+                    date: formatDate(article.created_at),
+                    slug: article.slug
+                  }))}
+                  onArticleClick={handleArticleClick}
+                />
+              )}
+
+              {/* Latest News Section */}
+              <div>
+                <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
+                  <span className="w-1.5 h-10 bg-primary"></span>
+                  Últimas Notícias
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {articles.slice(5, 13).map((article) => (
+                    <div key={article.id} onClick={() => handleArticleClick(article.slug)} className="cursor-pointer">
+                      <NewsCard
+                        title={article.title}
+                        excerpt={article.subtitle || article.content.substring(0, 150) + '...'}
+                        image={article.image_url || '/placeholder.svg'}
+                        category={article.category}
+                        author="Redação LuandêFM"
+                        date={formatDate(article.created_at)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Widgets + Mini Player */}
+            <div className="space-y-6">
+              {/* YouTube Mini Player - Lateral */}
+              <div className="sticky top-4">
+                <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+                  <span className="w-1 h-6 bg-red-600"></span>
+                  Ao Vivo
+                </h3>
+                <div className="aspect-video rounded-lg overflow-hidden shadow-lg mb-6">
+                  <iframe
+                    className="w-full h-full"
+                    src="https://www.youtube.com/embed/live_stream?channel=UCS35bHapJqRtfG9kcq9f9FA&autoplay=1&mute=1"
+                    title="LuandeFM Ao Vivo - Mini"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
               </div>
 
-              {articles.length === 0 && (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground text-lg">
-                    Nenhum artigo publicado no momento.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Sidebar */}
-            <aside className="space-y-6">
-              <WeatherWidget />
-              <EconomyWidget />
-              <HoroscopeWidget />
-              <ContactForm />
-              <Poll />
               <PopularNews />
-            </aside>
+              <WeatherWidget />
+              <Poll />
+              <HoroscopeWidget />
+              <EconomyWidget />
+              <ContactForm />
+              <ChatWidget />
+            </div>
           </div>
+        </div>
+
+        {/* YouTube Featured Videos Section */}
+        <section className="container mx-auto px-4 mb-12">
+          <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
+            <span className="w-1.5 h-10 bg-primary"></span>
+            Vídeos em Destaque
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="aspect-video rounded-lg overflow-hidden shadow-lg">
+              <iframe
+                className="w-full h-full"
+                src="https://www.youtube.com/embed/UCS35bHapJqRtfG9kcq9f9FA"
+                title="Vídeo em Destaque 1"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </div>
+            <div className="aspect-video rounded-lg overflow-hidden shadow-lg">
+              <iframe
+                className="w-full h-full"
+                src="https://www.youtube.com/embed/UCS35bHapJqRtfG9kcq9f9FA"
+                title="Vídeo em Destaque 2"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </div>
+          </div>
+        </section>
+
+        {/* Bottom Ad Space */}
+        <div className="container mx-auto px-4 py-4">
+          <AdSpace position="footer" />
         </div>
       </main>
 
       <Footer />
-      <ChatWidget />
       <VLibras />
     </div>
   );

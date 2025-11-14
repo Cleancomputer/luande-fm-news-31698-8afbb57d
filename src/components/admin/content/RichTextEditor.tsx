@@ -4,6 +4,8 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import TextAlign from '@tiptap/extension-text-align';
+import FontFamily from '@tiptap/extension-font-family';
+import { TextStyle } from '@tiptap/extension-text-style';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -77,6 +79,10 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       }),
       TextAlign.configure({
         types: ['heading', 'paragraph'],
+      }),
+      TextStyle,
+      FontFamily.configure({
+        types: ['textStyle'],
       }),
     ],
     content,
@@ -263,6 +269,30 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         >
           <AlignJustify className="h-4 w-4" />
         </Button>
+
+        <div className="w-px h-6 bg-border mx-1" />
+
+        {/* Font Family Selector */}
+        <select
+          onChange={(e) => {
+            if (e.target.value === 'default') {
+              editor.chain().focus().unsetFontFamily().run();
+            } else {
+              editor.chain().focus().setFontFamily(e.target.value).run();
+            }
+          }}
+          className="px-2 py-1 border rounded text-sm h-9"
+          defaultValue="default"
+        >
+          <option value="default">Fonte Padrão</option>
+          <option value="Arial">Arial</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Courier New">Courier New</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Comic Sans MS">Comic Sans</option>
+          <option value="Trebuchet MS">Trebuchet</option>
+        </select>
 
         <div className="w-px h-6 bg-border mx-1" />
 
