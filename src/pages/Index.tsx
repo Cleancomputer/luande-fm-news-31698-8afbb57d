@@ -12,6 +12,11 @@ import Poll from "@/components/widgets/Poll";
 import ChatWidget from "@/components/widgets/ChatWidget";
 import ContactForm from "@/components/widgets/ContactForm";
 import VLibras from "@/components/layout/VLibras";
+import SubmitContent from "@/components/widgets/SubmitContent";
+import WeatherWidget from "@/components/widgets/WeatherWidget";
+import EconomyWidget from "@/components/widgets/EconomyWidget";
+import HoroscopeWidget from "@/components/widgets/HoroscopeWidget";
+import AdSpace from "@/components/widgets/AdSpace";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -99,6 +104,11 @@ const Index = () => {
       <Header />
       
       <main className="flex-1">
+        {/* Top Ad Space */}
+        <div className="container mx-auto px-4 py-4">
+          <AdSpace position="header" />
+        </div>
+
         {/* News Carousel Section */}
         {articles.length > 0 && (
           <section className="container mx-auto px-4 py-8">
@@ -205,8 +215,13 @@ const Index = () => {
 
             {/* Sidebar */}
             <aside className="lg:w-80 space-y-6">
+              <AdSpace position="sidebar" />
+              <WeatherWidget />
+              <EconomyWidget />
+              <HoroscopeWidget />
               <PopularNews />
               <Poll />
+              <SubmitContent />
               <ContactForm />
             </aside>
           </div>

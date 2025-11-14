@@ -10,11 +10,14 @@ import Dashboard from "@/components/admin/Dashboard";
 import ContentManager from "@/components/admin/content/ContentManager";
 import PublishedArticles from "@/components/admin/PublishedArticles";
 import PollsManager from "@/components/admin/PollsManager";
+import InstagramConfig from "@/components/admin/InstagramConfig";
 import Analytics from "@/components/admin/Analytics";
 import Notifications from "@/components/admin/Notifications";
 import Reports from "@/components/admin/Reports";
 import SettingsManager from "@/components/admin/SettingsManager";
 import MessagesManager from "@/components/admin/MessagesManager";
+import SubmissionsManager from "@/components/admin/SubmissionsManager";
+import CategoriesManager from "@/components/admin/CategoriesManager";
 
 const Admin = () => {
   const { user, signOut, loading } = useAuth();
@@ -125,7 +128,10 @@ const Admin = () => {
             <Route path="/polls" element={<PollsManager />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/notifications" element={<Notifications />} />
+            <Route path="/instagram" element={<InstagramConfig />} />
             <Route path="/messages" element={<MessagesManager />} />
+            <Route path="/submissions" element={<SubmissionsManager />} />
+            <Route path="/categories" element={<CategoriesManager />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<SettingsManager />} />
           </Routes>

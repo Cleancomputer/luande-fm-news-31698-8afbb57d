@@ -1,4 +1,4 @@
-import { FileText, BarChart3, Settings, FileBarChart, Instagram, LayoutDashboard, Bell, TrendingUp, Menu, X, Eye, MessageSquare } from "lucide-react";
+import { FileText, BarChart3, Settings, FileBarChart, Instagram, LayoutDashboard, Bell, TrendingUp, Menu, X, Eye, MessageSquare, Send, FolderTree } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 
@@ -51,6 +51,20 @@ const menuItems = [
     icon: MessageSquare,
     gradient: "from-cyan-500 to-blue-500",
     color: "text-cyan-500"
+  },
+  { 
+    title: "Submissões", 
+    path: "/admin/submissions", 
+    icon: Send,
+    gradient: "from-amber-500 to-yellow-500",
+    color: "text-amber-500"
+  },
+  { 
+    title: "Categorias", 
+    path: "/admin/categories", 
+    icon: FolderTree,
+    gradient: "from-lime-500 to-green-500",
+    color: "text-lime-500"
   },
   { 
     title: "Instagram", 
