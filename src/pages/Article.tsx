@@ -70,18 +70,27 @@ const Article = () => {
         url: url,
       };
 
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        // Fallback para navegadores sem suporte
-        await navigator.clipboard.writeText(url);
-        toast.success('Link copiado para a área de transferência!');
+      // Tentar usar Web Share API se disponível
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        try {
+          await navigator.share(shareData);
+          return;
+        } catch (shareError: any) {
+          // Se usuário cancelou, não fazer nada
+          if (shareError.name === 'AbortError') {
+            return;
+          }
+          // Se deu erro, cair no fallback abaixo
+        }
       }
+      
+      // Fallback: copiar para clipboard
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copiado! Cole e compartilhe onde quiser.');
+      
     } catch (error) {
-      // Erro silencioso se usuário cancelar compartilhamento
-      if (error instanceof Error && error.name !== 'AbortError') {
-        console.error('Erro ao compartilhar:', error);
-      }
+      console.error('Erro ao compartilhar:', error);
+      toast.error('Não foi possível compartilhar. Tente novamente.');
     }
   };
 
