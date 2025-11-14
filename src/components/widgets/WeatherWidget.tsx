@@ -19,7 +19,11 @@ const WeatherWidget = () => {
     "recife": { lat: -8.0476, lon: -34.8770 },
     "manaus": { lat: -3.1190, lon: -60.0217 },
     "curitiba": { lat: -25.4284, lon: -49.2733 },
-    "porto alegre": { lat: -30.0346, lon: -51.2177 }
+    "porto alegre": { lat: -30.0346, lon: -51.2177 },
+    "belo horizonte": { lat: -19.9167, lon: -43.9345 },
+    "belém": { lat: -1.4558, lon: -48.5039 },
+    "goiânia": { lat: -16.6869, lon: -49.2648 },
+    "campinas": { lat: -22.9099, lon: -47.0626 }
   };
 
   useEffect(() => {
