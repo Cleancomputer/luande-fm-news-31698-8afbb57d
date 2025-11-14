@@ -105,6 +105,20 @@ const Index = () => {
       <Header />
       
       <main className="flex-1">
+        {/* Submit News Button */}
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex justify-center">
+            <Button 
+              onClick={() => navigate('/enviar-noticia')} 
+              size="lg"
+              className="text-lg px-8 py-6 gradient-yellow-glow hover:opacity-90 shadow-elegant"
+            >
+              <Send className="h-5 w-5 mr-2" />
+              Nos Envie Sua Notícia
+            </Button>
+          </div>
+        </div>
+
         {/* Top Ad Space */}
         <div className="container mx-auto px-4 py-4">
           <AdSpace position="header" />

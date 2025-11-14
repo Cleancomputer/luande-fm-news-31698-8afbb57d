@@ -9,9 +9,9 @@ const Footer = () => {
           {/* Logo e Sobre */}
           <div>
             <img src={logo} alt="Portal Luande" className="h-16 w-auto mb-4" />
-            <p className="text-sm text-muted-foreground">
-              Seu portal de notícias completo com informações sobre política, esportes, entretenimento, tecnologia e muito mais.
-            </p>
+          <p className="text-sm text-white/80">
+            Seu portal de notícias completo com informações sobre política, esportes, entretenimento, tecnologia e muito mais.
+          </p>
           </div>
 
           {/* Links Rápidos */}
@@ -19,22 +19,22 @@ const Footer = () => {
             <h3 className="font-bold text-lg mb-4 text-primary-foreground">Links Rápidos</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
+                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
                   Sobre Nós
                 </a>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
+                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
                   Contato
                 </a>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
+                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
                   Política de Privacidade
                 </a>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
+                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
                   Termos de Uso
                 </a>
               </li>
@@ -46,27 +46,27 @@ const Footer = () => {
             <h3 className="font-bold text-lg mb-4 text-primary-foreground">Categorias</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
+                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
                   Política
                 </a>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
+                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
                   Esportes
                 </a>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
+                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
                   Entretenimento
                 </a>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
+                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
                   Tecnologia
                 </a>
               </li>
               <li>
-                <a href="/categoria/Policial" className="text-muted-foreground hover:text-primary smooth-transition">
+                <a href="/categoria/Policial" className="text-white/80 hover:text-accent smooth-transition">
                   Policial
                 </a>
               </li>
@@ -78,18 +78,18 @@ const Footer = () => {
             <h3 className="font-bold text-lg mb-4 text-primary-foreground">Contato</h3>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2">
-                <MapPin className="h-4 w-4 mt-1 text-primary flex-shrink-0" />
-                <span className="text-muted-foreground">
+                <MapPin className="h-4 w-4 mt-1 text-accent flex-shrink-0" />
+                <span className="text-white/80">
                   Avenida 7 de junho N° 598
                 </span>
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-muted-foreground">7999801-5049</span>
+                <Phone className="h-4 w-4 text-accent flex-shrink-0" />
+                <span className="text-white/80">7999801-5049</span>
               </li>
               <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-muted-foreground">contato@luandefm.com</span>
+                <Mail className="h-4 w-4 text-accent flex-shrink-0" />
+                <span className="text-white/80">contato@luandefm.com</span>
               </li>
             </ul>
           </div>
@@ -98,7 +98,7 @@ const Footer = () => {
         {/* Redes Sociais */}
         <div className="border-t mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-white/80">
               © 2025 Portal Luande. Todos os direitos reservados.
             </p>
             <div className="flex gap-4">
