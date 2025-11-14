@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import BreakingNews from "@/components/layout/BreakingNews";
 import DateTimeBanner from "@/components/layout/DateTimeBanner";
@@ -14,6 +14,7 @@ import ContactForm from "@/components/widgets/ContactForm";
 import VLibras from "@/components/layout/VLibras";
 import WeatherWidget from "@/components/widgets/WeatherWidget";
 import { Button } from "@/components/ui/button";
+import { Send } from "lucide-react";
 import EconomyWidget from "@/components/widgets/EconomyWidget";
 import HoroscopeWidget from "@/components/widgets/HoroscopeWidget";
 import AdSpace from "@/components/widgets/AdSpace";
@@ -104,50 +105,6 @@ const Index = () => {
       <Header />
       
       <main className="flex-1">
-        {/* Submit News Button - Highlighted */}
-        <section className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 py-4 shadow-lg animate-fade-in">
-          <div className="container mx-auto px-4 flex items-center justify-center">
-            <Link to="/enviar-noticia">
-              <Button 
-                size="lg" 
-                className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 text-lg font-bold px-8 py-6 animate-pulse"
-              >
-                📰 Nos Envie Sua Notícia - Seja um Colaborador!
-              </Button>
-            </Link>
-          </div>
-        </section>
-
-        {/* YouTube Live Section */}
-        <section className="bg-gradient-to-r from-red-600 to-red-700 py-6 shadow-lg">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-white rounded-full animate-ping opacity-75"></div>
-                  <div className="relative bg-white rounded-full p-2">
-                    <svg className="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                    </svg>
-                  </div>
-                </div>
-                <div className="text-white">
-                  <h2 className="text-2xl font-bold">Assista Ao Vivo</h2>
-                  <p className="text-white/90">Portal Luande no YouTube</p>
-                </div>
-              </div>
-              <a 
-                href="https://www.youtube.com/@portalluande" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="bg-white text-red-600 hover:bg-red-50 px-8 py-3 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-              >
-                ▶ Assistir Agora
-              </a>
-            </div>
-          </div>
-        </section>
-        
         {/* Top Ad Space */}
         <div className="container mx-auto px-4 py-4">
           <AdSpace position="header" />
@@ -158,59 +115,125 @@ const Index = () => {
           <section className="container mx-auto px-4 py-8">
             <div className="mb-6">
               <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
-                <span className="gradient-text">Em Destaque</span>
+                <span className="w-1 h-8 bg-primary"></span>
+                Destaques
               </h2>
             </div>
-            <NewsCarousel items={articles.slice(0, 5).map(a => ({
-              title: a.title,
-              excerpt: a.subtitle || '',
-              image: a.image_url || '',
-              category: a.category,
-              author: 'Portal Luande',
-              date: formatDate(a.created_at)
-            }))} />
+            <NewsCarousel 
+              items={articles.slice(0, 6).map(article => ({
+                title: article.title,
+                excerpt: article.subtitle || article.content.substring(0, 150) + '...',
+                image: article.image_url || '/placeholder.svg',
+                category: article.category,
+                author: 'Redação LuandêFM',
+                date: formatDate(article.created_at),
+                slug: article.slug
+              }))}
+              onArticleClick={handleArticleClick}
+            />
+          </section>
+        )}
+
+        {/* Hero Section */}
+        {featuredArticle && (
+          <section className="container mx-auto px-4 py-8">
+            <div onClick={() => handleArticleClick(featuredArticle.slug)} className="cursor-pointer">
+              <NewsCard
+                title={featuredArticle.title}
+                excerpt={featuredArticle.subtitle || featuredArticle.content.substring(0, 200) + '...'}
+                image={featuredArticle.image_url || '/placeholder.svg'}
+                category={featuredArticle.category}
+                author="Redação LuandêFM"
+                date={formatDate(featuredArticle.created_at)}
+                featured
+              />
+            </div>
           </section>
         )}
 
         {/* Main Content Grid */}
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid lg:grid-cols-3 gap-8">
+        <section className="container mx-auto px-4 py-8">
+          <div className="flex flex-col lg:flex-row gap-8">
             {/* News Grid */}
-            <div className="lg:col-span-2 space-y-8">
-              <div className="grid md:grid-cols-2 gap-6">
-                {articles.map((article) => (
-                  <NewsCard
-                    key={article.id}
-                    title={article.title}
-                    excerpt={article.subtitle || ''}
-                    image={article.image_url || ''}
-                    category={article.category}
-                    author="Portal Luande"
-                    date={formatDate(article.created_at)}
-                  />
-                ))}
+            <div className="flex-1">
+              <div className="mb-8">
+                <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+                  <span className="w-1 h-8 bg-primary"></span>
+                  Últimas Notícias
+                </h2>
+                {articles.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground text-lg">
+                      Nenhuma notícia publicada ainda. Acompanhe nosso portal para as últimas atualizações!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {articles.slice(0, 6).map((article) => (
+                      <div key={article.id} onClick={() => handleArticleClick(article.slug)} className="cursor-pointer">
+                        <NewsCard
+                          title={article.title}
+                          excerpt={article.subtitle || article.content.substring(0, 150) + '...'}
+                          image={article.image_url || '/placeholder.svg'}
+                          category={article.category}
+                          author="Redação LuandêFM"
+                          date={formatDate(article.created_at)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {articles.length === 0 && (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground text-lg">
-                    Nenhum artigo publicado no momento.
-                  </p>
+              {/* Video Section */}
+              <div className="mb-8">
+                <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+                  <span className="w-1 h-8 bg-destructive"></span>
+                  Vídeos em Destaque
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                    <iframe
+                      className="w-full h-full"
+                      src="https://www.youtube.com/embed/i6506oIwmJE"
+                      title="LuandêFM - Vídeo 1"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                  <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                    <iframe
+                      className="w-full h-full"
+                      src="https://www.youtube.com/embed/fizu3ynz-pk"
+                      title="LuandêFM - Vídeo 2"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Sidebar */}
-            <aside className="space-y-6">
+            <aside className="lg:w-80 space-y-6">
               <WeatherWidget />
               <EconomyWidget />
               <HoroscopeWidget />
-              <ContactForm />
-              <Poll />
+              <Button 
+                onClick={() => navigate('/enviar-noticia')} 
+                className="w-full h-auto py-6 text-lg font-bold gradient-primary hover:opacity-90 transition-opacity"
+                size="lg"
+              >
+                <Send className="h-6 w-6 mr-2" />
+                Nos Envie Sua Notícia
+              </Button>
+              <AdSpace position="sidebar" />
               <PopularNews />
+              <Poll />
+              <ContactForm />
             </aside>
           </div>
-        </div>
+        </section>
       </main>
 
       <Footer />

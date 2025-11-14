@@ -69,8 +69,8 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 shadow-lg">
       {/* Main Header */}
-      <div className="bg-primary px-4 py-6">
-        <div className="container mx-auto flex items-center justify-between gap-6">
+      <div className="bg-primary container mx-auto px-4 py-6">
+        <div className="flex items-center justify-between gap-6">
           {/* Logo */}
           <a href="/" className="flex items-center transition-transform hover:scale-105">
             <img src={logo} alt="Portal Luande" className="h-20 w-auto" />

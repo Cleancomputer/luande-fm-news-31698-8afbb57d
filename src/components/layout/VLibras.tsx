@@ -2,25 +2,30 @@ import { useEffect } from "react";
 
 const VLibras = () => {
   useEffect(() => {
-    // Criar div do VLibras
+    // Criar div do VLibras primeiro
     const vlibrasDiv = document.createElement("div");
     vlibrasDiv.setAttribute("vw", "");
     vlibrasDiv.className = "enabled";
+    vlibrasDiv.innerHTML = `
+      <div vw-access-button class="active"></div>
+      <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+      </div>
+    `;
     document.body.appendChild(vlibrasDiv);
 
     // Carregar o script do VLibras
     const script = document.createElement("script");
     script.src = "https://vlibras.gov.br/app/vlibras-plugin.js";
     script.async = true;
-    script.onload = () => {
-      // Aguardar um pouco para garantir que o DOM está pronto
-      setTimeout(() => {
-        if (window.VLibras) {
-          new window.VLibras.Widget("https://vlibras.gov.br/app");
-        }
-      }, 100);
-    };
     document.body.appendChild(script);
+
+    script.onload = () => {
+      // Inicializar o VLibras após o carregamento
+      if (window.VLibras) {
+        new window.VLibras.Widget("https://vlibras.gov.br/app");
+      }
+    };
 
     // Adicionar estilos customizados para posicionar o VLibras
     const style = document.createElement("style");
