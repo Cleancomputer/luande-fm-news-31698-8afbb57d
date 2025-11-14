@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
+import { supabaseClient } from "@/lib/supabase-client";
 import BreakingNews from "@/components/layout/BreakingNews";
 import DateTimeBanner from "@/components/layout/DateTimeBanner";
 import Header from "@/components/layout/Header";
@@ -12,6 +12,7 @@ const Category = () => {
   const { category } = useParams();
   const navigate = useNavigate();
   const [articles, setArticles] = useState<any[]>([]);
+  const [categoryName, setCategoryName] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,11 +22,27 @@ const Category = () => {
   const loadArticles = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // First, get the category name from the slug
+      const { data: categoryData, error: categoryError } = await supabaseClient
+        .from('categories')
+        .select('name')
+        .eq('slug', category)
+        .single();
+
+      if (categoryError) {
+        console.error('Erro ao carregar categoria:', categoryError);
+      }
+      
+      const catName = categoryData?.name || category;
+      setCategoryName(catName);
+
+      // Then, get articles using the category name
+      const { data, error } = await supabaseClient
         .from('articles')
         .select('*')
         .eq('published', true)
-        .eq('category', category)
+        .eq('category', catName)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -76,7 +93,7 @@ const Category = () => {
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
             <span className="w-1.5 h-10 bg-primary"></span>
-            {category}
+            {categoryName || category}
           </h1>
           <p className="text-muted-foreground ml-5">
             {articles.length} {articles.length === 1 ? 'notícia encontrada' : 'notícias encontradas'}
