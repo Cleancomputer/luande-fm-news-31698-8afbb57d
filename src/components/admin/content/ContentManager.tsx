@@ -141,7 +141,17 @@ const ContentManager = () => {
     }
 
     const slug = formData.slug || generateSlug(formData.title);
-    const articleData = { ...formData, slug, author_id: user?.id };
+    
+    // Remove cover_image_index pois não existe na tabela
+    const { cover_image_index, ...dataToSave } = formData;
+    
+    const articleData = { 
+      ...dataToSave, 
+      slug, 
+      author_id: user?.id,
+      // Garantir que media_gallery seja salvo como JSON
+      media_gallery: formData.media_gallery || []
+    };
 
     try {
       if (editingId) {
