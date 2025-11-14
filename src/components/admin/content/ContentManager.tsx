@@ -491,19 +491,47 @@ const ContentManager = () => {
                 )}
               </div>
 
-              {formData.image_url && (
+              {/* Galeria de Mídia */}
+              {formData.media_gallery && formData.media_gallery.length > 0 && (
                 <div className="mb-8">
-                  <img
-                    src={formData.image_url}
-                    alt={formData.title}
-                    className="w-full h-auto rounded-lg"
-                  />
+                  {formData.media_gallery.length === 1 ? (
+                    <img
+                      src={formData.media_gallery[0].url}
+                      alt={formData.title || 'Imagem do artigo'}
+                      className="w-full h-auto rounded-lg"
+                    />
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {formData.media_gallery.map((media: any, index: number) => (
+                        <div key={index} className="relative">
+                          {media.type === 'video' ? (
+                            <video
+                              src={media.url}
+                              controls
+                              className="w-full h-auto rounded-lg"
+                            />
+                          ) : (
+                            <img
+                              src={media.url}
+                              alt={`Mídia ${index + 1}`}
+                              className="w-full h-auto rounded-lg"
+                            />
+                          )}
+                          {index === formData.cover_image_index && (
+                            <Badge className="absolute top-2 left-2 bg-primary">
+                              Capa
+                            </Badge>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
               <div 
-                className="prose prose-lg max-w-none"
-                dangerouslySetInnerHTML={{ __html: formData.content }}
+                className="prose prose-lg max-w-none dark:prose-invert"
+                dangerouslySetInnerHTML={{ __html: formData.content || '<p>Sem conteúdo</p>' }}
               />
 
               {formData.tags && formData.tags.length > 0 && (
