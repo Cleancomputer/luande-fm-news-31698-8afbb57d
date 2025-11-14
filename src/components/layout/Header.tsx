@@ -119,7 +119,7 @@ const Header = () => {
       </div>
 
       {/* Categories Navigation */}
-      <nav className="gradient-primary shadow-elegant sticky top-0 z-40 border-b border-white/10">
+      <nav className="bg-primary/30 backdrop-blur-sm shadow-elegant sticky top-0 z-40 border-b border-white/10">
         <div className="container mx-auto px-4">
           {/* Desktop Navigation */}
           <ul className="hidden lg:flex items-center justify-center gap-1 py-3">
