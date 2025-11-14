@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabaseClient } from "@/lib/supabase-client";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-new.png";
 
 interface Category {
   id: string;

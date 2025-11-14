@@ -145,10 +145,21 @@ const ContentManager = () => {
     // Remove cover_image_index pois não existe na tabela
     const { cover_image_index, ...dataToSave } = formData;
     
+    // Definir a imagem de capa (image_url) baseada na media_gallery
+    let coverImageUrl = formData.image_url || '';
+    if (formData.media_gallery && formData.media_gallery.length > 0) {
+      const coverIndex = formData.cover_image_index ?? 0;
+      const coverMedia = formData.media_gallery[coverIndex];
+      if (coverMedia && coverMedia.type === 'image') {
+        coverImageUrl = coverMedia.url;
+      }
+    }
+    
     const articleData = { 
       ...dataToSave, 
       slug, 
       author_id: user?.id,
+      image_url: coverImageUrl, // Garantir que a imagem de capa seja salva
       // Garantir que media_gallery seja salvo como JSON
       media_gallery: formData.media_gallery || []
     };
