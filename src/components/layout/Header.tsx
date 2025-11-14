@@ -1,28 +1,62 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X, Search, Shield, Radio } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { supabaseClient } from "@/lib/supabase-client";
 import logo from "@/assets/logo.png";
 
-const categories = [
-  { name: "Política", href: "/categoria/Política" },
-  { name: "Policial", href: "/categoria/Policial" },
-  { name: "Esportes", href: "/categoria/Esportes" },
-  { name: "Entretenimento", href: "/categoria/Entretenimento" },
-  { name: "Música", href: "/categoria/Música" },
-  { name: "Tecnologia", href: "/categoria/Tecnologia" },
-  { name: "Cidades", href: "/categoria/Cidades" },
-  { name: "Mundo", href: "/categoria/Mundo" },
-  { name: "Sergipe", href: "/categoria/Sergipe" },
-  { name: "Educação", href: "/categoria/Educação" },
-  { name: "Acidente", href: "/categoria/Acidente" }
-];
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  is_active: boolean;
+}
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchCategories();
+
+    // Realtime subscription for categories
+    const categoriesChannel = supabaseClient
+      .channel('categories-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'categories'
+        },
+        () => {
+          fetchCategories();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabaseClient.removeChannel(categoriesChannel);
+    };
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabaseClient
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,18 +153,18 @@ const Header = () => {
       </div>
 
       {/* Categories Navigation */}
-      <nav className="bg-primary/30 backdrop-blur-sm shadow-elegant sticky top-0 z-40 border-b border-white/10">
+      <nav className="bg-background/60 backdrop-blur-lg border-b border-border/30 shadow-sm sticky top-0 z-40">
         <div className="container mx-auto px-4">
           {/* Desktop Navigation */}
           <ul className="hidden lg:flex items-center justify-center gap-1 py-3">
             {categories.map((category) => (
-              <li key={category.name}>
+              <li key={category.id}>
                 <Link
-                  to={category.href}
-                  className="relative px-4 py-3 text-white/90 hover:text-white font-medium text-sm uppercase tracking-wider transition-all duration-300 hover:bg-white/10 rounded-md group"
+                  to={`/categoria/${category.slug}`}
+                  className="relative px-4 py-3 text-foreground/90 hover:text-primary font-medium text-sm uppercase tracking-wider transition-all duration-300 hover:bg-accent/10 rounded-md group"
                 >
                   {category.name}
-                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-accent group-hover:w-3/4 transition-all duration-300"></span>
+                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary group-hover:w-3/4 transition-all duration-300"></span>
                 </Link>
               </li>
             ))}
@@ -140,10 +174,10 @@ const Header = () => {
           {isMenuOpen && (
             <ul className="lg:hidden py-4 space-y-1">
               {categories.map((category) => (
-                <li key={category.name}>
+                <li key={category.id}>
                   <Link
-                    to={category.href}
-                    className="block px-4 py-3 text-base font-medium text-primary-foreground hover:text-accent hover:bg-primary-foreground/10 smooth-transition rounded-lg"
+                    to={`/categoria/${category.slug}`}
+                    className="block px-4 py-3 text-base font-medium text-foreground hover:text-primary hover:bg-accent/10 smooth-transition rounded-lg"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {category.name}
