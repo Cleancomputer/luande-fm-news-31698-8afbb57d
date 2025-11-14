@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { Plus, Trash2, Upload } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { RichTextEditor } from './RichTextEditor';
 import { MediaLibrary } from './MediaLibrary';
 
@@ -34,6 +35,7 @@ const ContentManager = () => {
   const [categories, setCategories] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     subtitle: '',
@@ -48,6 +50,26 @@ const ContentManager = () => {
   });
 
   useEffect(() => {
+    // Verificar se há um artigo sendo editado no localStorage
+    const editingArticle = localStorage.getItem('editingArticle');
+    if (editingArticle) {
+      const article = JSON.parse(editingArticle);
+      setEditingId(article.id);
+      setFormData({
+        title: article.title,
+        subtitle: article.subtitle || '',
+        content: article.content,
+        category: article.category,
+        image_url: article.image_url || '',
+        published: article.published,
+        featured: article.featured,
+        tags: article.tags || [],
+        slug: article.slug,
+        media_gallery: article.media_gallery || []
+      });
+      localStorage.removeItem('editingArticle');
+    }
+    
     loadArticles();
     loadCategories();
 
@@ -310,6 +332,9 @@ const ContentManager = () => {
               <Button type="submit">
                 {editingId ? 'Atualizar' : 'Criar'} Artigo
               </Button>
+              <Button type="button" variant="outline" onClick={() => setShowPreview(true)}>
+                Visualizar Preview
+              </Button>
               {editingId && (
                 <Button type="button" variant="outline" onClick={resetForm}>
                   Cancelar
@@ -367,6 +392,61 @@ const ContentManager = () => {
             </div>
             <div className="p-4">
               <MediaLibrary onSelect={handleMediaSelect} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      {showPreview && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-background rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
+            <div className="p-4 border-b flex justify-between items-center sticky top-0 bg-background z-10">
+              <h2 className="text-xl font-bold">Preview do Artigo</h2>
+              <Button variant="ghost" size="sm" onClick={() => setShowPreview(false)}>
+                <Plus className="rotate-45 w-5 h-5" />
+              </Button>
+            </div>
+            <div className="p-8">
+              <div className="mb-6">
+                <Badge className="mb-4">{formData.category || 'Sem categoria'}</Badge>
+                <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+                  {formData.title || 'Título do artigo'}
+                </h1>
+                {formData.subtitle && (
+                  <p className="text-xl text-muted-foreground mb-6">
+                    {formData.subtitle}
+                  </p>
+                )}
+              </div>
+
+              {formData.image_url && (
+                <div className="mb-8">
+                  <img
+                    src={formData.image_url}
+                    alt={formData.title}
+                    className="w-full h-auto rounded-lg"
+                  />
+                </div>
+              )}
+
+              <div 
+                className="prose prose-lg max-w-none"
+                dangerouslySetInnerHTML={{ __html: formData.content }}
+              />
+
+              {formData.tags && formData.tags.length > 0 && (
+                <div className="mt-8 pt-8 border-t">
+                  <h3 className="text-sm font-semibold mb-3">Tags:</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.tags.map((tag, index) => (
+                      <Badge key={index} variant="outline">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
