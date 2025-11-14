@@ -103,15 +103,23 @@ const SubmissionsManager = () => {
                   {submission.media_urls && submission.media_urls.length > 0 && (
                     <div className="flex gap-2 flex-wrap">
                       {submission.media_urls.map((url: string, idx: number) => (
-                        <a
-                          key={idx}
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-primary hover:underline"
-                        >
-                          Mídia {idx + 1}
-                        </a>
+                        <div key={idx} className="flex gap-2 items-center">
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-primary hover:underline"
+                          >
+                            Ver Mídia {idx + 1}
+                          </a>
+                          <a
+                            href={url}
+                            download={`media-${idx + 1}`}
+                            className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90"
+                          >
+                            Baixar
+                          </a>
+                        </div>
                       ))}
                     </div>
                   )}
