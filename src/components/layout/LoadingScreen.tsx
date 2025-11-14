@@ -51,7 +51,7 @@ const LoadingScreen = ({ onLoadingComplete }: { onLoadingComplete: () => void })
           <div className="relative w-32 h-32 flex items-center justify-center">
             <img 
               src={logo} 
-              alt="LuandêFM Logo" 
+              alt="Portal Luande" 
               className="w-full h-full object-contain animate-pulse drop-shadow-2xl"
               style={{ filter: 'drop-shadow(0 0 20px hsl(var(--primary)))' }}
             />
@@ -61,7 +61,7 @@ const LoadingScreen = ({ onLoadingComplete }: { onLoadingComplete: () => void })
         {/* Loading text */}
         <div className="text-center space-y-4">
           <h2 className="text-2xl font-bold text-foreground animate-pulse">
-            LuandêFM
+            Portal Luande
           </h2>
           
           {/* Progress bar */}

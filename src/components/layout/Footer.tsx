@@ -3,12 +3,12 @@ import logo from "@/assets/logo.png";
 
 const Footer = () => {
   return (
-    <footer className="bg-card border-t mt-16">
+    <footer className="bg-primary border-t mt-16">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Logo e Sobre */}
           <div>
-            <img src={logo} alt="LuandêFM" className="h-16 w-auto mb-4" />
+            <img src={logo} alt="Portal Luande" className="h-16 w-auto mb-4" />
             <p className="text-sm text-muted-foreground">
               Seu portal de notícias completo com informações sobre política, esportes, entretenimento, tecnologia e muito mais.
             </p>
@@ -16,7 +16,7 @@ const Footer = () => {
 
           {/* Links Rápidos */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Links Rápidos</h3>
+            <h3 className="font-bold text-lg mb-4 text-primary-foreground">Links Rápidos</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
@@ -43,7 +43,7 @@ const Footer = () => {
 
           {/* Categorias */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Categorias</h3>
+            <h3 className="font-bold text-lg mb-4 text-primary-foreground">Categorias</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
@@ -66,8 +66,8 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary smooth-transition">
-                  Polícia
+                <a href="/categoria/Policial" className="text-muted-foreground hover:text-primary smooth-transition">
+                  Policial
                 </a>
               </li>
             </ul>
@@ -75,7 +75,7 @@ const Footer = () => {
 
           {/* Contato */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Contato</h3>
+            <h3 className="font-bold text-lg mb-4 text-primary-foreground">Contato</h3>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-1 text-primary flex-shrink-0" />
@@ -99,7 +99,7 @@ const Footer = () => {
         <div className="border-t mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              © 2025 LuandêFM. Todos os direitos reservados.
+              © 2025 Portal Luande. Todos os direitos reservados.
             </p>
             <div className="flex gap-4">
               <a

@@ -13,6 +13,7 @@ import Article from "./pages/Article";
 import Category from "./pages/Category";
 import Search from "./pages/Search";
 import LoadingScreen from "./components/layout/LoadingScreen";
+import VLibras from "./components/layout/VLibras";
 
 // Create QueryClient outside component to avoid recreation on every render
 const queryClient = new QueryClient({
@@ -45,6 +46,7 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <VLibras />
         <BrowserRouter
           future={{
             v7_startTransition: true,
