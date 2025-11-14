@@ -62,20 +62,26 @@ const Article = () => {
   };
 
   const handleShare = async () => {
-    const url = window.location.href;
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: article?.title,
-          text: article?.subtitle || article?.title,
-          url: url,
-        });
-      } catch (error) {
+    try {
+      const url = window.location.href;
+      const shareData = {
+        title: article?.title || 'LuandêFM Portal',
+        text: article?.subtitle || article?.title || 'Confira esta notícia',
+        url: url,
+      };
+
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback para navegadores sem suporte
+        await navigator.clipboard.writeText(url);
+        toast.success('Link copiado para a área de transferência!');
+      }
+    } catch (error) {
+      // Erro silencioso se usuário cancelar compartilhamento
+      if (error instanceof Error && error.name !== 'AbortError') {
         console.error('Erro ao compartilhar:', error);
       }
-    } else {
-      navigator.clipboard.writeText(url);
-      toast.success('Link copiado para a área de transferência!');
     }
   };
 
