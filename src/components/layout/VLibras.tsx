@@ -27,15 +27,22 @@ const VLibras = () => {
     style.innerHTML = `
       div[vw-access-button] {
         position: fixed !important;
-        right: 0 !important;
-        top: 50% !important;
-        transform: translateY(-50%) !important;
-        bottom: auto !important;
-        z-index: 40 !important;
+        right: 16px !important;
+        bottom: 16px !important;
+        z-index: 9999 !important;
       }
       
       div[vw-plugin-wrapper] {
+        position: fixed !important;
         right: 0 !important;
+        z-index: 9998 !important;
+      }
+
+      @media (max-width: 768px) {
+        div[vw-access-button] {
+          right: 8px !important;
+          bottom: 8px !important;
+        }
       }
     `;
     document.head.appendChild(style);
