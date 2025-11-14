@@ -104,46 +104,38 @@ const Index = () => {
       <Header />
       
       <main className="flex-1">
-        {/* Submit News Button - Highlighted */}
-        <section className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 py-4 shadow-lg animate-fade-in">
+        {/* Submit News Button */}
+        <section className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 py-4 shadow-lg">
           <div className="container mx-auto px-4 flex items-center justify-center">
             <Link to="/enviar-noticia">
               <Button 
                 size="lg" 
-                className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 text-lg font-bold px-8 py-6 animate-pulse"
+                className="bg-blue-600 hover:bg-blue-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 text-lg font-bold px-8 py-4"
               >
-                📰 Nos Envie Sua Notícia - Seja um Colaborador!
+                Nos Envie Sua Notícia
               </Button>
             </Link>
           </div>
         </section>
 
-        {/* YouTube Live Section */}
-        <section className="bg-gradient-to-r from-red-600 to-red-700 py-6 shadow-lg">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-white rounded-full animate-ping opacity-75"></div>
-                  <div className="relative bg-white rounded-full p-2">
-                    <svg className="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                    </svg>
-                  </div>
-                </div>
-                <div className="text-white">
-                  <h2 className="text-2xl font-bold">Assista Ao Vivo</h2>
-                  <p className="text-white/90">Portal Luande no YouTube</p>
-                </div>
-              </div>
-              <a 
-                href="https://www.youtube.com/@portalluande" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="bg-white text-red-600 hover:bg-red-50 px-8 py-3 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-              >
-                ▶ Assistir Agora
-              </a>
+        {/* YouTube Live Player */}
+        <section className="container mx-auto px-4 py-6">
+          <div className="bg-card rounded-lg shadow-lg overflow-hidden">
+            <div className="aspect-video">
+              <iframe
+                width="100%"
+                height="100%"
+                src="https://www.youtube.com/embed/live_stream?channel=UCvosUrZ89ajMHNWNWNwBngg&autoplay=1&mute=0"
+                title="Portal Luande - Ao Vivo"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              ></iframe>
+            </div>
+            <div className="p-4 bg-red-600 text-white">
+              <h3 className="text-xl font-bold">🔴 Assista Ao Vivo - Portal Luande FM</h3>
+              <p className="text-sm opacity-90">Acompanhe nossa programação ao vivo no YouTube</p>
             </div>
           </div>
         </section>
@@ -175,10 +167,11 @@ const Index = () => {
         {/* Main Content Grid */}
         <div className="container mx-auto px-4 py-8">
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* News Grid */}
+            {/* News Grid - Últimas Notícias */}
             <div className="lg:col-span-2 space-y-8">
+              <h2 className="text-2xl font-bold mb-4">Últimas Notícias</h2>
               <div className="grid md:grid-cols-2 gap-6">
-                {articles.map((article) => (
+                {articles.slice(5, 13).map((article) => (
                   <NewsCard
                     key={article.id}
                     title={article.title}
