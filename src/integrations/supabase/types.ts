@@ -174,6 +174,33 @@ export type Database = {
         }
         Relationships: []
       }
+      categories: {
+        Row: {
+          created_at: string
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           created_at: string
@@ -400,6 +427,42 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_submissions: {
+        Row: {
+          admin_notes: string | null
+          contact: string
+          created_at: string
+          description: string
+          id: string
+          media_urls: string[] | null
+          name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          contact: string
+          created_at?: string
+          description: string
+          id?: string
+          media_urls?: string[] | null
+          name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          contact?: string
+          created_at?: string
+          description?: string
+          id?: string
+          media_urls?: string[] | null
+          name?: string
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
