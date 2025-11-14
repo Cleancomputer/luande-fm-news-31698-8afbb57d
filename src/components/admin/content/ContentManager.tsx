@@ -46,7 +46,8 @@ const ContentManager = () => {
     featured: false,
     tags: [] as string[],
     slug: '',
-    media_gallery: [] as any[]
+    media_gallery: [] as any[],
+    cover_image_index: 0
   });
 
   useEffect(() => {
@@ -65,7 +66,8 @@ const ContentManager = () => {
         featured: article.featured,
         tags: article.tags || [],
         slug: article.slug,
-        media_gallery: article.media_gallery || []
+        media_gallery: article.media_gallery || [],
+        cover_image_index: 0
       });
       localStorage.removeItem('editingArticle');
     }
@@ -197,7 +199,8 @@ const ContentManager = () => {
       featured: article.featured,
       tags: article.tags || [],
       slug: article.slug,
-      media_gallery: article.media_gallery || []
+      media_gallery: article.media_gallery || [],
+      cover_image_index: 0
     });
   };
 
@@ -213,13 +216,32 @@ const ContentManager = () => {
       featured: false,
       tags: [],
       slug: '',
-      media_gallery: []
+      media_gallery: [],
+      cover_image_index: 0
     });
   };
 
   const handleMediaSelect = (url: string) => {
-    setFormData(prev => ({ ...prev, image_url: url }));
+    setFormData(prev => ({ 
+      ...prev, 
+      media_gallery: [...prev.media_gallery, { url, type: 'image' }]
+    }));
     setShowMediaLibrary(false);
+  };
+
+  const handleRemoveMedia = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      media_gallery: prev.media_gallery.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleSetCoverImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      cover_image_index: index,
+      image_url: prev.media_gallery[index]?.url || ''
+    }));
   };
 
   return (
@@ -271,22 +293,61 @@ const ContentManager = () => {
             </div>
 
             <div>
-              <Label htmlFor="image_url">Imagem de Destaque</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="URL da imagem"
-                />
+              <Label>Galeria de Mídia (até 3 itens)</Label>
+              <div className="space-y-4">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setShowMediaLibrary(true)}
+                  disabled={formData.media_gallery.length >= 3}
+                  className="w-full"
                 >
                   <Upload className="w-4 h-4 mr-2" />
-                  Biblioteca
+                  {formData.media_gallery.length === 0 
+                    ? 'Adicionar Mídia' 
+                    : `Adicionar Mídia (${formData.media_gallery.length}/3)`}
                 </Button>
+                
+                {formData.media_gallery.length > 0 && (
+                  <div className="grid grid-cols-3 gap-4">
+                    {formData.media_gallery.map((media: any, index: number) => (
+                      <div key={index} className="relative group">
+                        <img 
+                          src={media.url} 
+                          alt={`Mídia ${index + 1}`}
+                          className={`w-full h-32 object-cover rounded-lg border-2 ${
+                            index === formData.cover_image_index 
+                              ? 'border-primary' 
+                              : 'border-border'
+                          }`}
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => handleSetCoverImage(index)}
+                          >
+                            {index === formData.cover_image_index ? 'Capa' : 'Definir Capa'}
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleRemoveMedia(index)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        {index === formData.cover_image_index && (
+                          <Badge className="absolute top-2 left-2 bg-primary">
+                            Capa
+                          </Badge>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 

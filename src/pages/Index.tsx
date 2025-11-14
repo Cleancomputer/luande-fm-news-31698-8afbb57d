@@ -169,8 +169,8 @@ const Index = () => {
 
             {/* Right Column - Widgets + Mini Player */}
             <div className="space-y-6">
-              {/* YouTube Mini Player - Lateral */}
-              <div className="sticky top-4">
+              {/* YouTube Mini Player - Fixed Sticky on Desktop */}
+              <div className="lg:sticky lg:top-4">
                 <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
                   <span className="w-1 h-6 bg-red-600"></span>
                   Ao Vivo
@@ -201,14 +201,14 @@ const Index = () => {
         {/* YouTube Featured Videos Section */}
         <section className="container mx-auto px-4 mb-12">
           <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
-            <span className="w-1.5 h-10 bg-primary"></span>
+            <span className="w-1.5 h-10 bg-red-600"></span>
             Vídeos em Destaque
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="aspect-video rounded-lg overflow-hidden shadow-lg">
               <iframe
                 className="w-full h-full"
-                src="https://www.youtube.com/embed/UCS35bHapJqRtfG9kcq9f9FA"
+                src="https://www.youtube.com/embed/fizu3ynz-pk"
                 title="Vídeo em Destaque 1"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -218,7 +218,7 @@ const Index = () => {
             <div className="aspect-video rounded-lg overflow-hidden shadow-lg">
               <iframe
                 className="w-full h-full"
-                src="https://www.youtube.com/embed/UCS35bHapJqRtfG9kcq9f9FA"
+                src="https://www.youtube.com/embed/SAotJezU9qA"
                 title="Vídeo em Destaque 2"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

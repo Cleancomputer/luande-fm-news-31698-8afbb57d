@@ -167,7 +167,7 @@ const Article = () => {
           )}
 
           <div 
-            className="prose prose-lg max-w-none mb-8 [&>p]:mb-4 [&>h1]:mb-4 [&>h2]:mb-4 [&>h3]:mb-4 [&>ul]:mb-4 [&>ol]:mb-4 [&>blockquote]:mb-4"
+            className="prose prose-lg max-w-none mb-8 [&>p]:mb-4 [&>p]:leading-relaxed [&>h1]:mb-4 [&>h1]:mt-6 [&>h2]:mb-4 [&>h2]:mt-6 [&>h3]:mb-4 [&>h3]:mt-6 [&>ul]:mb-4 [&>ol]:mb-4 [&>blockquote]:mb-4 [&>blockquote]:pl-4 [&>blockquote]:border-l-4"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
 
