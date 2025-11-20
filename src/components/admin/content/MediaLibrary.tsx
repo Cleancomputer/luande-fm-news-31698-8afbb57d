@@ -90,10 +90,11 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp'],
-      'video/*': ['.mp4', '.webm'],
-      'audio/*': ['.mp3', '.wav'],
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp'],
+      'video/*': ['.mp4', '.webm', '.avi', '.mov', '.mkv', '.flv', '.wmv', '.m4v', '.3gp'],
+      'audio/*': ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac'],
     },
+    maxSize: 524288000, // 500MB
   });
 
   const handleDelete = async (id: string, filePath: string) => {
