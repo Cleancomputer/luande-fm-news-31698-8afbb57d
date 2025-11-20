@@ -8,7 +8,7 @@ interface AdSpaceProps {
 
 const AdSpace = ({ position, className = "" }: AdSpaceProps) => {
   const dimensions = {
-    header: "w-full h-32 md:h-40",
+    header: "w-full h-24 md:h-28",
     sidebar: "w-full h-64",
     content: "w-full h-32",
     footer: "w-full h-24"
