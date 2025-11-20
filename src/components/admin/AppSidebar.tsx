@@ -1,4 +1,4 @@
-import { FileText, BarChart3, Settings, FileBarChart, Instagram, LayoutDashboard, Bell, TrendingUp } from "lucide-react";
+import { FileText, BarChart3, Settings, FileBarChart, Instagram, LayoutDashboard, Bell, TrendingUp, CalendarDays } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -17,6 +17,7 @@ const menuItems = [
   { title: "Dashboard", path: "/admin", icon: LayoutDashboard },
   { title: "Conteúdo", path: "/admin/content", icon: FileText },
   { title: "Enquetes", path: "/admin/polls", icon: BarChart3 },
+  { title: "Eventos", path: "/admin/events", icon: CalendarDays },
   { title: "Analytics", path: "/admin/analytics", icon: TrendingUp },
   { title: "Notificações", path: "/admin/notifications", icon: Bell },
   { title: "Instagram", path: "/admin/instagram", icon: Instagram },

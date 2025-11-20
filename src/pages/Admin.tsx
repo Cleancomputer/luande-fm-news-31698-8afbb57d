@@ -18,6 +18,7 @@ import SettingsManager from "@/components/admin/SettingsManager";
 import MessagesManager from "@/components/admin/MessagesManager";
 import SubmissionsManager from "@/components/admin/SubmissionsManager";
 import CategoriesManager from "@/components/admin/CategoriesManager";
+import { EventsManager } from "@/components/admin/EventsManager";
 
 const Admin = () => {
   const { user, signOut, loading } = useAuth();
@@ -126,6 +127,7 @@ const Admin = () => {
             <Route path="/content" element={<ContentManager />} />
             <Route path="/published" element={<PublishedArticles />} />
             <Route path="/polls" element={<PollsManager />} />
+            <Route path="/events" element={<EventsManager />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/instagram" element={<InstagramConfig />} />

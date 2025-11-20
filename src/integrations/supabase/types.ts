@@ -228,6 +228,51 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          contact_info: string | null
+          created_at: string
+          description: string
+          event_date: string
+          event_type: string
+          id: string
+          image_url: string | null
+          location: string
+          organizer: string | null
+          published: boolean | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          contact_info?: string | null
+          created_at?: string
+          description: string
+          event_date: string
+          event_type: string
+          id?: string
+          image_url?: string | null
+          location: string
+          organizer?: string | null
+          published?: boolean | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          contact_info?: string | null
+          created_at?: string
+          description?: string
+          event_date?: string
+          event_type?: string
+          id?: string
+          image_url?: string | null
+          location?: string
+          organizer?: string | null
+          published?: boolean | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       instagram_config: {
         Row: {
           id: string
