@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import adBoaluz from "@/assets/ad-boaluz.jpg";
 
 interface AdSpaceProps {
   position: "header" | "sidebar" | "content" | "footer";
@@ -12,6 +13,19 @@ const AdSpace = ({ position, className = "" }: AdSpaceProps) => {
     content: "w-full h-32",
     footer: "w-full h-24"
   };
+
+  // Usar a imagem do anunciante apenas para o espaço header
+  if (position === "header") {
+    return (
+      <div className={`${dimensions[position]} ${className} overflow-hidden rounded-lg`}>
+        <img 
+          src={adBoaluz} 
+          alt="Ótica & Joalheria Boa Luz" 
+          className="w-full h-full object-cover"
+        />
+      </div>
+    );
+  }
 
   return (
     <Card className={`${dimensions[position]} ${className} flex items-center justify-center bg-muted/50 border-dashed`}>
