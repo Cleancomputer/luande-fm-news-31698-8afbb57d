@@ -15,6 +15,7 @@ import Search from "./pages/Search";
 import SubmitNews from "./pages/SubmitNews";
 import LoadingScreen from "./components/layout/LoadingScreen";
 import VLibras from "./components/layout/VLibras";
+import AdSense from "./components/layout/AdSense";
 
 // Create QueryClient outside component to avoid recreation on every render
 const queryClient = new QueryClient({
@@ -54,6 +55,7 @@ const App = () => {
             v7_relativeSplatPath: true,
           }}
         >
+          <AdSense />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/artigo/:slug" element={<Article />} />
