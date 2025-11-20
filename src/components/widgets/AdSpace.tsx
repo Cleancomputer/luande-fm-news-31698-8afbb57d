@@ -8,7 +8,7 @@ interface AdSpaceProps {
 
 const AdSpace = ({ position, className = "" }: AdSpaceProps) => {
   const dimensions = {
-    header: "w-full h-24",
+    header: "w-full h-32 md:h-40",
     sidebar: "w-full h-64",
     content: "w-full h-32",
     footer: "w-full h-24"
@@ -17,11 +17,11 @@ const AdSpace = ({ position, className = "" }: AdSpaceProps) => {
   // Usar a imagem do anunciante apenas para o espaço header
   if (position === "header") {
     return (
-      <div className={`${dimensions[position]} ${className} overflow-hidden rounded-lg`}>
+      <div className={`${dimensions[position]} ${className} overflow-hidden rounded-lg bg-muted/20 flex items-center justify-center`}>
         <img 
           src={adBoaluz} 
           alt="Ótica & Joalheria Boa Luz" 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
       </div>
     );
