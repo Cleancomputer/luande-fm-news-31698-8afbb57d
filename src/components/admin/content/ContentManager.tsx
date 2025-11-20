@@ -242,10 +242,10 @@ const ContentManager = () => {
     });
   };
 
-  const handleMediaSelect = (url: string) => {
+  const handleMediaSelect = (media: { url: string; type: 'image' | 'video' }) => {
     setFormData(prev => ({ 
       ...prev, 
-      media_gallery: [...prev.media_gallery, { url, type: 'image' }]
+      media_gallery: [...prev.media_gallery, media]
     }));
     setShowMediaLibrary(false);
   };

@@ -15,8 +15,13 @@ interface Media {
   created_at: string;
 }
 
+interface SelectedMedia {
+  url: string;
+  type: 'image' | 'video';
+}
+
 interface MediaLibraryProps {
-  onSelect?: (url: string) => void;
+  onSelect?: (media: SelectedMedia) => void;
   allowMultiple?: boolean;
 }
 
@@ -94,7 +99,6 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
       'video/*': ['.mp4', '.webm', '.avi', '.mov', '.mkv', '.flv', '.wmv', '.m4v', '.3gp'],
       'audio/*': ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac'],
     },
-    maxSize: 524288000, // 500MB
   });
 
   const handleDelete = async (id: string, filePath: string) => {
@@ -116,6 +120,25 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
     }
   };
 
+  const handleSelect = (item: Media) => {
+    if (!onSelect) return;
+
+    const isImage = item.file_type.startsWith('image/');
+    const isVideo = item.file_type.startsWith('video/');
+
+    if (!isImage && !isVideo) {
+      toast.error('Apenas imagens e vídeos podem ser adicionados ao artigo.');
+      return;
+    }
+
+    const selected: SelectedMedia = {
+      url: item.file_path,
+      type: isVideo ? 'video' : 'image',
+    };
+
+    onSelect(selected);
+  };
+
   return (
     <div className="space-y-4">
       <Card>
@@ -134,7 +157,7 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
                 : 'Arraste arquivos ou clique para selecionar'}
             </p>
             <p className="text-xs text-muted-foreground mt-2">
-              Suporta imagens, vídeos e áudio
+              Suporta imagens, vídeos e áudio (tamanho máximo definido pelo servidor)
             </p>
           </div>
         </CardContent>
@@ -149,7 +172,15 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
                   src={item.file_path}
                   alt={item.file_name}
                   className="w-full h-32 object-cover rounded cursor-pointer"
-                  onClick={() => onSelect && onSelect(item.file_path)}
+                  onClick={() => handleSelect(item)}
+                />
+              ) : item.file_type.startsWith('video/') ? (
+                <video
+                  src={item.file_path}
+                  className="w-full h-32 object-cover rounded cursor-pointer"
+                  onClick={() => handleSelect(item)}
+                  muted
+                  controls
                 />
               ) : (
                 <div className="w-full h-32 bg-muted rounded flex items-center justify-center">
