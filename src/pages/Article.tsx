@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import VLibras from "@/components/layout/VLibras";
 import { MediaGalleryCarousel } from "@/components/article/MediaGalleryCarousel";
 import { ShareDialog } from "@/components/article/ShareDialog";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface Article {
   id: string;
@@ -22,6 +23,7 @@ interface Article {
   created_at: string;
   tags: string[] | null;
   media_gallery: any;
+  slug: string;
 }
 
 const Article = () => {
@@ -30,6 +32,7 @@ const Article = () => {
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
 
   useEffect(() => {
     loadArticle();
@@ -54,12 +57,35 @@ const Article = () => {
           p_traffic_source: 'direct'
         });
       }
+
+      // Carregar artigos relacionados
+      if (data?.category && data?.id) {
+        loadRelatedArticles(data.category, data.id);
+      }
     } catch (error) {
       console.error('Erro ao carregar artigo:', error);
       toast.error('Artigo não encontrado');
       navigate('/');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadRelatedArticles = async (category: string, currentArticleId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('category', category)
+        .eq('published', true)
+        .neq('id', currentArticleId)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      if (error) throw error;
+      setRelatedArticles(data || []);
+    } catch (error) {
+      console.error('Erro ao carregar artigos relacionados:', error);
     }
   };
 
@@ -168,6 +194,48 @@ const Article = () => {
                   <Badge key={index} variant="secondary">
                     {tag}
                   </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {relatedArticles.length > 0 && (
+            <div className="mt-12 pt-8 border-t border-border">
+              <h2 className="text-2xl font-bold mb-6">Matérias Relacionadas</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {relatedArticles.map((related) => (
+                  <Card 
+                    key={related.id}
+                    className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                    onClick={() => navigate(`/artigo/${related.slug}`)}
+                  >
+                    {related.image_url && (
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={related.image_url}
+                          alt={related.title}
+                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                        />
+                        <Badge className="absolute top-2 left-2">
+                          {related.category}
+                        </Badge>
+                      </div>
+                    )}
+                    <CardContent className="p-4">
+                      <h3 className="font-bold text-lg mb-2 line-clamp-2 hover:text-primary transition-colors">
+                        {related.title}
+                      </h3>
+                      {related.subtitle && (
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                          {related.subtitle}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Clock className="w-3 h-3" />
+                        <span>{formatDate(related.created_at)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             </div>
