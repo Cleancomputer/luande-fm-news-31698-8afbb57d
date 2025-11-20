@@ -13,6 +13,7 @@ import Article from "./pages/Article";
 import Category from "./pages/Category";
 import Search from "./pages/Search";
 import SubmitNews from "./pages/SubmitNews";
+import Events from "./pages/Events";
 import LoadingScreen from "./components/layout/LoadingScreen";
 import VLibras from "./components/layout/VLibras";
 import AdSense from "./components/layout/AdSense";
@@ -62,6 +63,7 @@ const App = () => {
             <Route path="/categoria/:category" element={<Category />} />
             <Route path="/busca" element={<Search />} />
             <Route path="/enviar-noticia" element={<SubmitNews />} />
+            <Route path="/eventos" element={<Events />} />
             <Route path="/login" element={<Login />} />
             <Route path="/create-admin" element={<CreateAdmin />} />
             <Route path="/admin/*" element={<Admin />} />

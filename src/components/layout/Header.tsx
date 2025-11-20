@@ -168,6 +168,15 @@ const Header = () => {
                 </Link>
               </li>
             ))}
+            <li>
+              <Link
+                to="/eventos"
+                className="relative px-4 py-3 text-foreground/90 hover:text-primary font-medium text-sm uppercase tracking-wider transition-all duration-300 hover:bg-accent/10 rounded-md group"
+              >
+                Eventos
+                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary group-hover:w-3/4 transition-all duration-300"></span>
+              </Link>
+            </li>
           </ul>
 
           {/* Mobile Navigation */}
@@ -184,6 +193,15 @@ const Header = () => {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link
+                  to="/eventos"
+                  className="block px-4 py-3 text-base font-medium text-foreground hover:text-primary hover:bg-accent/10 smooth-transition rounded-lg"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Eventos
+                </Link>
+              </li>
             </ul>
           )}
         </div>

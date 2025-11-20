@@ -1,4 +1,4 @@
-import { FileText, BarChart3, Settings, FileBarChart, Instagram, LayoutDashboard, Bell, TrendingUp, Menu, X, Eye, MessageSquare, Send, FolderTree } from "lucide-react";
+import { FileText, BarChart3, Settings, FileBarChart, Instagram, LayoutDashboard, Bell, TrendingUp, Menu, X, Eye, MessageSquare, Send, FolderTree, CalendarDays } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 
@@ -30,6 +30,13 @@ const menuItems = [
     icon: BarChart3,
     gradient: "from-green-500 to-emerald-500",
     color: "text-green-500"
+  },
+  { 
+    title: "Eventos", 
+    path: "/admin/events", 
+    icon: CalendarDays,
+    gradient: "from-violet-500 to-purple-500",
+    color: "text-violet-500"
   },
   { 
     title: "Analytics", 
