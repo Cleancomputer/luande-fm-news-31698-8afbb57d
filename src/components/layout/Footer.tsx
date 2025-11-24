@@ -1,4 +1,5 @@
 import { Facebook, Instagram, Youtube, Mail, MapPin, Phone } from "lucide-react";
+import { Link } from "react-router-dom";
 import logo from "@/assets/logo-new.png";
 
 const Footer = () => {
@@ -19,24 +20,24 @@ const Footer = () => {
             <h3 className="font-bold text-lg mb-4 text-primary-foreground">Links Rápidos</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="/sobre-nos" className="text-white/80 hover:text-accent smooth-transition">
+                <Link to="/sobre-nos" className="text-white/80 hover:text-accent smooth-transition">
                   Sobre Nós
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/contato" className="text-white/80 hover:text-accent smooth-transition">
+                <Link to="/contato" className="text-white/80 hover:text-accent smooth-transition">
                   Contato
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/politica-de-privacidade" className="text-white/80 hover:text-accent smooth-transition">
+                <Link to="/politica-de-privacidade" className="text-white/80 hover:text-accent smooth-transition">
                   Política de Privacidade
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/termos-de-uso" className="text-white/80 hover:text-accent smooth-transition">
+                <Link to="/termos-de-uso" className="text-white/80 hover:text-accent smooth-transition">
                   Termos de Uso
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -46,29 +47,29 @@ const Footer = () => {
             <h3 className="font-bold text-lg mb-4 text-primary-foreground">Categorias</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
+                <Link to="/categoria/Política" className="text-white/80 hover:text-accent smooth-transition">
                   Política
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
+                <Link to="/categoria/Esportes" className="text-white/80 hover:text-accent smooth-transition">
                   Esportes
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
+                <Link to="/categoria/Entretenimento" className="text-white/80 hover:text-accent smooth-transition">
                   Entretenimento
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
+                <Link to="/categoria/Tecnologia" className="text-white/80 hover:text-accent smooth-transition">
                   Tecnologia
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/categoria/Policial" className="text-white/80 hover:text-accent smooth-transition">
+                <Link to="/categoria/Policial" className="text-white/80 hover:text-accent smooth-transition">
                   Policial
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
