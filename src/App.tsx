@@ -14,6 +14,10 @@ import Category from "./pages/Category";
 import Search from "./pages/Search";
 import SubmitNews from "./pages/SubmitNews";
 import Events from "./pages/Events";
+import AboutUs from "./pages/AboutUs";
+import Contact from "./pages/Contact";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfUse from "./pages/TermsOfUse";
 import LoadingScreen from "./components/layout/LoadingScreen";
 import VLibras from "./components/layout/VLibras";
 import AdSense from "./components/layout/AdSense";
@@ -64,6 +68,10 @@ const App = () => {
             <Route path="/busca" element={<Search />} />
             <Route path="/enviar-noticia" element={<SubmitNews />} />
             <Route path="/eventos" element={<Events />} />
+            <Route path="/sobre-nos" element={<AboutUs />} />
+            <Route path="/contato" element={<Contact />} />
+            <Route path="/politica-de-privacidade" element={<PrivacyPolicy />} />
+            <Route path="/termos-de-uso" element={<TermsOfUse />} />
             <Route path="/login" element={<Login />} />
             <Route path="/create-admin" element={<CreateAdmin />} />
             <Route path="/admin/*" element={<Admin />} />

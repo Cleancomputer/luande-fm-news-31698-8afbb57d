@@ -19,22 +19,22 @@ const Footer = () => {
             <h3 className="font-bold text-lg mb-4 text-primary-foreground">Links Rápidos</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
+                <a href="/sobre-nos" className="text-white/80 hover:text-accent smooth-transition">
                   Sobre Nós
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
+                <a href="/contato" className="text-white/80 hover:text-accent smooth-transition">
                   Contato
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
+                <a href="/politica-de-privacidade" className="text-white/80 hover:text-accent smooth-transition">
                   Política de Privacidade
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white/80 hover:text-accent smooth-transition">
+                <a href="/termos-de-uso" className="text-white/80 hover:text-accent smooth-transition">
                   Termos de Uso
                 </a>
               </li>
