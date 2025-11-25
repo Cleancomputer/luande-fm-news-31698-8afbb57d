@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import EconomyWidget from "@/components/widgets/EconomyWidget";
 import HoroscopeWidget from "@/components/widgets/HoroscopeWidget";
 import AdSpace from "@/components/widgets/AdSpace";
+import appPromo from "@/assets/app-promo.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -160,6 +161,15 @@ const Index = () => {
                     allowFullScreen
                   ></iframe>
                 </div>
+              </div>
+
+              {/* App Promo Banner */}
+              <div className="mb-8">
+                <img 
+                  src={appPromo} 
+                  alt="Portal Luandê App - Em breve"
+                  className="w-full h-auto rounded-lg shadow-lg"
+                />
               </div>
 
               {/* Latest News Section */}
