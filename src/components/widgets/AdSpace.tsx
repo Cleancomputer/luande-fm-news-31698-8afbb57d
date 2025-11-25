@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import adBoaluz from "@/assets/ad-boaluz.jpg";
-import adAnuncieAqui from "@/assets/ad-anuncie-aqui.jpg";
+import adAnuncieAqui from "@/assets/ad-anuncie-aqui.png";
 
 interface AdSpaceProps {
   position: "header" | "sidebar" | "content" | "footer";
