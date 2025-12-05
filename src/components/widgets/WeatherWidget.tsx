@@ -1,49 +1,51 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Cloud, Search } from "lucide-react";
+import { Cloud, Search, MapPin } from "lucide-react";
 
 const WeatherWidget = () => {
   const [city, setCity] = useState("Aracaju");
-  const [inputCity, setInputCity] = useState("Aracaju");
+  const [inputCity, setInputCity] = useState("");
   const [weather, setWeather] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-
-  const cityCoordinates: Record<string, { lat: number; lon: number }> = {
-    "aracaju": { lat: -10.9472, lon: -37.0731 },
-    "são paulo": { lat: -23.5505, lon: -46.6333 },
-    "rio de janeiro": { lat: -22.9068, lon: -43.1729 },
-    "brasília": { lat: -15.7801, lon: -47.9292 },
-    "salvador": { lat: -12.9714, lon: -38.5014 },
-    "fortaleza": { lat: -3.7319, lon: -38.5267 },
-    "recife": { lat: -8.0476, lon: -34.8770 },
-    "manaus": { lat: -3.1190, lon: -60.0217 },
-    "curitiba": { lat: -25.4284, lon: -49.2733 },
-    "porto alegre": { lat: -30.0346, lon: -51.2177 },
-    "belo horizonte": { lat: -19.9167, lon: -43.9345 },
-    "belém": { lat: -1.4558, lon: -48.5039 },
-    "goiânia": { lat: -16.6869, lon: -49.2648 },
-    "campinas": { lat: -22.9099, lon: -47.0626 }
-  };
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchWeather(city);
+    fetchWeatherByCity("Aracaju");
   }, []);
 
-  const fetchWeather = async (searchCity: string) => {
+  const fetchWeatherByCity = async (searchCity: string) => {
+    if (!searchCity.trim()) return;
+    
     setLoading(true);
+    setError(null);
+    
     try {
-      const normalizedCity = searchCity.toLowerCase().trim();
-      const coords = cityCoordinates[normalizedCity] || cityCoordinates["aracaju"];
-      
-      const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,relative_humidity_2m,weather_code&timezone=America/Sao_Paulo`
+      // First, get coordinates from city name using Open-Meteo Geocoding API
+      const geoResponse = await fetch(
+        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchCity)}&count=1&language=pt&format=json`
       );
-      const data = await response.json();
-      setWeather(data);
-      setCity(searchCity);
-    } catch (error) {
-      console.error("Error fetching weather:", error);
+      const geoData = await geoResponse.json();
+      
+      if (!geoData.results || geoData.results.length === 0) {
+        setError("Cidade não encontrada");
+        setLoading(false);
+        return;
+      }
+      
+      const { latitude, longitude, name, admin1 } = geoData.results[0];
+      
+      // Then fetch weather data
+      const weatherResponse = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code&timezone=America/Sao_Paulo`
+      );
+      const weatherData = await weatherResponse.json();
+      
+      setWeather(weatherData);
+      setCity(admin1 ? `${name}, ${admin1}` : name);
+    } catch (err) {
+      console.error("Error fetching weather:", err);
+      setError("Erro ao buscar previsão");
     } finally {
       setLoading(false);
     }
@@ -51,7 +53,10 @@ const WeatherWidget = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchWeather(inputCity);
+    if (inputCity.trim()) {
+      fetchWeatherByCity(inputCity);
+      setInputCity("");
+    }
   };
 
   const getWeatherDescription = (code: number) => {
@@ -76,7 +81,7 @@ const WeatherWidget = () => {
             type="text"
             value={inputCity}
             onChange={(e) => setInputCity(e.target.value)}
-            placeholder="Digite a cidade"
+            placeholder="Digite o nome da cidade"
             className="flex-1"
           />
           <button type="submit" className="p-2 hover:bg-muted rounded-md transition-colors">
@@ -88,8 +93,16 @@ const WeatherWidget = () => {
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           </div>
+        ) : error ? (
+          <div className="text-center py-4 text-destructive">
+            {error}
+          </div>
         ) : weather?.current && (
           <div className="text-center space-y-2">
+            <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
+              <MapPin className="h-4 w-4" />
+              {city}
+            </div>
             <div className="text-4xl font-bold">
               {Math.round(weather.current.temperature_2m)}°C
             </div>
