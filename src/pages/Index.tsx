@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import EconomyWidget from "@/components/widgets/EconomyWidget";
 import HoroscopeWidget from "@/components/widgets/HoroscopeWidget";
 import AdSpace from "@/components/widgets/AdSpace";
+import FootballResults from "@/components/widgets/FootballResults";
 import appPromo from "@/assets/app-promo.png";
 
 const Index = () => {
@@ -215,6 +216,7 @@ const Index = () => {
                 </div>
               </div>
 
+              <FootballResults />
               <PopularNews />
               <WeatherWidget />
               <Poll />
