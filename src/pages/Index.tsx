@@ -18,6 +18,7 @@ import EconomyWidget from "@/components/widgets/EconomyWidget";
 import HoroscopeWidget from "@/components/widgets/HoroscopeWidget";
 import AdSpace from "@/components/widgets/AdSpace";
 import FootballResults from "@/components/widgets/FootballResults";
+import TrocandoEmMiudos from "@/components/widgets/TrocandoEmMiudos";
 import appPromo from "@/assets/app-promo.png";
 
 const Index = () => {
@@ -194,6 +195,9 @@ const Index = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Trocando em Miúdos Section */}
+              <TrocandoEmMiudos />
             </div>
 
             {/* Right Column - Widgets + Mini Player */}

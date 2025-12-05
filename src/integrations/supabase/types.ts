@@ -55,6 +55,44 @@ export type Database = {
           },
         ]
       }
+      article_discussions: {
+        Row: {
+          article_id: string | null
+          comment: string
+          created_at: string
+          emoji: string | null
+          id: string
+          likes_count: number | null
+          user_name: string
+        }
+        Insert: {
+          article_id?: string | null
+          comment: string
+          created_at?: string
+          emoji?: string | null
+          id?: string
+          likes_count?: number | null
+          user_name: string
+        }
+        Update: {
+          article_id?: string | null
+          comment?: string
+          created_at?: string
+          emoji?: string | null
+          id?: string
+          likes_count?: number | null
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_discussions_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       article_versions: {
         Row: {
           article_id: string | null
