@@ -1,1 +1,10 @@
 project_id = "iyijnxplswxeezhkowpn"
+
+[functions.generate-image]
+verify_jwt = false
+
+[functions.generate-image-designer]
+verify_jwt = false
+
+[functions.create-admin-user]
+verify_jwt = false
