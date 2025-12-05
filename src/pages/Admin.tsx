@@ -87,11 +87,11 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-background">
       <AdminSidebar />
       
       {/* Main Content - com margem para o sidebar */}
-      <div className="lg:ml-72 min-h-screen flex flex-col">
+      <div className="lg:ml-64 min-h-screen flex flex-col transition-all duration-300">
         {/* Header */}
         <header className="sticky top-0 z-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 shadow-sm">
           <div className="px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
