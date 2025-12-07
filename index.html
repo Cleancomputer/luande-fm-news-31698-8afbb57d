@@ -61,6 +61,47 @@
 
     gtag('config', 'G-55MH95818K');
   </script>
+
+  <!-- Structured Data - NewsMediaOrganization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "NewsMediaOrganization",
+    "name": "Portal Luandê Notícias",
+    "url": "https://luandefm.vercel.app",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://storage.googleapis.com/gpt-engineer-file-uploads/j5I1wDmykQduHQAkT4lnKyPxmha2/uploads/1763088643534-5522.png"
+    },
+    "sameAs": [
+      "https://www.youtube.com/@luandefm9842"
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "availableLanguage": "Portuguese"
+    },
+    "description": "Portal de notícias completo com informações sobre política, esportes, entretenimento, tecnologia e muito mais."
+  }
+  </script>
+
+  <!-- Structured Data - WebSite with SearchAction -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Portal Luandê Notícias",
+    "url": "https://luandefm.vercel.app",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://luandefm.vercel.app/busca?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
 </head>
 
   <body>
