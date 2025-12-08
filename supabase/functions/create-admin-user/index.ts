@@ -22,48 +22,79 @@ Deno.serve(async (req) => {
       }
     )
 
-    // Criar o usuário admin
-    const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
-      email: 'admin@admin.com',
-      password: 'admin123',
-      email_confirm: true,
-      user_metadata: {
-        role: 'admin'
-      }
-    })
+    const results = []
 
-    if (userError) {
-      console.error('Erro ao criar usuário:', userError)
-      return new Response(
-        JSON.stringify({ error: userError.message }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // Adicionar role de admin na tabela user_roles
-    const { error: roleError } = await supabaseAdmin
-      .from('user_roles')
-      .insert({
-        user_id: userData.user.id,
-        role: 'admin'
+    // Usuário 1: Admin principal (djalmeidajunior@gmail.com)
+    try {
+      const { data: adminUser, error: adminError } = await supabaseAdmin.auth.admin.createUser({
+        email: 'djalmeidajunior@gmail.com',
+        password: '2728',
+        email_confirm: true,
+        user_metadata: {
+          role: 'admin'
+        }
       })
 
-    if (roleError) {
-      console.error('Erro ao adicionar role:', roleError)
-      return new Response(
-        JSON.stringify({ error: roleError.message }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      if (adminError) {
+        console.log('Admin user might already exist:', adminError.message)
+        results.push({ email: 'djalmeidajunior@gmail.com', status: 'exists or error', message: adminError.message })
+      } else {
+        // Adicionar role de admin
+        const { error: roleError } = await supabaseAdmin
+          .from('user_roles')
+          .insert({
+            user_id: adminUser.user.id,
+            role: 'admin'
+          })
+
+        if (roleError) {
+          console.log('Role might already exist:', roleError.message)
+        }
+        results.push({ email: 'djalmeidajunior@gmail.com', status: 'created', role: 'admin' })
+      }
+    } catch (err) {
+      console.error('Error creating admin user:', err)
+      results.push({ email: 'djalmeidajunior@gmail.com', status: 'error', message: String(err) })
+    }
+
+    // Usuário 2: Editor/Colaborador (colaborador@luande.com)
+    try {
+      const { data: editorUser, error: editorError } = await supabaseAdmin.auth.admin.createUser({
+        email: 'colaborador@luande.com',
+        password: 'admin123@',
+        email_confirm: true,
+        user_metadata: {
+          role: 'editor'
+        }
+      })
+
+      if (editorError) {
+        console.log('Editor user might already exist:', editorError.message)
+        results.push({ email: 'colaborador@luande.com', status: 'exists or error', message: editorError.message })
+      } else {
+        // Adicionar role de editor
+        const { error: roleError } = await supabaseAdmin
+          .from('user_roles')
+          .insert({
+            user_id: editorUser.user.id,
+            role: 'editor'
+          })
+
+        if (roleError) {
+          console.log('Role might already exist:', roleError.message)
+        }
+        results.push({ email: 'colaborador@luande.com', status: 'created', role: 'editor' })
+      }
+    } catch (err) {
+      console.error('Error creating editor user:', err)
+      results.push({ email: 'colaborador@luande.com', status: 'error', message: String(err) })
     }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Usuário admin criado com sucesso!',
-        user: {
-          id: userData.user.id,
-          email: userData.user.email
-        }
+        message: 'Usuários processados!',
+        results
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
