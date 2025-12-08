@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -21,14 +21,16 @@ import CategoriesManager from "@/components/admin/CategoriesManager";
 import { EventsManager } from "@/components/admin/EventsManager";
 import Designer from "@/components/admin/Designer";
 
+type UserRole = 'admin' | 'editor' | null;
+
 const Admin = () => {
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole>(null);
   const [checkingRole, setCheckingRole] = useState(true);
 
   useEffect(() => {
-    const checkAdminRole = async () => {
+    const checkUserRole = async () => {
       if (!user) {
         navigate("/login");
         return;
@@ -39,18 +41,17 @@ const Admin = () => {
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id)
-          .eq('role', 'admin')
           .maybeSingle();
 
         if (error) throw error;
 
-        if (!data) {
-          toast.error("Acesso negado. Você não é um administrador.");
+        if (!data || (data.role !== 'admin' && data.role !== 'editor')) {
+          toast.error("Acesso negado. Você não tem permissão.");
           navigate("/");
           return;
         }
 
-        setIsAdmin(true);
+        setUserRole(data.role as UserRole);
       } catch (error) {
         console.error('Erro ao verificar role:', error);
         toast.error("Erro ao verificar permissões");
@@ -61,7 +62,7 @@ const Admin = () => {
     };
 
     if (!loading) {
-      checkAdminRole();
+      checkUserRole();
     }
   }, [user, loading, navigate]);
 
@@ -82,13 +83,15 @@ const Admin = () => {
     );
   }
 
-  if (!isAdmin) {
+  if (!userRole) {
     return null;
   }
 
+  const isAdmin = userRole === 'admin';
+
   return (
     <div className="min-h-screen bg-background">
-      <AdminSidebar />
+      <AdminSidebar userRole={userRole} />
       
       {/* Main Content - com margem para o sidebar */}
       <div className="lg:ml-64 min-h-screen flex flex-col transition-all duration-300">
@@ -97,7 +100,7 @@ const Admin = () => {
           <div className="px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
             <div className="ml-16 lg:ml-0">
               <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                Painel Administrativo
+                Painel {isAdmin ? 'Administrativo' : 'do Editor'}
               </h1>
             </div>
             <div className="flex gap-2">
@@ -124,20 +127,30 @@ const Admin = () => {
         {/* Page Content */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/content" element={<ContentManager />} />
-            <Route path="/published" element={<PublishedArticles />} />
-            <Route path="/polls" element={<PollsManager />} />
-            <Route path="/events" element={<EventsManager />} />
-            <Route path="/designer" element={<Designer />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/instagram" element={<InstagramConfig />} />
-            <Route path="/messages" element={<MessagesManager />} />
-            <Route path="/submissions" element={<SubmissionsManager />} />
-            <Route path="/categories" element={<CategoriesManager />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/settings" element={<SettingsManager />} />
+            {isAdmin ? (
+              <>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/content" element={<ContentManager />} />
+                <Route path="/published" element={<PublishedArticles />} />
+                <Route path="/polls" element={<PollsManager />} />
+                <Route path="/events" element={<EventsManager />} />
+                <Route path="/designer" element={<Designer />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/instagram" element={<InstagramConfig />} />
+                <Route path="/messages" element={<MessagesManager />} />
+                <Route path="/submissions" element={<SubmissionsManager />} />
+                <Route path="/categories" element={<CategoriesManager />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/settings" element={<SettingsManager />} />
+              </>
+            ) : (
+              <>
+                <Route path="/" element={<Navigate to="/admin/content" replace />} />
+                <Route path="/content" element={<ContentManager />} />
+                <Route path="*" element={<Navigate to="/admin/content" replace />} />
+              </>
+            )}
           </Routes>
         </main>
       </div>

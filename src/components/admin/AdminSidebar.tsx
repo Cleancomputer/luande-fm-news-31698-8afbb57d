@@ -7,82 +7,105 @@ import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-const menuItems = [
+const allMenuItems = [
   { 
     title: "Dashboard", 
     path: "/admin", 
     icon: LayoutDashboard,
+    adminOnly: true,
   },
   { 
     title: "Conteúdo", 
     path: "/admin/content", 
     icon: FileText,
+    adminOnly: false,
   },
   { 
     title: "Matérias Publicadas", 
     path: "/admin/published", 
     icon: Eye,
+    adminOnly: true,
   },
   { 
     title: "Categorias", 
     path: "/admin/categories", 
     icon: FolderTree,
+    adminOnly: true,
   },
   { 
     title: "Enquetes", 
     path: "/admin/polls", 
     icon: BarChart3,
+    adminOnly: true,
   },
   { 
     title: "Eventos", 
     path: "/admin/events", 
     icon: CalendarDays,
+    adminOnly: true,
   },
   { 
     title: "Designer IA", 
     path: "/admin/designer", 
     icon: Wand2,
+    adminOnly: true,
   },
   { 
     title: "Analytics", 
     path: "/admin/analytics", 
     icon: TrendingUp,
+    adminOnly: true,
   },
   { 
     title: "Notificações", 
     path: "/admin/notifications", 
     icon: Bell,
+    adminOnly: true,
   },
   { 
     title: "Mensagens", 
     path: "/admin/messages", 
     icon: MessageSquare,
+    adminOnly: true,
   },
   { 
     title: "Submissões", 
     path: "/admin/submissions", 
     icon: Send,
+    adminOnly: true,
   },
   { 
     title: "Instagram", 
     path: "/admin/instagram", 
     icon: Instagram,
+    adminOnly: true,
   },
   { 
     title: "Relatórios", 
     path: "/admin/reports", 
     icon: FileBarChart,
+    adminOnly: true,
   },
   { 
     title: "Configurações", 
     path: "/admin/settings", 
     icon: Settings,
+    adminOnly: true,
   },
 ];
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  userRole: 'admin' | 'editor';
+}
+
+export function AdminSidebar({ userRole }: AdminSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const isAdmin = userRole === 'admin';
+  const menuItems = isAdmin 
+    ? allMenuItems 
+    : allMenuItems.filter(item => !item.adminOnly);
 
   return (
     <>
@@ -118,7 +141,7 @@ export function AdminSidebar() {
           {!isCollapsed && (
             <div>
               <h2 className="text-lg font-bold text-sidebar-foreground">
-                Admin
+                {isAdmin ? 'Admin' : 'Editor'}
               </h2>
               <p className="text-xs text-sidebar-foreground/60">Portal Luandê</p>
             </div>
