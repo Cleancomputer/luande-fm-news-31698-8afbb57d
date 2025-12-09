@@ -1,15 +1,14 @@
-import { useState, useEffect, useCallback, useMemo, memo, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Plus, Trash2, Upload, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Upload, Loader2, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { RichTextEditor } from './RichTextEditor';
 import { MediaLibrary } from './MediaLibrary';
@@ -28,8 +27,36 @@ interface Article {
   media_gallery: any;
 }
 
+interface FormData {
+  title: string;
+  subtitle: string;
+  content: string;
+  category: string;
+  image_url: string;
+  published: boolean;
+  featured: boolean;
+  tags: string[];
+  slug: string;
+  media_gallery: any[];
+  cover_image_index: number;
+}
+
+const initialFormData: FormData = {
+  title: '',
+  subtitle: '',
+  content: '',
+  category: '',
+  image_url: '',
+  published: false,
+  featured: false,
+  tags: [],
+  slug: '',
+  media_gallery: [],
+  cover_image_index: 0
+};
+
 const ContentManager = () => {
-  const { user, userRole } = useAuth();
+  const { userRole } = useAuth();
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -37,20 +64,15 @@ const ContentManager = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const submittingRef = useRef(false);
-  const [formData, setFormData] = useState({
-    title: '',
-    subtitle: '',
-    content: '',
-    category: '',
-    image_url: '',
-    published: false,
-    featured: false,
-    tags: [] as string[],
-    slug: '',
-    media_gallery: [] as any[],
-    cover_image_index: 0
-  });
+  
+  // Usar ref para form data para evitar problemas de closure
+  const formDataRef = useRef<FormData>(initialFormData);
+  const [formData, setFormData] = useState<FormData>(initialFormData);
+  
+  // Sincronizar ref com state
+  useEffect(() => {
+    formDataRef.current = formData;
+  }, [formData]);
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -60,13 +82,13 @@ const ContentManager = () => {
       setLoading(false);
     };
     
-    // Verificar se há um artigo sendo editado no localStorage
+    // Verificar artigo em edição no localStorage
     const editingArticle = localStorage.getItem('editingArticle');
     if (editingArticle) {
       try {
         const article = JSON.parse(editingArticle);
         setEditingId(article.id);
-        setFormData({
+        const newFormData = {
           title: article.title,
           subtitle: article.subtitle || '',
           content: article.content,
@@ -78,18 +100,19 @@ const ContentManager = () => {
           slug: article.slug,
           media_gallery: article.media_gallery || [],
           cover_image_index: 0
-        });
+        };
+        setFormData(newFormData);
         localStorage.removeItem('editingArticle');
       } catch (e) {
-        console.error('Erro ao carregar artigo do localStorage:', e);
+        console.error('Erro ao carregar artigo:', e);
       }
     }
     
     loadInitialData();
 
-    // Realtime subscription for categories only (articles são carregados manualmente)
+    // Subscription para categorias
     const categoriesChannel = supabase
-      .channel('categories-content-changes')
+      .channel('categories-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, loadCategories)
       .subscribe();
 
@@ -98,7 +121,7 @@ const ContentManager = () => {
     };
   }, []);
 
-  const loadCategories = useCallback(async () => {
+  const loadCategories = async () => {
     try {
       const { data, error } = await supabase
         .from('categories')
@@ -110,9 +133,9 @@ const ContentManager = () => {
     } catch (error) {
       console.error('Erro ao carregar categorias:', error);
     }
-  }, []);
+  };
 
-  const loadArticles = useCallback(async () => {
+  const loadArticles = async () => {
     try {
       const { data, error } = await supabase
         .from('articles')
@@ -125,7 +148,7 @@ const ContentManager = () => {
     } catch (error) {
       console.error('Erro ao carregar artigos:', error);
     }
-  }, []);
+  };
 
   const generateSlug = (title: string) => {
     return title
@@ -140,83 +163,66 @@ const ContentManager = () => {
 
   const resetForm = useCallback(() => {
     setEditingId(null);
-    setFormData({
-      title: '',
-      subtitle: '',
-      content: '',
-      category: '',
-      image_url: '',
-      published: false,
-      featured: false,
-      tags: [],
-      slug: '',
-      media_gallery: [],
-      cover_image_index: 0
-    });
+    setFormData(initialFormData);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Captura os valores atuais do formulário imediatamente
-    const currentFormData = { ...formData };
-
-    if (!currentFormData.title || !currentFormData.content || !currentFormData.category) {
-      toast.error('Preencha todos os campos obrigatórios');
+    // Prevenir múltiplos cliques
+    if (submitting) {
+      console.log('Já está salvando...');
       return;
     }
 
-    // Verificação de conteúdo mínimo (evitar conteúdo vazio do editor)
-    if (currentFormData.content === '<p></p>' || currentFormData.content.trim() === '') {
-      toast.error('O conteúdo do artigo não pode estar vazio');
+    // Capturar dados atuais do formulário da ref
+    const currentData = { ...formDataRef.current };
+
+    // Validações
+    if (!currentData.title.trim()) {
+      toast.error('Digite o título do artigo');
+      return;
+    }
+    if (!currentData.category) {
+      toast.error('Selecione uma categoria');
+      return;
+    }
+    if (!currentData.content || currentData.content === '<p></p>' || currentData.content.trim() === '') {
+      toast.error('O conteúdo não pode estar vazio');
       return;
     }
 
-    // Previne duplo clique usando ref para evitar problemas de closure
-    if (submittingRef.current) {
-      console.log('Submissão já em andamento, ignorando...');
-      return;
-    }
-    
-    submittingRef.current = true;
     setSubmitting(true);
 
     try {
-      console.log('Iniciando salvamento do artigo...');
-      console.log('Conteúdo a ser salvo:', currentFormData.content.substring(0, 100) + '...');
-      
-      // Busca userId diretamente do Supabase para garantir
+      // Buscar sessão atualizada
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError || !sessionData?.session?.user?.id) {
-        console.error('Erro ao obter sessão:', sessionError);
-        toast.error('Sessão expirada. Por favor, faça login novamente.');
-        submittingRef.current = false;
+        toast.error('Sessão expirada. Faça login novamente.');
         setSubmitting(false);
         return;
       }
 
       const currentUserId = sessionData.session.user.id;
-      console.log('Usuário autenticado:', currentUserId);
-
-      const slug = currentFormData.slug || generateSlug(currentFormData.title);
+      const slug = currentData.slug || generateSlug(currentData.title);
       
-      // Definir a imagem de capa (image_url) baseada na media_gallery
-      let coverImageUrl = currentFormData.image_url || '';
-      if (currentFormData.media_gallery && currentFormData.media_gallery.length > 0) {
-        const coverIndex = currentFormData.cover_image_index ?? 0;
-        const coverMedia = currentFormData.media_gallery[coverIndex];
-        if (coverMedia && coverMedia.type === 'image') {
+      // Definir imagem de capa
+      let coverImageUrl = currentData.image_url || '';
+      if (currentData.media_gallery.length > 0) {
+        const coverIndex = currentData.cover_image_index ?? 0;
+        const coverMedia = currentData.media_gallery[coverIndex];
+        if (coverMedia?.type === 'image') {
           coverImageUrl = coverMedia.url;
         }
       }
       
-      // Se for editor e está publicando, enviar para aprovação
+      // Lógica de aprovação para editores
       const isEditor = userRole === 'editor';
-      const isPublishing = currentFormData.published;
+      const isPublishing = currentData.published;
       
-      let finalPublished = currentFormData.published;
-      let finalStatus = currentFormData.published ? 'published' : 'draft';
+      let finalPublished = currentData.published;
+      let finalStatus = currentData.published ? 'published' : 'draft';
       
       if (isEditor && isPublishing && !editingId) {
         finalPublished = false;
@@ -224,33 +230,31 @@ const ContentManager = () => {
       }
       
       const articleData = { 
-        title: currentFormData.title,
-        subtitle: currentFormData.subtitle,
-        content: currentFormData.content,
-        category: currentFormData.category,
-        tags: currentFormData.tags,
-        featured: currentFormData.featured,
+        title: currentData.title.trim(),
+        subtitle: currentData.subtitle.trim(),
+        content: currentData.content,
+        category: currentData.category,
+        tags: currentData.tags,
+        featured: currentData.featured,
         slug, 
         author_id: currentUserId,
         image_url: coverImageUrl,
-        media_gallery: currentFormData.media_gallery || [],
+        media_gallery: currentData.media_gallery || [],
         published: finalPublished,
         status: finalStatus
       };
 
-      console.log('Dados do artigo preparados:', { title: articleData.title, category: articleData.category });
+      console.log('Salvando artigo:', articleData.title);
 
       let saveError = null;
 
       if (editingId) {
-        console.log('Atualizando artigo:', editingId);
         const { error } = await supabase
           .from('articles')
           .update(articleData)
           .eq('id', editingId);
         saveError = error;
       } else {
-        console.log('Criando novo artigo');
         const { error } = await supabase
           .from('articles')
           .insert([articleData]);
@@ -260,54 +264,46 @@ const ContentManager = () => {
       if (saveError) {
         console.error('Erro ao salvar:', saveError);
         toast.error(saveError.message || 'Erro ao salvar artigo');
-        submittingRef.current = false;
         setSubmitting(false);
         return;
       }
       
-      console.log('Artigo salvo com sucesso');
-      
+      // Sucesso
       if (editingId) {
-        toast.success('Artigo atualizado com sucesso!');
+        toast.success('Artigo atualizado!');
       } else if (finalStatus === 'pending_approval') {
         toast.success('Artigo enviado para aprovação!');
       } else {
-        toast.success('Artigo criado com sucesso!');
+        toast.success('Artigo publicado!');
       }
 
-      // Limpa formulário e recarrega lista
       resetForm();
       await loadArticles();
     } catch (error: any) {
-      console.error('Erro ao salvar artigo:', error);
-      toast.error(error?.message || 'Erro ao salvar artigo');
+      console.error('Erro:', error);
+      toast.error(error?.message || 'Erro ao salvar');
     } finally {
-      submittingRef.current = false;
       setSubmitting(false);
     }
   };
 
-  const handleDelete = useCallback(async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este artigo?')) return;
+  const handleDelete = async (id: string) => {
+    if (!confirm('Excluir este artigo?')) return;
 
     try {
-      const { error } = await supabase
-        .from('articles')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await supabase.from('articles').delete().eq('id', id);
       if (error) throw error;
-      toast.success('Artigo excluído com sucesso!');
+      toast.success('Artigo excluído!');
       setArticles(prev => prev.filter(a => a.id !== id));
     } catch (error) {
-      console.error('Erro ao excluir artigo:', error);
-      toast.error('Erro ao excluir artigo');
+      console.error('Erro:', error);
+      toast.error('Erro ao excluir');
     }
-  }, []);
+  };
 
-  const handleEdit = useCallback((article: Article) => {
+  const handleEdit = (article: Article) => {
     setEditingId(article.id);
-    setFormData({
+    const newFormData = {
       title: article.title,
       subtitle: article.subtitle || '',
       content: article.content,
@@ -319,35 +315,42 @@ const ContentManager = () => {
       slug: article.slug,
       media_gallery: article.media_gallery || [],
       cover_image_index: 0
-    });
-    // Scroll para o topo do formulário no mobile
+    };
+    setFormData(newFormData);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+  };
 
-  const handleMediaSelect = useCallback((media: { url: string; type: 'image' | 'video' }) => {
-    setFormData(prev => ({ 
-      ...prev, 
-      media_gallery: [...prev.media_gallery, media]
-    }));
+  const handleMediaSelect = (media: { url: string; type: 'image' | 'video' }) => {
+    setFormData(prev => {
+      const updated = { 
+        ...prev, 
+        media_gallery: [...prev.media_gallery, media]
+      };
+      return updated;
+    });
     setShowMediaLibrary(false);
-  }, []);
+  };
 
-  const handleRemoveMedia = useCallback((index: number) => {
+  const handleRemoveMedia = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      media_gallery: prev.media_gallery.filter((_, i) => i !== index)
+      media_gallery: prev.media_gallery.filter((_, i) => i !== index),
+      cover_image_index: prev.cover_image_index >= index ? Math.max(0, prev.cover_image_index - 1) : prev.cover_image_index
     }));
-  }, []);
+  };
 
-  const handleSetCoverImage = useCallback((index: number) => {
+  const handleSetCoverImage = (index: number) => {
     setFormData(prev => ({
       ...prev,
       cover_image_index: index,
       image_url: prev.media_gallery[index]?.url || ''
     }));
-  }, []);
+  };
 
-  // Loading state
+  const updateFormField = (field: keyof FormData, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -364,32 +367,35 @@ const ContentManager = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Título */}
             <div>
               <Label htmlFor="title">Título *</Label>
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => updateFormField('title', e.target.value)}
                 placeholder="Título do artigo"
                 required
               />
             </div>
 
+            {/* Subtítulo */}
             <div>
               <Label htmlFor="subtitle">Subtítulo</Label>
               <Input
                 id="subtitle"
                 value={formData.subtitle}
-                onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                onChange={(e) => updateFormField('subtitle', e.target.value)}
                 placeholder="Subtítulo do artigo"
               />
             </div>
 
+            {/* Categoria */}
             <div>
               <Label htmlFor="category">Categoria *</Label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
+                onValueChange={(value) => updateFormField('category', value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione uma categoria" />
@@ -404,6 +410,7 @@ const ContentManager = () => {
               </Select>
             </div>
 
+            {/* Galeria de Mídia */}
             <div>
               <Label>Galeria de Mídia (até 3 itens)</Label>
               <div className="space-y-4">
@@ -421,41 +428,39 @@ const ContentManager = () => {
                 </Button>
                 
                 {formData.media_gallery.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {formData.media_gallery.map((media: any, index: number) => (
-                      <div key={index} className="relative group">
+                      <div key={index} className="relative group rounded-lg overflow-hidden border">
                         <img 
                           src={media.url} 
                           alt={`Mídia ${index + 1}`}
-                          className={`w-full h-24 sm:h-32 object-cover rounded-lg border-2 ${
+                          className={`w-full h-24 sm:h-32 object-cover ${
                             index === formData.cover_image_index 
-                              ? 'border-primary' 
-                              : 'border-border'
+                              ? 'ring-2 ring-primary' 
+                              : ''
                           }`}
                           loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-black/50 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1 sm:gap-2">
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                           <Button
                             type="button"
                             size="sm"
                             variant="secondary"
                             onClick={() => handleSetCoverImage(index)}
-                            className="text-xs px-2 py-1 h-auto"
                           >
-                            {index === formData.cover_image_index ? 'Capa' : 'Capa'}
+                            Capa
                           </Button>
                           <Button
                             type="button"
                             size="sm"
                             variant="destructive"
                             onClick={() => handleRemoveMedia(index)}
-                            className="h-auto p-1 sm:p-2"
                           >
-                            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                         {index === formData.cover_image_index && (
-                          <Badge className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-primary text-xs">
+                          <Badge className="absolute top-1 left-1 bg-primary text-xs">
                             Capa
                           </Badge>
                         )}
@@ -466,30 +471,33 @@ const ContentManager = () => {
               </div>
             </div>
 
+            {/* Editor de Conteúdo */}
             <div>
               <Label htmlFor="content">Conteúdo *</Label>
               <RichTextEditor
                 content={formData.content}
-                onChange={(content) => setFormData({ ...formData, content })}
+                onChange={(content) => updateFormField('content', content)}
               />
             </div>
 
+            {/* Slug */}
             <div>
               <Label htmlFor="slug">Slug (URL)</Label>
               <Input
                 id="slug"
                 value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                onChange={(e) => updateFormField('slug', e.target.value)}
                 placeholder="url-do-artigo"
               />
             </div>
 
-            <div className="flex items-center gap-4">
+            {/* Switches */}
+            <div className="flex items-center gap-6">
               <div className="flex items-center space-x-2">
                 <Switch
                   id="published"
                   checked={formData.published}
-                  onCheckedChange={(checked) => setFormData({ ...formData, published: checked })}
+                  onCheckedChange={(checked) => updateFormField('published', checked)}
                 />
                 <Label htmlFor="published">Publicado</Label>
               </div>
@@ -498,28 +506,43 @@ const ContentManager = () => {
                 <Switch
                   id="featured"
                   checked={formData.featured}
-                  onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })}
+                  onCheckedChange={(checked) => updateFormField('featured', checked)}
                 />
                 <Label htmlFor="featured">Destaque</Label>
               </div>
             </div>
 
+            {/* Botões de ação */}
             <div className="flex flex-wrap gap-2">
-              <Button type="submit" disabled={submitting} className="flex-1 sm:flex-none">
+              <Button 
+                type="submit" 
+                disabled={submitting} 
+                className="flex-1 sm:flex-none min-w-[140px]"
+              >
                 {submitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Salvando...
                   </>
                 ) : (
-                  <>{editingId ? 'Atualizar' : 'Criar'} Artigo</>
+                  <>{editingId ? 'Atualizar' : 'Publicar'} Artigo</>
                 )}
               </Button>
-              <Button type="button" variant="outline" onClick={() => setShowPreview(true)} className="flex-1 sm:flex-none">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setShowPreview(true)} 
+                className="flex-1 sm:flex-none"
+              >
                 Preview
               </Button>
               {editingId && (
-                <Button type="button" variant="outline" onClick={resetForm} className="flex-1 sm:flex-none">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={resetForm} 
+                  className="flex-1 sm:flex-none"
+                >
                   Cancelar
                 </Button>
               )}
@@ -531,19 +554,19 @@ const ContentManager = () => {
       {/* Lista de Artigos */}
       <Card>
         <CardHeader>
-          <CardTitle>Artigos</CardTitle>
+          <CardTitle>Artigos Recentes</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {articles.map((article) => (
               <div key={article.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex-1">
-                  <h3 className="font-semibold">{article.title}</h3>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold truncate">{article.title}</h3>
                   <p className="text-sm text-muted-foreground">
                     {article.category} • {article.published ? 'Publicado' : 'Rascunho'}
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 ml-2">
                   <Button variant="outline" size="sm" onClick={() => handleEdit(article)}>
                     Editar
                   </Button>
@@ -563,37 +586,51 @@ const ContentManager = () => {
         </CardContent>
       </Card>
 
-      {/* Media Library Modal */}
+      {/* Modal da Biblioteca de Mídia */}
       {showMediaLibrary && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-background rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
-            <div className="p-4 border-b flex justify-between items-center">
+        <div 
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={(e) => e.target === e.currentTarget && setShowMediaLibrary(false)}
+        >
+          <div className="bg-background rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-4 border-b flex justify-between items-center shrink-0">
               <h2 className="text-xl font-bold">Biblioteca de Mídia</h2>
-              <Button variant="ghost" size="sm" onClick={() => setShowMediaLibrary(false)}>
-                <Plus className="rotate-45 w-5 h-5" />
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowMediaLibrary(false)}
+              >
+                <X className="w-5 h-5" />
               </Button>
             </div>
-            <div className="p-4">
+            <div className="p-4 overflow-y-auto flex-1">
               <MediaLibrary onSelect={handleMediaSelect} />
             </div>
           </div>
         </div>
       )}
 
-      {/* Preview Modal */}
+      {/* Modal de Preview */}
       {showPreview && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-background rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
-            <div className="p-4 border-b flex justify-between items-center sticky top-0 bg-background z-10">
+        <div 
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={(e) => e.target === e.currentTarget && setShowPreview(false)}
+        >
+          <div className="bg-background rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-4 border-b flex justify-between items-center shrink-0">
               <h2 className="text-xl font-bold">Preview do Artigo</h2>
-              <Button variant="ghost" size="sm" onClick={() => setShowPreview(false)}>
-                <Plus className="rotate-45 w-5 h-5" />
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowPreview(false)}
+              >
+                <X className="w-5 h-5" />
               </Button>
             </div>
-            <div className="p-8">
+            <div className="p-8 overflow-y-auto flex-1">
               <div className="mb-6">
                 <Badge className="mb-4">{formData.category || 'Sem categoria'}</Badge>
-                <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+                <h1 className="text-4xl font-bold mb-4 leading-tight">
                   {formData.title || 'Título do artigo'}
                 </h1>
                 {formData.subtitle && (
@@ -603,13 +640,12 @@ const ContentManager = () => {
                 )}
               </div>
 
-              {/* Galeria de Mídia */}
-              {formData.media_gallery && formData.media_gallery.length > 0 && (
+              {formData.media_gallery.length > 0 && (
                 <div className="mb-8">
                   {formData.media_gallery.length === 1 ? (
                     <img
                       src={formData.media_gallery[0].url}
-                      alt={formData.title || 'Imagem do artigo'}
+                      alt={formData.title}
                       className="w-full h-auto rounded-lg"
                     />
                   ) : (
@@ -617,22 +653,12 @@ const ContentManager = () => {
                       {formData.media_gallery.map((media: any, index: number) => (
                         <div key={index} className="relative">
                           {media.type === 'video' ? (
-                            <video
-                              src={media.url}
-                              controls
-                              className="w-full h-auto rounded-lg"
-                            />
+                            <video src={media.url} controls className="w-full h-auto rounded-lg" />
                           ) : (
-                            <img
-                              src={media.url}
-                              alt={`Mídia ${index + 1}`}
-                              className="w-full h-auto rounded-lg"
-                            />
+                            <img src={media.url} alt={`Mídia ${index + 1}`} className="w-full h-auto rounded-lg" />
                           )}
                           {index === formData.cover_image_index && (
-                            <Badge className="absolute top-2 left-2 bg-primary">
-                              Capa
-                            </Badge>
+                            <Badge className="absolute top-2 left-2 bg-primary">Capa</Badge>
                           )}
                         </div>
                       ))}
@@ -646,14 +672,12 @@ const ContentManager = () => {
                 dangerouslySetInnerHTML={{ __html: formData.content || '<p>Sem conteúdo</p>' }}
               />
 
-              {formData.tags && formData.tags.length > 0 && (
+              {formData.tags.length > 0 && (
                 <div className="mt-8 pt-8 border-t">
                   <h3 className="text-sm font-semibold mb-3">Tags:</h3>
                   <div className="flex flex-wrap gap-2">
                     {formData.tags.map((tag, index) => (
-                      <Badge key={index} variant="outline">
-                        {tag}
-                      </Badge>
+                      <Badge key={index} variant="outline">{tag}</Badge>
                     ))}
                   </div>
                 </div>

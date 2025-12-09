@@ -7,7 +7,6 @@ import TextAlign from '@tiptap/extension-text-align';
 import FontFamily from '@tiptap/extension-font-family';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Bold,
   Italic,
@@ -29,7 +28,7 @@ import {
   Smile,
   Type,
 } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface RichTextEditorProps {
@@ -48,14 +47,10 @@ const COMMON_EMOJIS = [
 
 export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const contentRef = useRef(content);
   const onChangeRef = useRef(onChange);
+  const isInternalUpdate = useRef(false);
 
-  // Manter refs atualizadas
-  useEffect(() => {
-    contentRef.current = content;
-  }, [content]);
-
+  // Atualizar ref do onChange
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
@@ -77,8 +72,6 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         HTMLAttributes: {
           class: 'text-primary underline',
         },
-      }).extend({
-        name: 'customLink',
       }),
       Image.configure({
         HTMLAttributes: {
@@ -98,62 +91,76 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         types: ['textStyle'],
       }),
     ],
-    content,
+    content: content || '',
     onUpdate: ({ editor }) => {
+      isInternalUpdate.current = true;
       const html = editor.getHTML();
       onChangeRef.current(html);
+      // Reset flag após um pequeno delay
+      setTimeout(() => {
+        isInternalUpdate.current = false;
+      }, 50);
     },
     editorProps: {
       attributes: {
         class: 'prose prose-lg max-w-none focus:outline-none min-h-[300px] p-4',
       },
-      // Garantir que paste funciona corretamente
-      handlePaste: (view, event, slice) => {
-        // Deixar o editor processar normalmente
-        return false;
-      },
     },
   });
 
-  // Sincronizar conteúdo quando a aba ganha foco novamente
+  // Reset conteúdo apenas quando o content externo é limpo (formulário resetado)
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && editor) {
-        // Forçar sincronização quando a página volta ao foco
-        const currentHtml = editor.getHTML();
-        if (currentHtml !== contentRef.current) {
-          onChangeRef.current(currentHtml);
-        }
+    if (editor && content === '' && !isInternalUpdate.current) {
+      const currentContent = editor.getHTML();
+      if (currentContent !== '<p></p>' && currentContent !== '') {
+        editor.commands.setContent('');
       }
-    };
-
-    const handleFocus = () => {
-      if (editor) {
-        const currentHtml = editor.getHTML();
-        if (currentHtml !== contentRef.current) {
-          onChangeRef.current(currentHtml);
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handleFocus);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, [editor]);
-
-  // Atualizar o conteúdo do editor quando a prop content mudar (apenas reset)
-  useEffect(() => {
-    if (editor && content === '' && editor.getHTML() !== '<p></p>') {
-      editor.commands.setContent('');
     }
   }, [content, editor]);
 
+  // Forçar sincronização quando a janela recupera foco
+  useEffect(() => {
+    const syncContent = () => {
+      if (editor && !editor.isDestroyed) {
+        const html = editor.getHTML();
+        onChangeRef.current(html);
+      }
+    };
+
+    // Sincronizar ao voltar para a aba
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        syncContent();
+      }
+    };
+
+    // Sincronizar ao focar na janela
+    const handleFocus = () => {
+      syncContent();
+    };
+
+    // Sincronizar após paste com delay
+    const handlePaste = () => {
+      setTimeout(syncContent, 100);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('paste', handlePaste);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('paste', handlePaste);
+    };
+  }, [editor]);
+
   if (!editor) {
-    return null;
+    return (
+      <div className="border rounded-lg min-h-[300px] flex items-center justify-center">
+        <span className="text-muted-foreground">Carregando editor...</span>
+      </div>
+    );
   }
 
   const addLink = () => {
@@ -189,7 +196,6 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   return (
     <div className="border rounded-lg">
       <div className="border-b bg-muted/30 p-2 flex flex-wrap gap-1">
-
         {/* Formatação de texto */}
         <Button
           type="button"
