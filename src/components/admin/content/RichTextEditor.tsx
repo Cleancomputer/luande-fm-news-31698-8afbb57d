@@ -66,6 +66,8 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         HTMLAttributes: {
           class: 'text-primary underline',
         },
+      }).extend({
+        name: 'customLink',
       }),
       Image.configure({
         HTMLAttributes: {
@@ -94,7 +96,6 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         class: 'prose prose-lg max-w-none focus:outline-none min-h-[300px] p-4',
       },
     },
-    autofocus: 'end',
   });
 
   // Atualizar o conteúdo do editor quando a prop content mudar
