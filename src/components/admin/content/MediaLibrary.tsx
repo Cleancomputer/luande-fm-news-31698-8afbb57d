@@ -115,34 +115,34 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
   const handleFileUpload = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     
-    // SEMPRE busca sessão diretamente do Supabase para garantir no mobile
+    setUploading(true);
+    setUploadProgress('Verificando...');
+    
+    // Busca sessão de forma síncrona e robusta
     let currentUserId: string | undefined;
     
-    try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error('Erro ao obter sessão:', error);
+    // Primeiro tenta do user em memória (mais rápido)
+    if (user?.id) {
+      currentUserId = user.id;
+    }
+    
+    // Se não tem, busca do Supabase
+    if (!currentUserId) {
+      try {
+        const { data } = await supabase.auth.getSession();
+        currentUserId = data?.session?.user?.id;
+      } catch (err) {
+        console.error('Erro ao verificar sessão:', err);
       }
-      currentUserId = session?.user?.id;
-      
-      // Se não conseguir da sessão, tenta do user em memória
-      if (!currentUserId && user?.id) {
-        currentUserId = user.id;
-      }
-    } catch (err) {
-      console.error('Erro ao verificar sessão:', err);
-      // Fallback para user em memória
-      currentUserId = user?.id;
     }
     
     if (!currentUserId) {
-      toast.error('Você precisa estar logado para fazer upload. Faça login novamente.');
+      setUploading(false);
+      setUploadProgress('');
+      toast.error('Sessão expirada. Por favor, faça login novamente.');
       return;
     }
-    
-    console.log('Upload iniciado para userId:', currentUserId);
 
-    setUploading(true);
     setUploadProgress('Preparando...');
     
     try {
@@ -152,41 +152,51 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
         const file = fileArray[i];
         setUploadProgress(`Enviando ${i + 1}/${fileArray.length}...`);
         
-        const fileExt = file.name.split('.').pop()?.toLowerCase() || 'bin';
-        const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+        // Gera nome único para o arquivo
+        const timestamp = Date.now();
+        const randomStr = Math.random().toString(36).substring(2, 11);
+        const originalName = file.name || 'file';
+        const fileExt = originalName.split('.').pop()?.toLowerCase() || 'bin';
+        const fileName = `${timestamp}_${randomStr}.${fileExt}`;
         const filePath = `${currentUserId}/${fileName}`;
 
-        console.log('Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
+        // Determina o tipo do arquivo
+        let fileType = file.type;
+        if (!fileType || fileType === 'application/octet-stream') {
+          // Tenta inferir pelo extension
+          if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic'].includes(fileExt)) {
+            fileType = `image/${fileExt === 'jpg' ? 'jpeg' : fileExt}`;
+          } else if (['mp4', 'mov', 'webm', 'avi', 'm4v'].includes(fileExt)) {
+            fileType = `video/${fileExt}`;
+          }
+        }
 
-        const { error: uploadError, data: uploadData } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('media')
           .upload(filePath, file, {
             cacheControl: '3600',
-            upsert: false
+            upsert: false,
+            contentType: fileType
           });
 
         if (uploadError) {
           console.error('Upload error:', uploadError);
-          toast.error(`Erro no upload: ${uploadError.message}`);
+          toast.error(`Erro: ${uploadError.message}`);
           continue;
         }
-
-        console.log('Upload successful:', uploadData);
 
         const { data: { publicUrl } } = supabase.storage
           .from('media')
           .getPublicUrl(filePath);
 
-        console.log('Public URL:', publicUrl);
-
         const { error: dbError } = await supabase
           .from('media_library')
           .insert({
-            file_name: file.name,
+            file_name: originalName,
             file_path: publicUrl,
-            file_type: file.type || 'application/octet-stream',
+            file_type: fileType || 'application/octet-stream',
             file_size: file.size,
-            mime_type: file.type || 'application/octet-stream',
+            mime_type: fileType || 'application/octet-stream',
             uploaded_by: currentUserId,
           });
 
@@ -196,10 +206,10 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
           continue;
         }
 
-        // Auto-select the uploaded media if onSelect is provided
+        // Auto-select se callback fornecido
         if (onSelect) {
-          const isImage = file.type.startsWith('image/');
-          const isVideo = file.type.startsWith('video/');
+          const isImage = fileType?.startsWith('image/');
+          const isVideo = fileType?.startsWith('video/');
           if (isImage || isVideo) {
             onSelect({
               url: publicUrl,
@@ -217,7 +227,7 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
     } finally {
       setUploading(false);
       setUploadProgress('');
-      // Reset file inputs
+      // Limpa os inputs
       if (fileInputRef.current) fileInputRef.current.value = '';
       if (imageInputRef.current) imageInputRef.current.value = '';
       if (videoInputRef.current) videoInputRef.current.value = '';
@@ -266,34 +276,38 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
     <div className="space-y-4">
       <Card>
         <CardContent className="p-4">
-          {/* Input de arquivo oculto - para todos os tipos */}
+          {/* Input geral para arquivos */}
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*,video/*"
             multiple
-            className="hidden"
-            onChange={(e) => handleFileUpload(e.target.files)}
+            style={{ display: 'none' }}
+            onChange={(e) => {
+              handleFileUpload(e.target.files);
+            }}
           />
           
-          {/* Input específico para imagens com câmera */}
+          {/* Input para fotos - sem capture para melhor compatibilidade iPhone */}
           <input
             ref={imageInputRef}
             type="file"
             accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={(e) => handleFileUpload(e.target.files)}
+            style={{ display: 'none' }}
+            onChange={(e) => {
+              handleFileUpload(e.target.files);
+            }}
           />
           
-          {/* Input específico para vídeos com câmera */}
+          {/* Input para vídeos - sem capture para melhor compatibilidade iPhone */}
           <input
             ref={videoInputRef}
             type="file"
             accept="video/*"
-            capture="environment"
-            className="hidden"
-            onChange={(e) => handleFileUpload(e.target.files)}
+            style={{ display: 'none' }}
+            onChange={(e) => {
+              handleFileUpload(e.target.files);
+            }}
           />
 
           {uploading ? (

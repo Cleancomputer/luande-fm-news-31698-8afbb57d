@@ -145,8 +145,19 @@ const ContentManager = () => {
       return;
     }
 
-    if (!user) {
-      toast.error('Você precisa estar logado para publicar');
+    // Verifica usuário em memória ou busca da sessão
+    let currentUser = user;
+    if (!currentUser) {
+      try {
+        const { data } = await supabase.auth.getSession();
+        currentUser = data?.session?.user || null;
+      } catch (err) {
+        console.error('Erro ao verificar sessão:', err);
+      }
+    }
+
+    if (!currentUser) {
+      toast.error('Sessão expirada. Por favor, faça login novamente.');
       return;
     }
 
@@ -184,7 +195,7 @@ const ContentManager = () => {
       tags: formData.tags,
       featured: formData.featured,
       slug, 
-      author_id: user.id,
+      author_id: currentUser.id,
       image_url: coverImageUrl,
       media_gallery: formData.media_gallery || [],
       published: finalPublished,
