@@ -29,7 +29,7 @@ import {
   Smile,
   Type,
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface RichTextEditorProps {
@@ -48,6 +48,17 @@ const COMMON_EMOJIS = [
 
 export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const contentRef = useRef(content);
+  const onChangeRef = useRef(onChange);
+
+  // Manter refs atualizadas
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   const editor = useEditor({
     extensions: [
@@ -89,19 +100,55 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     ],
     content,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      const html = editor.getHTML();
+      onChangeRef.current(html);
     },
     editorProps: {
       attributes: {
         class: 'prose prose-lg max-w-none focus:outline-none min-h-[300px] p-4',
       },
+      // Garantir que paste funciona corretamente
+      handlePaste: (view, event, slice) => {
+        // Deixar o editor processar normalmente
+        return false;
+      },
     },
   });
 
-  // Atualizar o conteúdo do editor quando a prop content mudar
+  // Sincronizar conteúdo quando a aba ganha foco novamente
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && editor) {
+        // Forçar sincronização quando a página volta ao foco
+        const currentHtml = editor.getHTML();
+        if (currentHtml !== contentRef.current) {
+          onChangeRef.current(currentHtml);
+        }
+      }
+    };
+
+    const handleFocus = () => {
+      if (editor) {
+        const currentHtml = editor.getHTML();
+        if (currentHtml !== contentRef.current) {
+          onChangeRef.current(currentHtml);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [editor]);
+
+  // Atualizar o conteúdo do editor quando a prop content mudar (apenas reset)
+  useEffect(() => {
+    if (editor && content === '' && editor.getHTML() !== '<p></p>') {
+      editor.commands.setContent('');
     }
   }, [content, editor]);
 

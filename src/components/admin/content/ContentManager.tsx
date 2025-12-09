@@ -158,8 +158,17 @@ const ContentManager = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title || !formData.content || !formData.category) {
+    // Captura os valores atuais do formulário imediatamente
+    const currentFormData = { ...formData };
+
+    if (!currentFormData.title || !currentFormData.content || !currentFormData.category) {
       toast.error('Preencha todos os campos obrigatórios');
+      return;
+    }
+
+    // Verificação de conteúdo mínimo (evitar conteúdo vazio do editor)
+    if (currentFormData.content === '<p></p>' || currentFormData.content.trim() === '') {
+      toast.error('O conteúdo do artigo não pode estar vazio');
       return;
     }
 
@@ -174,6 +183,7 @@ const ContentManager = () => {
 
     try {
       console.log('Iniciando salvamento do artigo...');
+      console.log('Conteúdo a ser salvo:', currentFormData.content.substring(0, 100) + '...');
       
       // Busca userId diretamente do Supabase para garantir
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -189,13 +199,13 @@ const ContentManager = () => {
       const currentUserId = sessionData.session.user.id;
       console.log('Usuário autenticado:', currentUserId);
 
-      const slug = formData.slug || generateSlug(formData.title);
+      const slug = currentFormData.slug || generateSlug(currentFormData.title);
       
       // Definir a imagem de capa (image_url) baseada na media_gallery
-      let coverImageUrl = formData.image_url || '';
-      if (formData.media_gallery && formData.media_gallery.length > 0) {
-        const coverIndex = formData.cover_image_index ?? 0;
-        const coverMedia = formData.media_gallery[coverIndex];
+      let coverImageUrl = currentFormData.image_url || '';
+      if (currentFormData.media_gallery && currentFormData.media_gallery.length > 0) {
+        const coverIndex = currentFormData.cover_image_index ?? 0;
+        const coverMedia = currentFormData.media_gallery[coverIndex];
         if (coverMedia && coverMedia.type === 'image') {
           coverImageUrl = coverMedia.url;
         }
@@ -203,10 +213,10 @@ const ContentManager = () => {
       
       // Se for editor e está publicando, enviar para aprovação
       const isEditor = userRole === 'editor';
-      const isPublishing = formData.published;
+      const isPublishing = currentFormData.published;
       
-      let finalPublished = formData.published;
-      let finalStatus = formData.published ? 'published' : 'draft';
+      let finalPublished = currentFormData.published;
+      let finalStatus = currentFormData.published ? 'published' : 'draft';
       
       if (isEditor && isPublishing && !editingId) {
         finalPublished = false;
@@ -214,16 +224,16 @@ const ContentManager = () => {
       }
       
       const articleData = { 
-        title: formData.title,
-        subtitle: formData.subtitle,
-        content: formData.content,
-        category: formData.category,
-        tags: formData.tags,
-        featured: formData.featured,
+        title: currentFormData.title,
+        subtitle: currentFormData.subtitle,
+        content: currentFormData.content,
+        category: currentFormData.category,
+        tags: currentFormData.tags,
+        featured: currentFormData.featured,
         slug, 
         author_id: currentUserId,
         image_url: coverImageUrl,
-        media_gallery: formData.media_gallery || [],
+        media_gallery: currentFormData.media_gallery || [],
         published: finalPublished,
         status: finalStatus
       };
@@ -267,7 +277,7 @@ const ContentManager = () => {
 
       // Limpa formulário e recarrega lista
       resetForm();
-      loadArticles();
+      await loadArticles();
     } catch (error: any) {
       console.error('Erro ao salvar artigo:', error);
       toast.error(error?.message || 'Erro ao salvar artigo');
