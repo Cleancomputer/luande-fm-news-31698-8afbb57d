@@ -81,7 +81,7 @@ const MediaItem = memo(({ item, onSelect, onDelete }: {
 MediaItem.displayName = 'MediaItem';
 
 export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibraryProps) => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [media, setMedia] = useState<Media[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
@@ -115,7 +115,21 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
   const handleFileUpload = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     
-    if (!user) {
+    // Aguarda autenticação carregar antes de verificar
+    if (authLoading) {
+      toast.info('Aguarde, verificando autenticação...');
+      return;
+    }
+    
+    // Busca sessão diretamente se user não estiver disponível
+    let currentUserId = user?.id;
+    
+    if (!currentUserId) {
+      const { data: { session } } = await supabase.auth.getSession();
+      currentUserId = session?.user?.id;
+    }
+    
+    if (!currentUserId) {
       toast.error('Você precisa estar logado para fazer upload');
       return;
     }
@@ -132,7 +146,7 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
         
         const fileExt = file.name.split('.').pop()?.toLowerCase() || 'bin';
         const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-        const filePath = `${user.id}/${fileName}`;
+        const filePath = `${currentUserId}/${fileName}`;
 
         console.log('Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
 
@@ -165,7 +179,7 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
             file_type: file.type || 'application/octet-stream',
             file_size: file.size,
             mime_type: file.type || 'application/octet-stream',
-            uploaded_by: user.id,
+            uploaded_by: currentUserId,
           });
 
         if (dbError) {
@@ -200,7 +214,7 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
       if (imageInputRef.current) imageInputRef.current.value = '';
       if (videoInputRef.current) videoInputRef.current.value = '';
     }
-  }, [user, onSelect, loadMedia]);
+  }, [user, authLoading, onSelect, loadMedia]);
 
   const handleDelete = useCallback(async (id: string, filePath: string) => {
     if (!confirm('Tem certeza que deseja excluir esta mídia?')) return;
