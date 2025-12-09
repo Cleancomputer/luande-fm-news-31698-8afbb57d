@@ -81,7 +81,7 @@ const MediaItem = memo(({ item, onSelect, onDelete }: {
 MediaItem.displayName = 'MediaItem';
 
 export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibraryProps) => {
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
   const [media, setMedia] = useState<Media[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
@@ -115,24 +115,32 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
   const handleFileUpload = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     
-    // Aguarda autenticação carregar antes de verificar
-    if (authLoading) {
-      toast.info('Aguarde, verificando autenticação...');
-      return;
-    }
+    // SEMPRE busca sessão diretamente do Supabase para garantir no mobile
+    let currentUserId: string | undefined;
     
-    // Busca sessão diretamente se user não estiver disponível
-    let currentUserId = user?.id;
-    
-    if (!currentUserId) {
-      const { data: { session } } = await supabase.auth.getSession();
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Erro ao obter sessão:', error);
+      }
       currentUserId = session?.user?.id;
+      
+      // Se não conseguir da sessão, tenta do user em memória
+      if (!currentUserId && user?.id) {
+        currentUserId = user.id;
+      }
+    } catch (err) {
+      console.error('Erro ao verificar sessão:', err);
+      // Fallback para user em memória
+      currentUserId = user?.id;
     }
     
     if (!currentUserId) {
-      toast.error('Você precisa estar logado para fazer upload');
+      toast.error('Você precisa estar logado para fazer upload. Faça login novamente.');
       return;
     }
+    
+    console.log('Upload iniciado para userId:', currentUserId);
 
     setUploading(true);
     setUploadProgress('Preparando...');
@@ -214,7 +222,7 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
       if (imageInputRef.current) imageInputRef.current.value = '';
       if (videoInputRef.current) videoInputRef.current.value = '';
     }
-  }, [user, authLoading, onSelect, loadMedia]);
+  }, [user, onSelect, loadMedia]);
 
   const handleDelete = useCallback(async (id: string, filePath: string) => {
     if (!confirm('Tem certeza que deseja excluir esta mídia?')) return;
