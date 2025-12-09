@@ -73,20 +73,16 @@ const Admin = () => {
     
     setSigningOut(true);
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Erro ao fazer logout:', error);
-        toast.error("Erro ao sair. Tente novamente.");
-        return;
-      }
-      toast.success("Logout realizado com sucesso");
-      navigate("/login");
+      // Tenta fazer logout, mas mesmo com erro, limpa a sessão local
+      await supabase.auth.signOut({ scope: 'local' });
     } catch (error) {
-      console.error('Erro ao fazer logout:', error);
-      toast.error("Erro ao sair. Tente novamente.");
-    } finally {
-      setSigningOut(false);
+      console.log('Logout error (ignorado):', error);
     }
+    
+    // Sempre redireciona para login, independente do resultado
+    toast.success("Logout realizado com sucesso");
+    setSigningOut(false);
+    navigate("/login", { replace: true });
   };
 
   if (loading || checkingRole) {
