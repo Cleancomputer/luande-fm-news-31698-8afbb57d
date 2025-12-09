@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,39 +27,21 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
   const [media, setMedia] = useState<Media[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [initialLoaded, setInitialLoaded] = useState(false);
   
-  // Refs para inputs - cada um com propósito específico
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
-  
-  // Flag para prevenir uploads duplicados
+  // Refs para prevenir duplicações
+  const isLoadingRef = useRef(false);
   const isUploadingRef = useRef(false);
+  const mountedRef = useRef(true);
 
-  // Buscar userId na montagem
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        if (data?.session?.user?.id) {
-          setUserId(data.session.user.id);
-        }
-      } catch (err) {
-        console.error('Erro ao buscar usuário:', err);
-      }
-    };
-    getUser();
-  }, []);
-
-  // Carregar mídia
-  useEffect(() => {
-    loadMedia();
-  }, []);
-
-  const loadMedia = async () => {
+  // Carregar mídia - função estável
+  const loadMedia = useCallback(async () => {
+    // Prevenir chamadas duplicadas
+    if (isLoadingRef.current) return;
+    isLoadingRef.current = true;
     setLoading(true);
+
     try {
       const { data, error } = await supabase
         .from('media_library')
@@ -67,38 +49,50 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
         .order('created_at', { ascending: false })
         .limit(100);
 
+      if (!mountedRef.current) return;
+
       if (error) {
         console.error('Erro ao carregar mídia:', error);
-        toast.error('Erro ao carregar biblioteca');
       } else {
         setMedia(data || []);
       }
     } catch (err) {
       console.error('Erro:', err);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+        setInitialLoaded(true);
+      }
+      isLoadingRef.current = false;
     }
-  };
+  }, []);
 
-  const processUpload = async (files: File[]) => {
-    if (files.length === 0) return;
+  // Carregar na montagem imediatamente
+  useEffect(() => {
+    mountedRef.current = true;
+    loadMedia();
+    
+    return () => {
+      mountedRef.current = false;
+    };
+  }, [loadMedia]);
+
+  const processUpload = async (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
+    if (fileArray.length === 0) return;
     
     // Verificar se já está fazendo upload
     if (isUploadingRef.current) {
-      console.log('Upload em andamento, ignorando...');
+      console.log('Upload em andamento...');
       return;
     }
 
-    // Buscar userId atualizado
-    let currentUserId = userId;
-    if (!currentUserId) {
-      const { data } = await supabase.auth.getSession();
-      currentUserId = data?.session?.user?.id || null;
-      if (currentUserId) setUserId(currentUserId);
-    }
+    // Buscar sessão
+    const { data: sessionData } = await supabase.auth.getSession();
+    const currentUserId = sessionData?.session?.user?.id;
 
     if (!currentUserId) {
-      toast.error('Sessão expirada. Faça login novamente.');
+      toast.error('Faça login novamente');
       return;
     }
 
@@ -109,22 +103,24 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
     let lastUploadedMedia: SelectedMedia | null = null;
 
     try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        setUploadProgress(`Enviando ${i + 1} de ${files.length}...`);
+      for (let i = 0; i < fileArray.length; i++) {
+        const file = fileArray[i];
+        if (!mountedRef.current) break;
+        
+        setUploadProgress(`Enviando ${i + 1} de ${fileArray.length}...`);
 
-        // Gerar nome único
+        // Nome único
         const timestamp = Date.now();
         const random = Math.random().toString(36).substring(2, 8);
         const ext = (file.name?.split('.').pop() || 'bin').toLowerCase();
         const fileName = `${timestamp}_${random}.${ext}`;
         const filePath = `${currentUserId}/${fileName}`;
 
-        // Determinar tipo MIME
+        // Tipo MIME
         let mimeType = file.type;
         if (!mimeType || mimeType === 'application/octet-stream') {
           const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'bmp'];
-          const videoExts = ['mp4', 'mov', 'webm', 'avi', 'm4v', 'mkv'];
+          const videoExts = ['mp4', 'mov', 'webm', 'avi', 'm4v', 'mkv', 'flv', 'wmv', '3gp'];
           if (imageExts.includes(ext)) {
             mimeType = `image/${ext === 'jpg' ? 'jpeg' : ext}`;
           } else if (videoExts.includes(ext)) {
@@ -132,9 +128,9 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
           }
         }
 
-        console.log(`Upload: ${filePath}, tipo: ${mimeType}, tamanho: ${file.size}`);
+        console.log(`Upload: ${fileName}, tipo: ${mimeType}`);
 
-        // Fazer upload para storage
+        // Upload
         const { error: uploadError } = await supabase.storage
           .from('media')
           .upload(filePath, file, {
@@ -145,16 +141,16 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
 
         if (uploadError) {
           console.error('Erro upload:', uploadError);
-          toast.error(`Erro ao enviar: ${file.name}`);
+          toast.error(`Erro: ${file.name}`);
           continue;
         }
 
-        // Obter URL pública
+        // URL pública
         const { data: urlData } = supabase.storage.from('media').getPublicUrl(filePath);
         const publicUrl = urlData.publicUrl;
 
         // Salvar no banco
-        const { data: dbData, error: dbError } = await supabase
+        const { error: dbError } = await supabase
           .from('media_library')
           .insert({
             file_name: file.name || fileName,
@@ -163,59 +159,54 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
             file_size: file.size,
             mime_type: mimeType,
             uploaded_by: currentUserId
-          })
-          .select()
-          .single();
+          });
 
         if (dbError) {
-          console.error('Erro ao salvar no banco:', dbError);
+          console.error('Erro DB:', dbError);
           continue;
         }
 
         successCount++;
         
-        // Guardar última mídia para auto-seleção
         const isVideo = mimeType.startsWith('video/');
         lastUploadedMedia = {
           url: publicUrl,
           type: isVideo ? 'video' : 'image'
         };
-
-        console.log('Upload concluído:', dbData?.id);
       }
 
       if (successCount > 0) {
         toast.success(`${successCount} arquivo(s) enviado(s)!`);
         await loadMedia();
         
-        // Auto-selecionar última mídia enviada
+        // Auto-selecionar
         if (onSelect && lastUploadedMedia) {
           onSelect(lastUploadedMedia);
         }
       }
     } catch (err) {
-      console.error('Erro no upload:', err);
-      toast.error('Erro ao processar upload');
+      console.error('Erro:', err);
+      toast.error('Erro no upload');
     } finally {
-      setUploading(false);
-      setUploadProgress('');
+      if (mountedRef.current) {
+        setUploading(false);
+        setUploadProgress('');
+      }
       isUploadingRef.current = false;
-      
-      // Limpar inputs
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      if (cameraInputRef.current) cameraInputRef.current.value = '';
-      if (videoInputRef.current) videoInputRef.current.value = '';
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = e.target.files;
-    if (fileList && fileList.length > 0) {
-      processUpload(Array.from(fileList));
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      processUpload(files);
     }
+    // Limpar input
+    e.target.value = '';
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!confirm('Excluir esta mídia?')) return;
 
     try {
@@ -225,8 +216,8 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
       toast.success('Mídia excluída!');
       setMedia(prev => prev.filter(m => m.id !== id));
     } catch (err) {
-      console.error('Erro ao excluir:', err);
-      toast.error('Erro ao excluir mídia');
+      console.error('Erro:', err);
+      toast.error('Erro ao excluir');
     }
   };
 
@@ -237,7 +228,7 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
     const isVideo = item.file_type?.startsWith('video/');
 
     if (!isImage && !isVideo) {
-      toast.error('Apenas imagens e vídeos podem ser selecionados');
+      toast.error('Selecione imagens ou vídeos');
       return;
     }
 
@@ -251,73 +242,59 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
 
   return (
     <div className="space-y-4">
-      {/* Área de Upload */}
+      {/* Upload */}
       <Card>
         <CardContent className="p-4">
-          {/* Inputs escondidos */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*,video/*"
-            multiple={allowMultiple}
-            onChange={handleFileChange}
-            className="hidden"
-          />
-          <input
-            ref={cameraInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-          <input
-            ref={videoInputRef}
-            type="file"
-            accept="video/*"
-            capture="environment"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-
           {uploading ? (
-            <div className="flex flex-col items-center justify-center py-8">
+            <div className="flex flex-col items-center py-8">
               <Loader2 className="h-10 w-10 text-primary animate-spin mb-3" />
               <p className="text-sm text-muted-foreground">{uploadProgress || 'Enviando...'}</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {/* Botão principal */}
-              <Button
-                type="button"
-                variant="default"
-                className="w-full h-14 text-base font-medium"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload className="w-5 h-5 mr-2" />
-                Selecionar Arquivos
-              </Button>
+              {/* Input principal */}
+              <label className="block">
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  multiple={allowMultiple}
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                <div className="flex items-center justify-center w-full h-14 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90 transition-colors font-medium">
+                  <Upload className="w-5 h-5 mr-2" />
+                  Selecionar Arquivos
+                </div>
+              </label>
 
-              {/* Botões para mobile */}
+              {/* Botões mobile */}
               <div className="grid grid-cols-2 gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-12"
-                  onClick={() => cameraInputRef.current?.click()}
-                >
-                  <Camera className="w-4 h-4 mr-2" />
-                  Tirar Foto
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-12"
-                  onClick={() => videoInputRef.current?.click()}
-                >
-                  <Video className="w-4 h-4 mr-2" />
-                  Gravar Vídeo
-                </Button>
+                <label className="block">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  <div className="flex items-center justify-center w-full h-12 border rounded-md cursor-pointer hover:bg-muted transition-colors">
+                    <Camera className="w-4 h-4 mr-2" />
+                    Tirar Foto
+                  </div>
+                </label>
+                <label className="block">
+                  <input
+                    type="file"
+                    accept="video/*"
+                    capture="environment"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  <div className="flex items-center justify-center w-full h-12 border rounded-md cursor-pointer hover:bg-muted transition-colors">
+                    <Video className="w-4 h-4 mr-2" />
+                    Gravar Vídeo
+                  </div>
+                </label>
               </div>
 
               <p className="text-xs text-center text-muted-foreground">
@@ -328,7 +305,7 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
         </CardContent>
       </Card>
 
-      {/* Header da biblioteca */}
+      {/* Header */}
       <div className="flex justify-between items-center">
         <h3 className="font-semibold">Biblioteca de Mídia</h3>
         <Button
@@ -342,8 +319,8 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
         </Button>
       </div>
 
-      {/* Grid de mídias */}
-      {loading ? (
+      {/* Grid */}
+      {loading && !initialLoaded ? (
         <div className="flex justify-center py-8">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
@@ -354,11 +331,11 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
           <p className="text-xs mt-1">Faça upload de imagens ou vídeos</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[400px] overflow-y-auto">
           {media.map((item) => (
             <div
               key={item.id}
-              className="relative group rounded-lg overflow-hidden border bg-muted cursor-pointer"
+              className="relative group rounded-lg overflow-hidden border bg-muted cursor-pointer hover:ring-2 hover:ring-primary transition-all"
               onClick={() => handleSelect(item)}
             >
               {item.file_type?.startsWith('image/') ? (
@@ -386,7 +363,7 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
                 </div>
               )}
 
-              {/* Overlay com ações */}
+              {/* Overlay */}
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 <Button
                   type="button"
@@ -403,16 +380,13 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
                   type="button"
                   size="sm"
                   variant="destructive"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(item.id);
-                  }}
+                  onClick={(e) => handleDelete(item.id, e)}
                 >
                   <X className="w-4 h-4" />
                 </Button>
               </div>
 
-              {/* Nome do arquivo */}
+              {/* Nome */}
               <div className="absolute bottom-0 left-0 right-0 bg-black/70 px-2 py-1">
                 <p className="text-xs text-white truncate">{item.file_name}</p>
               </div>

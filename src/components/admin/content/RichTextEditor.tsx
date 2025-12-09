@@ -28,7 +28,7 @@ import {
   Smile,
   Type,
 } from 'lucide-react';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface RichTextEditorProps {
@@ -47,13 +47,28 @@ const COMMON_EMOJIS = [
 
 export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  
+  // Refs para manter valores atualizados
   const onChangeRef = useRef(onChange);
-  const isInternalUpdate = useRef(false);
-
-  // Atualizar ref do onChange
+  const contentRef = useRef(content);
+  const editorRef = useRef<any>(null);
+  
+  // Atualizar refs
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
+  
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+
+  // Função para sincronizar conteúdo do editor
+  const syncEditorContent = () => {
+    if (editorRef.current && !editorRef.current.isDestroyed) {
+      const html = editorRef.current.getHTML();
+      onChangeRef.current(html);
+    }
+  };
 
   const editor = useEditor({
     extensions: [
@@ -93,67 +108,65 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     ],
     content: content || '',
     onUpdate: ({ editor }) => {
-      isInternalUpdate.current = true;
       const html = editor.getHTML();
       onChangeRef.current(html);
-      // Reset flag após um pequeno delay
-      setTimeout(() => {
-        isInternalUpdate.current = false;
-      }, 50);
+    },
+    onBlur: () => {
+      // Sincronizar ao perder foco
+      syncEditorContent();
     },
     editorProps: {
       attributes: {
         class: 'prose prose-lg max-w-none focus:outline-none min-h-[300px] p-4',
       },
+      handlePaste: (view, event, slice) => {
+        // Após paste, sincronizar com delay
+        setTimeout(() => {
+          syncEditorContent();
+        }, 50);
+        return false; // Deixar o editor processar normalmente
+      },
     },
   });
 
-  // Reset conteúdo apenas quando o content externo é limpo (formulário resetado)
+  // Guardar referência do editor
   useEffect(() => {
-    if (editor && content === '' && !isInternalUpdate.current) {
-      const currentContent = editor.getHTML();
-      if (currentContent !== '<p></p>' && currentContent !== '') {
+    if (editor) {
+      editorRef.current = editor;
+    }
+  }, [editor]);
+
+  // Reset conteúdo quando limpo externamente
+  useEffect(() => {
+    if (editor && content === '') {
+      const currentHtml = editor.getHTML();
+      if (currentHtml !== '<p></p>' && currentHtml !== '') {
         editor.commands.setContent('');
       }
     }
   }, [content, editor]);
 
-  // Forçar sincronização quando a janela recupera foco
+  // Sincronizar ao mudar de aba ou recuperar foco
   useEffect(() => {
-    const syncContent = () => {
-      if (editor && !editor.isDestroyed) {
-        const html = editor.getHTML();
-        onChangeRef.current(html);
-      }
-    };
-
-    // Sincronizar ao voltar para a aba
-    const handleVisibility = () => {
+    const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        syncContent();
+        // Pequeno delay para garantir que o editor está pronto
+        setTimeout(syncEditorContent, 100);
       }
     };
 
-    // Sincronizar ao focar na janela
-    const handleFocus = () => {
-      syncContent();
+    const handleWindowFocus = () => {
+      setTimeout(syncEditorContent, 100);
     };
 
-    // Sincronizar após paste com delay
-    const handlePaste = () => {
-      setTimeout(syncContent, 100);
-    };
-
-    document.addEventListener('visibilitychange', handleVisibility);
-    window.addEventListener('focus', handleFocus);
-    document.addEventListener('paste', handlePaste);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleWindowFocus);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibility);
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('paste', handlePaste);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleWindowFocus);
     };
-  }, [editor]);
+  }, []);
 
   if (!editor) {
     return (
@@ -196,7 +209,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   return (
     <div className="border rounded-lg">
       <div className="border-b bg-muted/30 p-2 flex flex-wrap gap-1">
-        {/* Formatação de texto */}
+        {/* Formatação */}
         <Button
           type="button"
           size="sm"
@@ -326,7 +339,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
 
         <div className="w-px h-6 bg-border mx-1" />
 
-        {/* Font Family Selector */}
+        {/* Fonte */}
         <select
           onChange={(e) => {
             if (e.target.value === 'default') {
@@ -386,7 +399,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
 
         <div className="w-px h-6 bg-border mx-1" />
 
-        {/* Desfazer/Refazer */}
+        {/* Undo/Redo */}
         <Button
           type="button"
           size="sm"
