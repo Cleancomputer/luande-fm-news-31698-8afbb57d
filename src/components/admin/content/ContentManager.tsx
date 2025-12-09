@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Plus, Trash2, Upload } from 'lucide-react';
+import { Plus, Trash2, Upload, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { RichTextEditor } from './RichTextEditor';
 import { MediaLibrary } from './MediaLibrary';
@@ -35,6 +35,8 @@ const ContentManager = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     subtitle: '',
@@ -49,54 +51,57 @@ const ContentManager = () => {
     cover_image_index: 0
   });
 
+  // Carregar dados iniciais
   useEffect(() => {
+    const loadInitialData = async () => {
+      setLoading(true);
+      await Promise.all([loadArticles(), loadCategories()]);
+      setLoading(false);
+    };
+    
     // Verificar se há um artigo sendo editado no localStorage
     const editingArticle = localStorage.getItem('editingArticle');
     if (editingArticle) {
-      const article = JSON.parse(editingArticle);
-      setEditingId(article.id);
-      setFormData({
-        title: article.title,
-        subtitle: article.subtitle || '',
-        content: article.content,
-        category: article.category,
-        image_url: article.image_url || '',
-        published: article.published,
-        featured: article.featured,
-        tags: article.tags || [],
-        slug: article.slug,
-        media_gallery: article.media_gallery || [],
-        cover_image_index: 0
-      });
-      localStorage.removeItem('editingArticle');
+      try {
+        const article = JSON.parse(editingArticle);
+        setEditingId(article.id);
+        setFormData({
+          title: article.title,
+          subtitle: article.subtitle || '',
+          content: article.content,
+          category: article.category,
+          image_url: article.image_url || '',
+          published: article.published,
+          featured: article.featured,
+          tags: article.tags || [],
+          slug: article.slug,
+          media_gallery: article.media_gallery || [],
+          cover_image_index: 0
+        });
+        localStorage.removeItem('editingArticle');
+      } catch (e) {
+        console.error('Erro ao carregar artigo do localStorage:', e);
+      }
     }
     
-    loadArticles();
-    loadCategories();
+    loadInitialData();
 
-    // Realtime subscription for categories
+    // Realtime subscription for categories only (articles são carregados manualmente)
     const categoriesChannel = supabase
       .channel('categories-content-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, loadCategories)
       .subscribe();
 
-    // Realtime subscription for articles
-    const articlesChannel = supabase
-      .channel('articles-content-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'articles' }, loadArticles)
-      .subscribe();
-
     return () => {
       supabase.removeChannel(categoriesChannel);
-      supabase.removeChannel(articlesChannel);
     };
   }, []);
 
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('categories')
-        .select('*')
+        .select('id, name, slug')
         .eq('is_active', true)
         .order('display_order', { ascending: true });
       if (error) throw error;
@@ -104,21 +109,22 @@ const ContentManager = () => {
     } catch (error) {
       console.error('Erro ao carregar categorias:', error);
     }
-  };
+  }, []);
 
-  const loadArticles = async () => {
+  const loadArticles = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('articles')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('id, title, subtitle, content, category, image_url, published, featured, tags, slug, media_gallery')
+        .order('created_at', { ascending: false })
+        .limit(50);
 
       if (error) throw error;
       setArticles(data || []);
     } catch (error) {
       console.error('Erro ao carregar artigos:', error);
     }
-  };
+  }, []);
 
   const generateSlug = (title: string) => {
     return title
@@ -131,7 +137,7 @@ const ContentManager = () => {
       .trim();
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.title || !formData.content || !formData.category) {
@@ -139,10 +145,14 @@ const ContentManager = () => {
       return;
     }
 
+    if (!user) {
+      toast.error('Você precisa estar logado para publicar');
+      return;
+    }
+
+    setSubmitting(true);
+
     const slug = formData.slug || generateSlug(formData.title);
-    
-    // Remove cover_image_index pois não existe na tabela
-    const { cover_image_index, ...dataToSave } = formData;
     
     // Definir a imagem de capa (image_url) baseada na media_gallery
     let coverImageUrl = formData.image_url || '';
@@ -162,15 +172,19 @@ const ContentManager = () => {
     let finalStatus = formData.published ? 'published' : 'draft';
     
     if (isEditor && isPublishing && !editingId) {
-      // Editor criando novo artigo publicado -> enviar para aprovação
       finalPublished = false;
       finalStatus = 'pending_approval';
     }
     
     const articleData = { 
-      ...dataToSave, 
+      title: formData.title,
+      subtitle: formData.subtitle,
+      content: formData.content,
+      category: formData.category,
+      tags: formData.tags,
+      featured: formData.featured,
       slug, 
-      author_id: user?.id,
+      author_id: user.id,
       image_url: coverImageUrl,
       media_gallery: formData.media_gallery || [],
       published: finalPublished,
@@ -201,13 +215,15 @@ const ContentManager = () => {
 
       resetForm();
       loadArticles();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao salvar artigo:', error);
-      toast.error('Erro ao salvar artigo');
+      toast.error(error?.message || 'Erro ao salvar artigo');
+    } finally {
+      setSubmitting(false);
     }
-  };
+  }, [formData, user, userRole, editingId, loadArticles]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     if (!confirm('Tem certeza que deseja excluir este artigo?')) return;
 
     try {
@@ -218,14 +234,14 @@ const ContentManager = () => {
 
       if (error) throw error;
       toast.success('Artigo excluído com sucesso!');
-      loadArticles();
+      setArticles(prev => prev.filter(a => a.id !== id));
     } catch (error) {
       console.error('Erro ao excluir artigo:', error);
       toast.error('Erro ao excluir artigo');
     }
-  };
+  }, []);
 
-  const handleEdit = (article: Article) => {
+  const handleEdit = useCallback((article: Article) => {
     setEditingId(article.id);
     setFormData({
       title: article.title,
@@ -240,9 +256,11 @@ const ContentManager = () => {
       media_gallery: article.media_gallery || [],
       cover_image_index: 0
     });
-  };
+    // Scroll para o topo do formulário no mobile
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setEditingId(null);
     setFormData({
       title: '',
@@ -257,30 +275,39 @@ const ContentManager = () => {
       media_gallery: [],
       cover_image_index: 0
     });
-  };
+  }, []);
 
-  const handleMediaSelect = (media: { url: string; type: 'image' | 'video' }) => {
+  const handleMediaSelect = useCallback((media: { url: string; type: 'image' | 'video' }) => {
     setFormData(prev => ({ 
       ...prev, 
       media_gallery: [...prev.media_gallery, media]
     }));
     setShowMediaLibrary(false);
-  };
+  }, []);
 
-  const handleRemoveMedia = (index: number) => {
+  const handleRemoveMedia = useCallback((index: number) => {
     setFormData(prev => ({
       ...prev,
       media_gallery: prev.media_gallery.filter((_, i) => i !== index)
     }));
-  };
+  }, []);
 
-  const handleSetCoverImage = (index: number) => {
+  const handleSetCoverImage = useCallback((index: number) => {
     setFormData(prev => ({
       ...prev,
       cover_image_index: index,
       image_url: prev.media_gallery[index]?.url || ''
     }));
-  };
+  }, []);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -347,38 +374,41 @@ const ContentManager = () => {
                 </Button>
                 
                 {formData.media_gallery.length > 0 && (
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
                     {formData.media_gallery.map((media: any, index: number) => (
                       <div key={index} className="relative group">
                         <img 
                           src={media.url} 
                           alt={`Mídia ${index + 1}`}
-                          className={`w-full h-32 object-cover rounded-lg border-2 ${
+                          className={`w-full h-24 sm:h-32 object-cover rounded-lg border-2 ${
                             index === formData.cover_image_index 
                               ? 'border-primary' 
                               : 'border-border'
                           }`}
+                          loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                        <div className="absolute inset-0 bg-black/50 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1 sm:gap-2">
                           <Button
                             type="button"
                             size="sm"
                             variant="secondary"
                             onClick={() => handleSetCoverImage(index)}
+                            className="text-xs px-2 py-1 h-auto"
                           >
-                            {index === formData.cover_image_index ? 'Capa' : 'Definir Capa'}
+                            {index === formData.cover_image_index ? 'Capa' : 'Capa'}
                           </Button>
                           <Button
                             type="button"
                             size="sm"
                             variant="destructive"
                             onClick={() => handleRemoveMedia(index)}
+                            className="h-auto p-1 sm:p-2"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                           </Button>
                         </div>
                         {index === formData.cover_image_index && (
-                          <Badge className="absolute top-2 left-2 bg-primary">
+                          <Badge className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-primary text-xs">
                             Capa
                           </Badge>
                         )}
@@ -427,15 +457,22 @@ const ContentManager = () => {
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <Button type="submit">
-                {editingId ? 'Atualizar' : 'Criar'} Artigo
+            <div className="flex flex-wrap gap-2">
+              <Button type="submit" disabled={submitting} className="flex-1 sm:flex-none">
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>{editingId ? 'Atualizar' : 'Criar'} Artigo</>
+                )}
               </Button>
-              <Button type="button" variant="outline" onClick={() => setShowPreview(true)}>
-                Visualizar Preview
+              <Button type="button" variant="outline" onClick={() => setShowPreview(true)} className="flex-1 sm:flex-none">
+                Preview
               </Button>
               {editingId && (
-                <Button type="button" variant="outline" onClick={resetForm}>
+                <Button type="button" variant="outline" onClick={resetForm} className="flex-1 sm:flex-none">
                   Cancelar
                 </Button>
               )}
