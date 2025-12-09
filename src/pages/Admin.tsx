@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import Dashboard from "@/components/admin/Dashboard";
@@ -66,10 +66,27 @@ const Admin = () => {
     }
   }, [user, loading, navigate]);
 
+  const [signingOut, setSigningOut] = useState(false);
+
   const handleSignOut = async () => {
-    await signOut();
-    toast.success("Logout realizado com sucesso");
-    navigate("/");
+    if (signingOut) return;
+    
+    setSigningOut(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Erro ao fazer logout:', error);
+        toast.error("Erro ao sair. Tente novamente.");
+        return;
+      }
+      toast.success("Logout realizado com sucesso");
+      navigate("/login");
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      toast.error("Erro ao sair. Tente novamente.");
+    } finally {
+      setSigningOut(false);
+    }
   };
 
   if (loading || checkingRole) {
@@ -115,9 +132,14 @@ const Admin = () => {
               <Button 
                 onClick={handleSignOut} 
                 variant="outline"
+                disabled={signingOut}
                 className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
               >
-                <LogOut className="w-4 h-4 mr-2" />
+                {signingOut ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <LogOut className="w-4 h-4 mr-2" />
+                )}
                 <span className="hidden sm:inline">Sair</span>
               </Button>
             </div>
