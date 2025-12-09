@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 type UserRole = 'admin' | 'editor' | null;
 
@@ -14,6 +14,16 @@ export const useAuth = () => {
     // Configurar listener primeiro
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        // Limpar sessão inválida
+        if (event === 'TOKEN_REFRESHED' && !session) {
+          await supabase.auth.signOut();
+          setSession(null);
+          setUser(null);
+          setUserRole(null);
+          setLoading(false);
+          return;
+        }
+
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -35,7 +45,18 @@ export const useAuth = () => {
     );
 
     // Depois verificar sessão existente
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
+      // Se houver erro de token, limpar sessão
+      if (error) {
+        console.log('Sessão inválida, limpando...', error);
+        await supabase.auth.signOut();
+        setSession(null);
+        setUser(null);
+        setUserRole(null);
+        setLoading(false);
+        return;
+      }
+
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -50,6 +71,13 @@ export const useAuth = () => {
         setUserRole(roleData?.role as UserRole || null);
       }
       
+      setLoading(false);
+    }).catch(async (error) => {
+      console.log('Erro ao recuperar sessão:', error);
+      await supabase.auth.signOut();
+      setSession(null);
+      setUser(null);
+      setUserRole(null);
       setLoading(false);
     });
 
