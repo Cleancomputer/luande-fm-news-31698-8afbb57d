@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,6 +37,7 @@ const ContentManager = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const [formData, setFormData] = useState({
     title: '',
     subtitle: '',
@@ -154,7 +155,7 @@ const ContentManager = () => {
     });
   }, []);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.title || !formData.content || !formData.category) {
@@ -162,12 +163,13 @@ const ContentManager = () => {
       return;
     }
 
-    // Previne duplo clique
-    if (submitting) {
+    // Previne duplo clique usando ref para evitar problemas de closure
+    if (submittingRef.current) {
       console.log('Submissão já em andamento, ignorando...');
       return;
     }
     
+    submittingRef.current = true;
     setSubmitting(true);
 
     try {
@@ -176,22 +178,15 @@ const ContentManager = () => {
       // Busca userId diretamente do Supabase para garantir
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
-      if (sessionError) {
+      if (sessionError || !sessionData?.session?.user?.id) {
         console.error('Erro ao obter sessão:', sessionError);
-        toast.error('Erro de autenticação. Faça login novamente.');
-        setSubmitting(false);
-        return;
-      }
-
-      const currentUserId = sessionData?.session?.user?.id;
-
-      if (!currentUserId) {
-        console.error('Usuário não autenticado');
         toast.error('Sessão expirada. Por favor, faça login novamente.');
+        submittingRef.current = false;
         setSubmitting(false);
         return;
       }
 
+      const currentUserId = sessionData.session.user.id;
       console.log('Usuário autenticado:', currentUserId);
 
       const slug = formData.slug || generateSlug(formData.title);
@@ -235,53 +230,52 @@ const ContentManager = () => {
 
       console.log('Dados do artigo preparados:', { title: articleData.title, category: articleData.category });
 
+      let saveError = null;
+
       if (editingId) {
         console.log('Atualizando artigo:', editingId);
         const { error } = await supabase
           .from('articles')
           .update(articleData)
           .eq('id', editingId);
-        
-        if (error) {
-          console.error('Erro ao atualizar:', error);
-          toast.error(error.message || 'Erro ao atualizar artigo');
-          setSubmitting(false);
-          return;
-        }
-        
-        console.log('Artigo atualizado com sucesso');
-        toast.success('Artigo atualizado com sucesso!');
+        saveError = error;
       } else {
         console.log('Criando novo artigo');
         const { error } = await supabase
           .from('articles')
           .insert([articleData]);
-        
-        if (error) {
-          console.error('Erro ao inserir:', error);
-          toast.error(error.message || 'Erro ao criar artigo');
-          setSubmitting(false);
-          return;
-        }
-        
-        console.log('Artigo criado com sucesso');
-        if (finalStatus === 'pending_approval') {
-          toast.success('Artigo enviado para aprovação!');
-        } else {
-          toast.success('Artigo criado com sucesso!');
-        }
+        saveError = error;
+      }
+      
+      if (saveError) {
+        console.error('Erro ao salvar:', saveError);
+        toast.error(saveError.message || 'Erro ao salvar artigo');
+        submittingRef.current = false;
+        setSubmitting(false);
+        return;
+      }
+      
+      console.log('Artigo salvo com sucesso');
+      
+      if (editingId) {
+        toast.success('Artigo atualizado com sucesso!');
+      } else if (finalStatus === 'pending_approval') {
+        toast.success('Artigo enviado para aprovação!');
+      } else {
+        toast.success('Artigo criado com sucesso!');
       }
 
       // Limpa formulário e recarrega lista
       resetForm();
-      await loadArticles();
+      loadArticles();
     } catch (error: any) {
       console.error('Erro ao salvar artigo:', error);
       toast.error(error?.message || 'Erro ao salvar artigo');
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
-  }, [formData, userRole, editingId, loadArticles, submitting, resetForm]);
+  };
 
   const handleDelete = useCallback(async (id: string) => {
     if (!confirm('Tem certeza que deseja excluir este artigo?')) return;
