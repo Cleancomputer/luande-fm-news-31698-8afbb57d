@@ -1,10 +1,9 @@
-import { useState, useEffect, useCallback, memo } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { useState, useEffect, useCallback, memo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Loader2, Camera, Video } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Media {
@@ -85,7 +84,11 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
   const { user } = useAuth();
   const [media, setMedia] = useState<Media[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
   const [loading, setLoading] = useState(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadMedia();
@@ -109,20 +112,31 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
     }
   }, []);
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+  const handleFileUpload = useCallback(async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    
     if (!user) {
       toast.error('Você precisa estar logado para fazer upload');
       return;
     }
 
     setUploading(true);
+    setUploadProgress('Preparando...');
+    
     try {
-      for (const file of acceptedFiles) {
-        const fileExt = file.name.split('.').pop();
+      const fileArray = Array.from(files);
+      
+      for (let i = 0; i < fileArray.length; i++) {
+        const file = fileArray[i];
+        setUploadProgress(`Enviando ${i + 1}/${fileArray.length}...`);
+        
+        const fileExt = file.name.split('.').pop()?.toLowerCase() || 'bin';
         const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
         const filePath = `${user.id}/${fileName}`;
 
-        const { error: uploadError } = await supabase.storage
+        console.log('Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
+
+        const { error: uploadError, data: uploadData } = await supabase.storage
           .from('media')
           .upload(filePath, file, {
             cacheControl: '3600',
@@ -131,27 +145,33 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
 
         if (uploadError) {
           console.error('Upload error:', uploadError);
-          throw uploadError;
+          toast.error(`Erro no upload: ${uploadError.message}`);
+          continue;
         }
+
+        console.log('Upload successful:', uploadData);
 
         const { data: { publicUrl } } = supabase.storage
           .from('media')
           .getPublicUrl(filePath);
+
+        console.log('Public URL:', publicUrl);
 
         const { error: dbError } = await supabase
           .from('media_library')
           .insert({
             file_name: file.name,
             file_path: publicUrl,
-            file_type: file.type,
+            file_type: file.type || 'application/octet-stream',
             file_size: file.size,
-            mime_type: file.type,
+            mime_type: file.type || 'application/octet-stream',
             uploaded_by: user.id,
           });
 
         if (dbError) {
           console.error('DB error:', dbError);
-          throw dbError;
+          toast.error(`Erro ao salvar: ${dbError.message}`);
+          continue;
         }
 
         // Auto-select the uploaded media if onSelect is provided
@@ -174,19 +194,13 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
       toast.error(error?.message || 'Erro ao enviar mídia');
     } finally {
       setUploading(false);
+      setUploadProgress('');
+      // Reset file inputs
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      if (imageInputRef.current) imageInputRef.current.value = '';
+      if (videoInputRef.current) videoInputRef.current.value = '';
     }
   }, [user, onSelect, loadMedia]);
-
-  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
-    onDrop,
-    accept: {
-      'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp'],
-      'video/*': ['.mp4', '.webm', '.avi', '.mov', '.mkv', '.flv', '.wmv', '.m4v', '.3gp'],
-      'audio/*': ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac'],
-    },
-    noClick: false,
-    noKeyboard: false,
-  });
 
   const handleDelete = useCallback(async (id: string, filePath: string) => {
     if (!confirm('Tem certeza que deseja excluir esta mídia?')) return;
@@ -229,45 +243,82 @@ export const MediaLibrary = memo(({ onSelect, allowMultiple = false }: MediaLibr
   return (
     <div className="space-y-4">
       <Card>
-        <CardContent className="p-4 sm:p-6">
-          <div
-            {...getRootProps()}
-            className={`border-2 border-dashed rounded-lg p-4 sm:p-8 text-center cursor-pointer transition-colors ${
-              isDragActive ? 'border-primary bg-primary/10' : 'border-muted-foreground/25'
-            } ${uploading ? 'pointer-events-none opacity-50' : ''}`}
-          >
-            <input {...getInputProps()} />
-            {uploading ? (
-              <>
-                <Loader2 className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-2 sm:mb-4 text-primary animate-spin" />
-                <p className="text-sm text-muted-foreground">Enviando...</p>
-              </>
-            ) : (
-              <>
-                <Upload className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-2 sm:mb-4 text-muted-foreground" />
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  {isDragActive
-                    ? 'Solte os arquivos aqui...'
-                    : 'Toque para selecionar ou arraste arquivos'}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1 sm:mt-2">
-                  Suporta imagens e vídeos
-                </p>
-              </>
-            )}
-          </div>
+        <CardContent className="p-4">
+          {/* Input de arquivo oculto - para todos os tipos */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            className="hidden"
+            onChange={(e) => handleFileUpload(e.target.files)}
+          />
           
-          {/* Botão extra para mobile */}
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full mt-3 sm:hidden"
-            onClick={open}
-            disabled={uploading}
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            Selecionar Arquivo
-          </Button>
+          {/* Input específico para imagens com câmera */}
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={(e) => handleFileUpload(e.target.files)}
+          />
+          
+          {/* Input específico para vídeos com câmera */}
+          <input
+            ref={videoInputRef}
+            type="file"
+            accept="video/*"
+            capture="environment"
+            className="hidden"
+            onChange={(e) => handleFileUpload(e.target.files)}
+          />
+
+          {uploading ? (
+            <div className="flex flex-col items-center justify-center py-8">
+              <Loader2 className="h-10 w-10 text-primary animate-spin mb-3" />
+              <p className="text-sm text-muted-foreground">{uploadProgress || 'Enviando...'}</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* Botão principal de upload */}
+              <Button
+                type="button"
+                variant="default"
+                className="w-full h-14 text-base"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="w-5 h-5 mr-2" />
+                Selecionar Arquivo
+              </Button>
+              
+              {/* Botões específicos para mobile */}
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-12"
+                  onClick={() => imageInputRef.current?.click()}
+                >
+                  <Camera className="w-4 h-4 mr-2" />
+                  Tirar Foto
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-12"
+                  onClick={() => videoInputRef.current?.click()}
+                >
+                  <Video className="w-4 h-4 mr-2" />
+                  Gravar Vídeo
+                </Button>
+              </div>
+              
+              <p className="text-xs text-center text-muted-foreground">
+                Suporta imagens (JPG, PNG, GIF) e vídeos (MP4, MOV, etc.)
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
