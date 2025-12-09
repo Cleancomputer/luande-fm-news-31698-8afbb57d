@@ -80,6 +80,18 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
           });
 
         if (dbError) throw dbError;
+
+        // Auto-select the uploaded media if onSelect is provided
+        if (onSelect) {
+          const isImage = file.type.startsWith('image/');
+          const isVideo = file.type.startsWith('video/');
+          if (isImage || isVideo) {
+            onSelect({
+              url: publicUrl,
+              type: isVideo ? 'video' : 'image',
+            });
+          }
+        }
       }
 
       toast.success('Mídia enviada com sucesso!');
