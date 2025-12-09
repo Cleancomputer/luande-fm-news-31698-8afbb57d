@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { supabase } from "@/integrations/supabase/client";
+import { supabaseClient } from "@/lib/supabase-client";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
 
@@ -28,7 +28,7 @@ const CategoriesManager = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabaseClient
         .from('categories')
         .select('*')
         .order('display_order', { ascending: true });
@@ -62,7 +62,7 @@ const CategoriesManager = () => {
       const slug = createSlug(newCategory);
       const maxOrder = Math.max(...categories.map(c => c.display_order), 0);
 
-      const { error } = await (supabase as any)
+      const { error } = await supabaseClient
         .from('categories')
         .insert({
           name: newCategory,
@@ -83,7 +83,7 @@ const CategoriesManager = () => {
 
   const toggleActive = async (id: string, currentStatus: boolean) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabaseClient
         .from('categories')
         .update({ is_active: !currentStatus })
         .eq('id', id);
@@ -102,7 +102,7 @@ const CategoriesManager = () => {
     if (!confirm("Tem certeza que deseja excluir esta categoria?")) return;
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabaseClient
         .from('categories')
         .delete()
         .eq('id', id);

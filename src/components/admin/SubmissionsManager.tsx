@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
+import { supabaseClient } from "@/lib/supabase-client";
 import { toast } from "sonner";
 import { CheckCircle, XCircle, Award, Eye } from "lucide-react";
 
@@ -19,7 +19,7 @@ const SubmissionsManager = () => {
 
   const fetchSubmissions = async () => {
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabaseClient
         .from('user_submissions')
         .select('*')
         .order('created_at', { ascending: false });
@@ -36,7 +36,7 @@ const SubmissionsManager = () => {
 
   const updateStatus = async (id: string, status: string) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabaseClient
         .from('user_submissions')
         .update({ status, admin_notes: adminNotes })
         .eq('id', id);

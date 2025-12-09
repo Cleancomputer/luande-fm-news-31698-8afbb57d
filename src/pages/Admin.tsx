@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { LogOut, Loader2 } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import Dashboard from "@/components/admin/Dashboard";
@@ -66,23 +66,10 @@ const Admin = () => {
     }
   }, [user, loading, navigate]);
 
-  const [signingOut, setSigningOut] = useState(false);
-
   const handleSignOut = async () => {
-    if (signingOut) return;
-    
-    setSigningOut(true);
-    try {
-      // Tenta fazer logout, mas mesmo com erro, limpa a sessão local
-      await supabase.auth.signOut({ scope: 'local' });
-    } catch (error) {
-      console.log('Logout error (ignorado):', error);
-    }
-    
-    // Sempre redireciona para login, independente do resultado
+    await signOut();
     toast.success("Logout realizado com sucesso");
-    setSigningOut(false);
-    navigate("/login", { replace: true });
+    navigate("/");
   };
 
   if (loading || checkingRole) {
@@ -128,14 +115,9 @@ const Admin = () => {
               <Button 
                 onClick={handleSignOut} 
                 variant="outline"
-                disabled={signingOut}
                 className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
               >
-                {signingOut ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <LogOut className="w-4 h-4 mr-2" />
-                )}
+                <LogOut className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Sair</span>
               </Button>
             </div>

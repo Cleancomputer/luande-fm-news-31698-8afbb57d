@@ -3,7 +3,7 @@ import { Menu, X, Search, Shield, Radio } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
+import { supabaseClient } from "@/lib/supabase-client";
 import logo from "@/assets/logo-new.png";
 
 interface Category {
@@ -23,7 +23,7 @@ const Header = () => {
     fetchCategories();
 
     // Realtime subscription for categories
-    const categoriesChannel = supabase
+    const categoriesChannel = supabaseClient
       .channel('categories-changes')
       .on(
         'postgres_changes',
@@ -39,13 +39,13 @@ const Header = () => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(categoriesChannel);
+      supabaseClient.removeChannel(categoriesChannel);
     };
   }, []);
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from('categories')
         .select('*')
         .eq('is_active', true)
