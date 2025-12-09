@@ -29,13 +29,18 @@ interface Article {
   media_gallery: any;
 }
 
-const ContentManager = () => {
+interface ContentManagerProps {
+  userRole?: 'admin' | 'editor';
+}
+
+const ContentManager = ({ userRole = 'admin' }: ContentManagerProps) => {
   const { user } = useAuth();
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const isEditor = userRole === 'editor';
   const [formData, setFormData] = useState({
     title: '',
     subtitle: '',
@@ -155,13 +160,16 @@ const ContentManager = () => {
       }
     }
     
+    // Editor: artigos vão para aprovação | Admin: publicação direta
     const articleData = { 
       ...dataToSave, 
       slug, 
       author_id: user?.id,
-      image_url: coverImageUrl, // Garantir que a imagem de capa seja salva
-      // Garantir que media_gallery seja salvo como JSON
-      media_gallery: formData.media_gallery || []
+      image_url: coverImageUrl,
+      media_gallery: formData.media_gallery || [],
+      // Se for editor e quiser publicar, vai para pending_approval
+      status: isEditor && formData.published ? 'pending_approval' : (formData.published ? 'published' : 'draft'),
+      published: isEditor ? false : formData.published // Editor nunca publica diretamente
     };
 
     try {
@@ -179,7 +187,11 @@ const ContentManager = () => {
           .insert([articleData]);
 
         if (error) throw error;
-        toast.success('Artigo criado com sucesso!');
+        if (isEditor && formData.published) {
+          toast.success('Artigo enviado para aprovação do administrador!');
+        } else {
+          toast.success('Artigo criado com sucesso!');
+        }
       }
 
       resetForm();
@@ -397,17 +409,21 @@ const ContentManager = () => {
                   checked={formData.published}
                   onCheckedChange={(checked) => setFormData({ ...formData, published: checked })}
                 />
-                <Label htmlFor="published">Publicado</Label>
+                <Label htmlFor="published">
+                  {isEditor ? 'Enviar para Aprovação' : 'Publicado'}
+                </Label>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="featured"
-                  checked={formData.featured}
-                  onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })}
-                />
-                <Label htmlFor="featured">Destaque</Label>
-              </div>
+              {!isEditor && (
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="featured"
+                    checked={formData.featured}
+                    onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })}
+                  />
+                  <Label htmlFor="featured">Destaque</Label>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2">
@@ -427,40 +443,42 @@ const ContentManager = () => {
         </CardContent>
       </Card>
 
-      {/* Lista de Artigos */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Artigos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {articles.map((article) => (
-              <div key={article.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex-1">
-                  <h3 className="font-semibold">{article.title}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {article.category} • {article.published ? 'Publicado' : 'Rascunho'}
-                  </p>
+      {/* Lista de Artigos - Apenas para admin */}
+      {!isEditor && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Artigos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {articles.map((article) => (
+                <div key={article.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex-1">
+                    <h3 className="font-semibold">{article.title}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {article.category} • {article.published ? 'Publicado' : 'Rascunho'}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(article)}>
+                      Editar
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDelete(article.id)}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(article)}>
-                    Editar
-                  </Button>
-                  <Button variant="destructive" size="sm" onClick={() => handleDelete(article.id)}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+              ))}
 
-            {articles.length === 0 && (
-              <p className="text-center text-muted-foreground py-8">
-                Nenhum artigo encontrado
-              </p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              {articles.length === 0 && (
+                <p className="text-center text-muted-foreground py-8">
+                  Nenhum artigo encontrado
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Media Library Modal */}
       {showMediaLibrary && (

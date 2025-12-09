@@ -24,7 +24,7 @@ const allMenuItems = [
     title: "Matérias Publicadas", 
     path: "/admin/published", 
     icon: Eye,
-    adminOnly: true,
+    adminOnly: false,
   },
   { 
     title: "Categorias", 

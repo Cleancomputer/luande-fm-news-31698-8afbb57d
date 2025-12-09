@@ -130,8 +130,8 @@ const Admin = () => {
             {isAdmin ? (
               <>
                 <Route path="/" element={<Dashboard />} />
-                <Route path="/content" element={<ContentManager />} />
-                <Route path="/published" element={<PublishedArticles />} />
+                <Route path="/content" element={<ContentManager userRole="admin" />} />
+                <Route path="/published" element={<PublishedArticles userRole="admin" />} />
                 <Route path="/polls" element={<PollsManager />} />
                 <Route path="/events" element={<EventsManager />} />
                 <Route path="/designer" element={<Designer />} />
@@ -147,7 +147,8 @@ const Admin = () => {
             ) : (
               <>
                 <Route path="/" element={<Navigate to="/admin/content" replace />} />
-                <Route path="/content" element={<ContentManager />} />
+                <Route path="/content" element={<ContentManager userRole="editor" />} />
+                <Route path="/published" element={<PublishedArticles userRole="editor" />} />
                 <Route path="*" element={<Navigate to="/admin/content" replace />} />
               </>
             )}
