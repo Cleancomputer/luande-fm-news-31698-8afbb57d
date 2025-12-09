@@ -137,6 +137,23 @@ const ContentManager = () => {
       .trim();
   };
 
+  const resetForm = useCallback(() => {
+    setEditingId(null);
+    setFormData({
+      title: '',
+      subtitle: '',
+      content: '',
+      category: '',
+      image_url: '',
+      published: false,
+      featured: false,
+      tags: [],
+      slug: '',
+      media_gallery: [],
+      cover_image_index: 0
+    });
+  }, []);
+
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -146,30 +163,36 @@ const ContentManager = () => {
     }
 
     // Previne duplo clique
-    if (submitting) return;
+    if (submitting) {
+      console.log('Submissão já em andamento, ignorando...');
+      return;
+    }
     
     setSubmitting(true);
 
-    // Timeout de segurança para garantir que não fica travado
-    const timeoutId = setTimeout(() => {
-      setSubmitting(false);
-      toast.error('Tempo esgotado. Tente novamente.');
-    }, 30000);
-
     try {
-      // Verifica usuário em memória ou busca da sessão
-      let currentUserId = user?.id;
-      if (!currentUserId) {
-        const { data } = await supabase.auth.getSession();
-        currentUserId = data?.session?.user?.id;
-      }
-
-      if (!currentUserId) {
-        clearTimeout(timeoutId);
+      console.log('Iniciando salvamento do artigo...');
+      
+      // Busca userId diretamente do Supabase para garantir
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Erro ao obter sessão:', sessionError);
+        toast.error('Erro de autenticação. Faça login novamente.');
         setSubmitting(false);
-        toast.error('Sessão expirada. Por favor, faça login novamente.');
         return;
       }
+
+      const currentUserId = sessionData?.session?.user?.id;
+
+      if (!currentUserId) {
+        console.error('Usuário não autenticado');
+        toast.error('Sessão expirada. Por favor, faça login novamente.');
+        setSubmitting(false);
+        return;
+      }
+
+      console.log('Usuário autenticado:', currentUserId);
 
       const slug = formData.slug || generateSlug(formData.title);
       
@@ -210,47 +233,55 @@ const ContentManager = () => {
         status: finalStatus
       };
 
-      let saveError = null;
+      console.log('Dados do artigo preparados:', { title: articleData.title, category: articleData.category });
 
       if (editingId) {
+        console.log('Atualizando artigo:', editingId);
         const { error } = await supabase
           .from('articles')
           .update(articleData)
           .eq('id', editingId);
-        saveError = error;
+        
+        if (error) {
+          console.error('Erro ao atualizar:', error);
+          toast.error(error.message || 'Erro ao atualizar artigo');
+          setSubmitting(false);
+          return;
+        }
+        
+        console.log('Artigo atualizado com sucesso');
+        toast.success('Artigo atualizado com sucesso!');
       } else {
+        console.log('Criando novo artigo');
         const { error } = await supabase
           .from('articles')
           .insert([articleData]);
-        saveError = error;
+        
+        if (error) {
+          console.error('Erro ao inserir:', error);
+          toast.error(error.message || 'Erro ao criar artigo');
+          setSubmitting(false);
+          return;
+        }
+        
+        console.log('Artigo criado com sucesso');
+        if (finalStatus === 'pending_approval') {
+          toast.success('Artigo enviado para aprovação!');
+        } else {
+          toast.success('Artigo criado com sucesso!');
+        }
       }
 
-      clearTimeout(timeoutId);
-
-      if (saveError) {
-        toast.error(saveError.message || 'Erro ao salvar artigo');
-        setSubmitting(false);
-        return;
-      }
-
-      if (editingId) {
-        toast.success('Artigo atualizado com sucesso!');
-      } else if (finalStatus === 'pending_approval') {
-        toast.success('Artigo enviado para aprovação!');
-      } else {
-        toast.success('Artigo criado com sucesso!');
-      }
-
+      // Limpa formulário e recarrega lista
       resetForm();
-      loadArticles();
-      setSubmitting(false);
+      await loadArticles();
     } catch (error: any) {
-      clearTimeout(timeoutId);
       console.error('Erro ao salvar artigo:', error);
       toast.error(error?.message || 'Erro ao salvar artigo');
+    } finally {
       setSubmitting(false);
     }
-  }, [formData, user, userRole, editingId, loadArticles, submitting]);
+  }, [formData, userRole, editingId, loadArticles, submitting, resetForm]);
 
   const handleDelete = useCallback(async (id: string) => {
     if (!confirm('Tem certeza que deseja excluir este artigo?')) return;
@@ -287,23 +318,6 @@ const ContentManager = () => {
     });
     // Scroll para o topo do formulário no mobile
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
-
-  const resetForm = useCallback(() => {
-    setEditingId(null);
-    setFormData({
-      title: '',
-      subtitle: '',
-      content: '',
-      category: '',
-      image_url: '',
-      published: false,
-      featured: false,
-      tags: [],
-      slug: '',
-      media_gallery: [],
-      cover_image_index: 0
-    });
   }, []);
 
   const handleMediaSelect = useCallback((media: { url: string; type: 'image' | 'video' }) => {
