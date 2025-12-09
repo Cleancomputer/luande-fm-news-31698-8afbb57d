@@ -8,10 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Plus, Trash2, Upload, Loader2, X } from 'lucide-react';
+import { Trash2, Upload, Loader2, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { RichTextEditor } from './RichTextEditor';
 import { MediaLibrary } from './MediaLibrary';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Article {
   id: string;
@@ -64,15 +65,15 @@ const ContentManager = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  
-  // Usar ref para form data para evitar problemas de closure
-  const formDataRef = useRef<FormData>(initialFormData);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   
-  // Sincronizar ref com state
+  // Ref para conteúdo - será atualizada pelo editor
+  const contentRef = useRef('');
+  
+  // Sincronizar contentRef quando formData.content muda
   useEffect(() => {
-    formDataRef.current = formData;
-  }, [formData]);
+    contentRef.current = formData.content;
+  }, [formData.content]);
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -175,8 +176,12 @@ const ContentManager = () => {
       return;
     }
 
-    // Capturar dados atuais do formulário da ref
-    const currentData = { ...formDataRef.current };
+    // Capturar dados atuais - usar contentRef para conteúdo mais recente
+    const currentContent = contentRef.current || formData.content;
+    const currentData = {
+      ...formData,
+      content: currentContent
+    };
 
     // Validações
     if (!currentData.title.trim()) {
@@ -187,7 +192,10 @@ const ContentManager = () => {
       toast.error('Selecione uma categoria');
       return;
     }
-    if (!currentData.content || currentData.content === '<p></p>' || currentData.content.trim() === '') {
+    
+    // Verificar conteúdo vazio
+    const cleanContent = currentData.content.replace(/<[^>]*>/g, '').trim();
+    if (!cleanContent) {
       toast.error('O conteúdo não pode estar vazio');
       return;
     }
@@ -476,7 +484,10 @@ const ContentManager = () => {
               <Label htmlFor="content">Conteúdo *</Label>
               <RichTextEditor
                 content={formData.content}
-                onChange={(content) => updateFormField('content', content)}
+                onChange={(content) => {
+                  contentRef.current = content;
+                  updateFormField('content', content);
+                }}
               />
             </div>
 
@@ -587,28 +598,16 @@ const ContentManager = () => {
       </Card>
 
       {/* Modal da Biblioteca de Mídia */}
-      {showMediaLibrary && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={(e) => e.target === e.currentTarget && setShowMediaLibrary(false)}
-        >
-          <div className="bg-background rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="p-4 border-b flex justify-between items-center shrink-0">
-              <h2 className="text-xl font-bold">Biblioteca de Mídia</h2>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setShowMediaLibrary(false)}
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-            <div className="p-4 overflow-y-auto flex-1">
-              <MediaLibrary onSelect={handleMediaSelect} />
-            </div>
+      <Dialog open={showMediaLibrary} onOpenChange={setShowMediaLibrary}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Biblioteca de Mídia</DialogTitle>
+          </DialogHeader>
+          <div className="overflow-y-auto flex-1 pr-2">
+            <MediaLibrary onSelect={handleMediaSelect} />
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
       {/* Modal de Preview */}
       {showPreview && (
