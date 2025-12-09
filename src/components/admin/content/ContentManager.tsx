@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
-import { supabaseClient } from '@/lib/supabase-client';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -76,7 +75,7 @@ const ContentManager = () => {
     loadCategories();
 
     // Realtime subscription for categories
-    const categoriesChannel = supabaseClient
+    const categoriesChannel = supabase
       .channel('categories-content-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, loadCategories)
       .subscribe();
@@ -88,14 +87,14 @@ const ContentManager = () => {
       .subscribe();
 
     return () => {
-      supabaseClient.removeChannel(categoriesChannel);
+      supabase.removeChannel(categoriesChannel);
       supabase.removeChannel(articlesChannel);
     };
   }, []);
 
   const loadCategories = async () => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await (supabase as any)
         .from('categories')
         .select('*')
         .eq('is_active', true)
