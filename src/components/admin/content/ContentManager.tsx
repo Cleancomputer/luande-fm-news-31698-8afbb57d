@@ -145,94 +145,112 @@ const ContentManager = () => {
       return;
     }
 
-    // Verifica usuário em memória ou busca da sessão
-    let currentUser = user;
-    if (!currentUser) {
-      try {
-        const { data } = await supabase.auth.getSession();
-        currentUser = data?.session?.user || null;
-      } catch (err) {
-        console.error('Erro ao verificar sessão:', err);
-      }
-    }
-
-    if (!currentUser) {
-      toast.error('Sessão expirada. Por favor, faça login novamente.');
-      return;
-    }
-
+    // Previne duplo clique
+    if (submitting) return;
+    
     setSubmitting(true);
 
-    const slug = formData.slug || generateSlug(formData.title);
-    
-    // Definir a imagem de capa (image_url) baseada na media_gallery
-    let coverImageUrl = formData.image_url || '';
-    if (formData.media_gallery && formData.media_gallery.length > 0) {
-      const coverIndex = formData.cover_image_index ?? 0;
-      const coverMedia = formData.media_gallery[coverIndex];
-      if (coverMedia && coverMedia.type === 'image') {
-        coverImageUrl = coverMedia.url;
-      }
-    }
-    
-    // Se for editor e está publicando, enviar para aprovação
-    const isEditor = userRole === 'editor';
-    const isPublishing = formData.published;
-    
-    let finalPublished = formData.published;
-    let finalStatus = formData.published ? 'published' : 'draft';
-    
-    if (isEditor && isPublishing && !editingId) {
-      finalPublished = false;
-      finalStatus = 'pending_approval';
-    }
-    
-    const articleData = { 
-      title: formData.title,
-      subtitle: formData.subtitle,
-      content: formData.content,
-      category: formData.category,
-      tags: formData.tags,
-      featured: formData.featured,
-      slug, 
-      author_id: currentUser.id,
-      image_url: coverImageUrl,
-      media_gallery: formData.media_gallery || [],
-      published: finalPublished,
-      status: finalStatus
-    };
+    // Timeout de segurança para garantir que não fica travado
+    const timeoutId = setTimeout(() => {
+      setSubmitting(false);
+      toast.error('Tempo esgotado. Tente novamente.');
+    }, 30000);
 
     try {
+      // Verifica usuário em memória ou busca da sessão
+      let currentUserId = user?.id;
+      if (!currentUserId) {
+        const { data } = await supabase.auth.getSession();
+        currentUserId = data?.session?.user?.id;
+      }
+
+      if (!currentUserId) {
+        clearTimeout(timeoutId);
+        setSubmitting(false);
+        toast.error('Sessão expirada. Por favor, faça login novamente.');
+        return;
+      }
+
+      const slug = formData.slug || generateSlug(formData.title);
+      
+      // Definir a imagem de capa (image_url) baseada na media_gallery
+      let coverImageUrl = formData.image_url || '';
+      if (formData.media_gallery && formData.media_gallery.length > 0) {
+        const coverIndex = formData.cover_image_index ?? 0;
+        const coverMedia = formData.media_gallery[coverIndex];
+        if (coverMedia && coverMedia.type === 'image') {
+          coverImageUrl = coverMedia.url;
+        }
+      }
+      
+      // Se for editor e está publicando, enviar para aprovação
+      const isEditor = userRole === 'editor';
+      const isPublishing = formData.published;
+      
+      let finalPublished = formData.published;
+      let finalStatus = formData.published ? 'published' : 'draft';
+      
+      if (isEditor && isPublishing && !editingId) {
+        finalPublished = false;
+        finalStatus = 'pending_approval';
+      }
+      
+      const articleData = { 
+        title: formData.title,
+        subtitle: formData.subtitle,
+        content: formData.content,
+        category: formData.category,
+        tags: formData.tags,
+        featured: formData.featured,
+        slug, 
+        author_id: currentUserId,
+        image_url: coverImageUrl,
+        media_gallery: formData.media_gallery || [],
+        published: finalPublished,
+        status: finalStatus
+      };
+
+      let saveError = null;
+
       if (editingId) {
         const { error } = await supabase
           .from('articles')
           .update(articleData)
           .eq('id', editingId);
-
-        if (error) throw error;
-        toast.success('Artigo atualizado com sucesso!');
+        saveError = error;
       } else {
         const { error } = await supabase
           .from('articles')
           .insert([articleData]);
+        saveError = error;
+      }
 
-        if (error) throw error;
-        if (finalStatus === 'pending_approval') {
-          toast.success('Artigo enviado para aprovação!');
-        } else {
-          toast.success('Artigo criado com sucesso!');
-        }
+      clearTimeout(timeoutId);
+
+      if (saveError) {
+        toast.error(saveError.message || 'Erro ao salvar artigo');
+        setSubmitting(false);
+        return;
+      }
+
+      if (editingId) {
+        toast.success('Artigo atualizado com sucesso!');
+      } else if (finalStatus === 'pending_approval') {
+        toast.success('Artigo enviado para aprovação!');
+      } else {
+        toast.success('Artigo criado com sucesso!');
       }
 
       resetForm();
       loadArticles();
+      setSubmitting(false);
     } catch (error: any) {
+      clearTimeout(timeoutId);
       console.error('Erro ao salvar artigo:', error);
       toast.error(error?.message || 'Erro ao salvar artigo');
-    } finally {
       setSubmitting(false);
     }
-  }, [formData, user, userRole, editingId, loadArticles]);
+  }, [formData, user, userRole, editingId, loadArticles, submitting]);
 
   const handleDelete = useCallback(async (id: string) => {
     if (!confirm('Tem certeza que deseja excluir este artigo?')) return;
