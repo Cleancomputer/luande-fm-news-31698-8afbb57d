@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabaseClient } from "@/lib/supabase-client";
+import { supabase } from "@/integrations/supabase/client";
 import BreakingNews from "@/components/layout/BreakingNews";
 import DateTimeBanner from "@/components/layout/DateTimeBanner";
 import Header from "@/components/layout/Header";
@@ -24,7 +24,7 @@ const Category = () => {
       setLoading(true);
       
       // First, get the category name from the slug
-      const { data: categoryData, error: categoryError } = await supabaseClient
+      const { data: categoryData, error: categoryError } = await supabase
         .from('categories')
         .select('name')
         .eq('slug', category)
@@ -38,7 +38,7 @@ const Category = () => {
       setCategoryName(catName);
 
       // Then, get articles using the category name
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabase
         .from('articles')
         .select('*')
         .eq('published', true)

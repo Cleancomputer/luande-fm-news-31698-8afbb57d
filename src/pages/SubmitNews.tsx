@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Upload, Send } from "lucide-react";
-import { supabaseClient } from "@/lib/supabase-client";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -58,7 +57,7 @@ const SubmitNews = () => {
       }
 
       // Insert submission
-      const { error } = await supabaseClient
+      const { error } = await (supabase as any)
         .from('user_submissions')
         .insert({
           name,
