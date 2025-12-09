@@ -88,7 +88,7 @@ const PublishedArticles = () => {
 
   const loadArticles = async () => {
     try {
-      // Carregar artigos publicados
+      // Carregar TODOS os artigos publicados (independente do status)
       const { data: publishedData, error: publishedError } = await supabase
         .from('articles')
         .select('*')
@@ -96,6 +96,7 @@ const PublishedArticles = () => {
         .order('created_at', { ascending: false });
 
       if (publishedError) throw publishedError;
+      console.log('Artigos publicados carregados:', publishedData?.length);
       setArticles(publishedData || []);
 
       // Carregar artigos pendentes de aprovação
@@ -107,6 +108,7 @@ const PublishedArticles = () => {
         .order('created_at', { ascending: false });
 
       if (pendingError) throw pendingError;
+      console.log('Artigos pendentes carregados:', pendingData?.length);
       setPendingArticles(pendingData || []);
 
     } catch (error) {
