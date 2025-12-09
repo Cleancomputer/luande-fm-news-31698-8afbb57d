@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
