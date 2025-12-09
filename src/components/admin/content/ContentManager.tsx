@@ -30,7 +30,7 @@ interface Article {
 }
 
 const ContentManager = () => {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -155,13 +155,27 @@ const ContentManager = () => {
       }
     }
     
+    // Se for editor e está publicando, enviar para aprovação
+    const isEditor = userRole === 'editor';
+    const isPublishing = formData.published;
+    
+    let finalPublished = formData.published;
+    let finalStatus = formData.published ? 'published' : 'draft';
+    
+    if (isEditor && isPublishing && !editingId) {
+      // Editor criando novo artigo publicado -> enviar para aprovação
+      finalPublished = false;
+      finalStatus = 'pending_approval';
+    }
+    
     const articleData = { 
       ...dataToSave, 
       slug, 
       author_id: user?.id,
-      image_url: coverImageUrl, // Garantir que a imagem de capa seja salva
-      // Garantir que media_gallery seja salvo como JSON
-      media_gallery: formData.media_gallery || []
+      image_url: coverImageUrl,
+      media_gallery: formData.media_gallery || [],
+      published: finalPublished,
+      status: finalStatus
     };
 
     try {
@@ -179,7 +193,11 @@ const ContentManager = () => {
           .insert([articleData]);
 
         if (error) throw error;
-        toast.success('Artigo criado com sucesso!');
+        if (finalStatus === 'pending_approval') {
+          toast.success('Artigo enviado para aprovação!');
+        } else {
+          toast.success('Artigo criado com sucesso!');
+        }
       }
 
       resetForm();
