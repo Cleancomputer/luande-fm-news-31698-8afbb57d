@@ -4,25 +4,30 @@ import bradescoSeguros from "@/assets/ads/bradesco-seguros.png";
 import bradesco from "@/assets/ads/bradesco.png";
 import adBoaluz from "@/assets/ad-boaluz.jpg";
 import adAnuncieAqui from "@/assets/ad-anuncie-aqui.png";
+// Mobile horizontal ads
+import mobileVivoEmpresas from "@/assets/ads/mobile-vivo-empresas.png";
+import mobileBradescoSeguros from "@/assets/ads/mobile-bradesco-seguros.png";
+import mobileBradesco from "@/assets/ads/mobile-bradesco.png";
 
 interface Ad {
   src: string;
+  mobileSrc?: string;
   alt: string;
   link?: string;
 }
 
 const allAds: Ad[] = [
-  { src: vivoEmpresas, alt: "Vivo Empresas" },
-  { src: bradescoSeguros, alt: "Bradesco Seguros" },
-  { src: bradesco, alt: "Banco Bradesco" },
+  { src: vivoEmpresas, mobileSrc: mobileVivoEmpresas, alt: "Vivo Empresas" },
+  { src: bradescoSeguros, mobileSrc: mobileBradescoSeguros, alt: "Bradesco Seguros" },
+  { src: bradesco, mobileSrc: mobileBradesco, alt: "Banco Bradesco" },
   { src: adBoaluz, alt: "Ótica & Joalheria Boa Luz" },
   { src: adAnuncieAqui, alt: "Anuncie sua marca aqui" },
 ];
 
 const uploadedAds: Ad[] = [
-  { src: vivoEmpresas, alt: "Vivo Empresas" },
-  { src: bradescoSeguros, alt: "Bradesco Seguros" },
-  { src: bradesco, alt: "Banco Bradesco" },
+  { src: vivoEmpresas, mobileSrc: mobileVivoEmpresas, alt: "Vivo Empresas" },
+  { src: bradescoSeguros, mobileSrc: mobileBradescoSeguros, alt: "Bradesco Seguros" },
+  { src: bradesco, mobileSrc: mobileBradesco, alt: "Banco Bradesco" },
 ];
 
 interface InternalAdsProps {
@@ -91,12 +96,14 @@ const InternalAds = ({ position, source = "all", mobileFormat = "default", class
   }
 
   // Inline/Banner/Article - single rotating ad
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  
   return (
     <div className={`${getStyles()} ${className} overflow-hidden rounded-lg bg-muted/10 flex items-center justify-center relative`}>
       {ads.map((ad, index) => (
         <img 
           key={index}
-          src={ad.src} 
+          src={mobileFormat === "horizontal" && ad.mobileSrc ? ad.mobileSrc : ad.src} 
           alt={ad.alt}
           className={`max-w-full max-h-full object-contain absolute transition-opacity duration-1000 p-2 ${
             index === currentAdIndex ? "opacity-100" : "opacity-0"
