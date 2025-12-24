@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import EconomyWidget from "@/components/widgets/EconomyWidget";
 import HoroscopeWidget from "@/components/widgets/HoroscopeWidget";
 import AdSpace from "@/components/widgets/AdSpace";
+import InternalAds from "@/components/widgets/InternalAds";
 import FootballResults from "@/components/widgets/FootballResults";
 import TrocandoEmMiudos from "@/components/widgets/TrocandoEmMiudos";
 import appPromo from "@/assets/app-promo.png";
@@ -194,10 +195,13 @@ const Index = () => {
                     </div>
                   ))}
                 </div>
-              </div>
+                </div>
 
-              {/* Trocando em Miúdos Section */}
-              <TrocandoEmMiudos />
+                {/* Inline Ad */}
+                <InternalAds position="inline" className="my-8" />
+
+                {/* Trocando em Miúdos Section */}
+                <TrocandoEmMiudos />
             </div>
 
             {/* Right Column - Widgets + Mini Player */}
@@ -221,6 +225,7 @@ const Index = () => {
               </div>
 
               <FootballResults />
+              <InternalAds position="banner" className="my-4" />
               <PopularNews />
               <WeatherWidget />
               <Poll />

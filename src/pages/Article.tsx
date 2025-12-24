@@ -11,6 +11,7 @@ import VLibras from "@/components/layout/VLibras";
 import { MediaGalleryCarousel } from "@/components/article/MediaGalleryCarousel";
 import { ShareDialog } from "@/components/article/ShareDialog";
 import { Card, CardContent } from "@/components/ui/card";
+import InternalAds from "@/components/widgets/InternalAds";
 
 interface Article {
   id: string;
@@ -180,12 +181,16 @@ const Article = () => {
             </div>
           )}
 
+          {/* Ad before content */}
+          <InternalAds position="article" className="my-6" />
+
           <div 
             className="prose prose-lg max-w-none mb-8 [&>p]:mb-4 [&>p]:leading-relaxed [&>h1]:mb-4 [&>h1]:mt-6 [&>h2]:mb-4 [&>h2]:mt-6 [&>h3]:mb-4 [&>h3]:mt-6 [&>ul]:mb-4 [&>ol]:mb-4 [&>blockquote]:mb-4 [&>blockquote]:pl-4 [&>blockquote]:border-l-4"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
 
-
+          {/* Ad after content */}
+          <InternalAds position="inline" className="my-6" />
           {article.tags && article.tags.length > 0 && (
             <div className="mb-8">
               <h3 className="text-lg font-semibold mb-3">Tags:</h3>
