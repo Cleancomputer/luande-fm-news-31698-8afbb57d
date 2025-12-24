@@ -18,9 +18,11 @@ import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
+import VideoNews from "./pages/VideoNews";
 import LoadingScreen from "./components/layout/LoadingScreen";
 import VLibras from "./components/layout/VLibras";
 import AdSense from "./components/layout/AdSense";
+import SidebarAds from "./components/widgets/SidebarAds";
 
 // Create QueryClient outside component to avoid recreation on every render
 const queryClient = new QueryClient({
@@ -61,6 +63,8 @@ const App = () => {
           }}
         >
           <AdSense />
+          <SidebarAds side="left" />
+          <SidebarAds side="right" />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/artigo/:slug" element={<Article />} />
@@ -72,6 +76,7 @@ const App = () => {
             <Route path="/contato" element={<Contact />} />
             <Route path="/politica-de-privacidade" element={<PrivacyPolicy />} />
             <Route path="/termos-de-uso" element={<TermsOfUse />} />
+            <Route path="/videos" element={<VideoNews />} />
             <Route path="/login" element={<Login />} />
             <Route path="/create-admin" element={<CreateAdmin />} />
             <Route path="/admin/*" element={<Admin />} />
