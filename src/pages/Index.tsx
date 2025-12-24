@@ -182,16 +182,25 @@ const Index = () => {
                   Últimas Notícias
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {articles.slice(5, 15).map((article) => (
-                    <div key={article.id} onClick={() => handleArticleClick(article.slug)} className="cursor-pointer">
-                      <NewsCard
-                        title={article.title}
-                        excerpt={article.subtitle || article.content.substring(0, 150) + '...'}
-                        image={article.image_url || '/placeholder.svg'}
-                        category={article.category}
-                        author="Redação LuandêFM"
-                        date={formatDate(article.created_at)}
-                      />
+                  {articles.slice(5, 15).map((article, idx) => (
+                    <div key={article.id} className="space-y-6">
+                      <div onClick={() => handleArticleClick(article.slug)} className="cursor-pointer">
+                        <NewsCard
+                          title={article.title}
+                          excerpt={article.subtitle || article.content.substring(0, 150) + '...'}
+                          image={article.image_url || '/placeholder.svg'}
+                          category={article.category}
+                          author="Redação LuandêFM"
+                          date={formatDate(article.created_at)}
+                        />
+                      </div>
+
+                      {/* Mobile ad every 3 news items */}
+                      {(idx + 1) % 3 === 0 && (
+                        <div className="md:hidden">
+                          <InternalAds position="inline" source="uploaded" className="my-2" />
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
