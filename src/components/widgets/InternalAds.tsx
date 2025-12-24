@@ -19,26 +19,34 @@ const allAds: Ad[] = [
   { src: adAnuncieAqui, alt: "Anuncie sua marca aqui" },
 ];
 
+const uploadedAds: Ad[] = [
+  { src: vivoEmpresas, alt: "Vivo Empresas" },
+  { src: bradescoSeguros, alt: "Bradesco Seguros" },
+  { src: bradesco, alt: "Banco Bradesco" },
+];
+
 interface InternalAdsProps {
   position: "sidebar" | "inline" | "banner" | "article";
+  source?: "all" | "uploaded";
   className?: string;
 }
 
-const InternalAds = ({ position, className = "" }: InternalAdsProps) => {
+const InternalAds = ({ position, source = "all", className = "" }: InternalAdsProps) => {
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
+  const ads = source === "uploaded" ? uploadedAds : allAds;
   
   // Randomize starting index
   useEffect(() => {
-    setCurrentAdIndex(Math.floor(Math.random() * allAds.length));
-  }, []);
+    setCurrentAdIndex(Math.floor(Math.random() * ads.length));
+  }, [ads.length]);
 
   // Rotate ads every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentAdIndex((prev) => (prev + 1) % allAds.length);
+      setCurrentAdIndex((prev) => (prev + 1) % ads.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [ads.length]);
 
   const getStyles = () => {
     switch (position) {
@@ -60,8 +68,8 @@ const InternalAds = ({ position, className = "" }: InternalAdsProps) => {
     return (
       <div className={`${getStyles()} ${className} hidden xl:flex`}>
         {[0, 1, 2].map((offset) => {
-          const adIndex = (currentAdIndex + offset) % allAds.length;
-          const ad = allAds[adIndex];
+          const adIndex = (currentAdIndex + offset) % ads.length;
+          const ad = ads[adIndex];
           return (
             <div 
               key={offset}
@@ -82,7 +90,7 @@ const InternalAds = ({ position, className = "" }: InternalAdsProps) => {
   // Inline/Banner/Article - single rotating ad
   return (
     <div className={`${getStyles()} ${className} overflow-hidden rounded-lg bg-muted/10 flex items-center justify-center relative`}>
-      {allAds.map((ad, index) => (
+      {ads.map((ad, index) => (
         <img 
           key={index}
           src={ad.src} 

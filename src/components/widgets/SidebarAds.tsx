@@ -40,8 +40,12 @@ const SidebarAds = ({ side }: SidebarAdsProps) => {
   }, []);
 
   return (
-    <div 
-      className={`fixed top-1/2 -translate-y-1/2 ${side === "left" ? "left-4" : "right-4"} hidden 2xl:flex flex-col gap-4 z-30`}
+    <div
+      className={`fixed ${side === "left" ? "left-4" : "right-4"} hidden 2xl:flex flex-col gap-4 z-20`}
+      style={{
+        top: "calc((100vh - var(--portal-header-h, 0px) - var(--portal-footer-h, 0px)) / 2 + var(--portal-header-h, 0px))",
+        transform: "translateY(-50%)",
+      }}
     >
       {currentIndices.map((adIndex, i) => (
         <div 
