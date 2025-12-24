@@ -28,10 +28,11 @@ const uploadedAds: Ad[] = [
 interface InternalAdsProps {
   position: "sidebar" | "inline" | "banner" | "article";
   source?: "all" | "uploaded";
+  mobileFormat?: "default" | "horizontal";
   className?: string;
 }
 
-const InternalAds = ({ position, source = "all", className = "" }: InternalAdsProps) => {
+const InternalAds = ({ position, source = "all", mobileFormat = "default", className = "" }: InternalAdsProps) => {
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const ads = source === "uploaded" ? uploadedAds : allAds;
   
@@ -53,7 +54,9 @@ const InternalAds = ({ position, source = "all", className = "" }: InternalAdsPr
       case "sidebar":
         return "w-full max-w-[160px] min-h-[600px] flex flex-col gap-4";
       case "inline":
-        return "w-full max-w-full h-24 md:h-28";
+        return mobileFormat === "horizontal"
+          ? "w-full max-w-full aspect-[4/1] md:aspect-auto md:h-28"
+          : "w-full max-w-full h-24 md:h-28";
       case "banner":
         return "w-full h-20 md:h-24";
       case "article":

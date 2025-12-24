@@ -21,6 +21,7 @@ import InternalAds from "@/components/widgets/InternalAds";
 import FootballResults from "@/components/widgets/FootballResults";
 import TrocandoEmMiudos from "@/components/widgets/TrocandoEmMiudos";
 import appPromo from "@/assets/app-promo.png";
+import { toast } from "sonner";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -109,7 +110,7 @@ const Index = () => {
       
       <main className="flex-1">
         {/* Submit News Button */}
-        <section className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 py-4 shadow-lg">
+        <section id="portal-top-safe" className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 py-4 shadow-lg">
           <div className="container mx-auto px-4 flex items-center justify-center">
             <Link to="/enviar-noticia">
               <Button 
@@ -198,7 +199,7 @@ const Index = () => {
                       {/* Mobile ad every 3 news items */}
                       {(idx + 1) % 3 === 0 && (
                         <div className="md:hidden">
-                          <InternalAds position="inline" source="uploaded" className="my-2" />
+                          <InternalAds position="inline" source="uploaded" mobileFormat="horizontal" className="my-2" />
                         </div>
                       )}
                     </div>
@@ -211,7 +212,11 @@ const Index = () => {
 
                 {/* Video News Section Link */}
                 <div className="my-8">
-                  <Link to="/videos" className="block">
+                  <button
+                    type="button"
+                    onClick={() => toast("Em breve")}
+                    className="block w-full text-left"
+                  >
                     <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
@@ -230,7 +235,7 @@ const Index = () => {
                         </svg>
                       </div>
                     </div>
-                  </Link>
+                  </button>
                 </div>
 
                 {/* Trocando em Miúdos Section */}
