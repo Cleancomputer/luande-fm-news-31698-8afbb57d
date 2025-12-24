@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Search, Shield, Radio, Video } from "lucide-react";
+import { Menu, X, Search, Shield, Radio } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -177,16 +177,6 @@ const Header = () => {
                 <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary group-hover:w-3/4 transition-all duration-300"></span>
               </Link>
             </li>
-            <li>
-              <Link
-                to="/videos"
-                className="relative px-4 py-3 text-foreground/90 hover:text-red-600 font-medium text-sm uppercase tracking-wider transition-all duration-300 hover:bg-red-600/10 rounded-md group flex items-center gap-1"
-              >
-                <Video className="w-4 h-4" />
-                Vídeos
-                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-red-600 group-hover:w-3/4 transition-all duration-300"></span>
-              </Link>
-            </li>
           </ul>
 
           {/* Mobile Navigation */}
@@ -210,16 +200,6 @@ const Header = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Eventos
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/videos"
-                  className="flex items-center gap-2 px-4 py-3 text-base font-medium text-foreground hover:text-red-600 hover:bg-red-600/10 smooth-transition rounded-lg"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <Video className="w-4 h-4" />
-                  Vídeos
                 </Link>
               </li>
             </ul>

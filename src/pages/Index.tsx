@@ -182,7 +182,7 @@ const Index = () => {
                   Últimas Notícias
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {articles.slice(5, 13).map((article) => (
+                  {articles.slice(5, 15).map((article) => (
                     <div key={article.id} onClick={() => handleArticleClick(article.slug)} className="cursor-pointer">
                       <NewsCard
                         title={article.title}
@@ -199,6 +199,30 @@ const Index = () => {
 
                 {/* Inline Ad */}
                 <InternalAds position="inline" className="my-8" />
+
+                {/* Video News Section Link */}
+                <div className="my-8">
+                  <Link to="/videos" className="block">
+                    <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                          </div>
+                          <div>
+                            <h3 className="text-2xl font-bold text-white">Notícias em Vídeo</h3>
+                            <p className="text-white/80">Acompanhe as principais notícias em formato de vídeo</p>
+                          </div>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
 
                 {/* Trocando em Miúdos Section */}
                 <TrocandoEmMiudos />
