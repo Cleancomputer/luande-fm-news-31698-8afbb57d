@@ -2,20 +2,17 @@ import { useState, useEffect } from "react";
 import vivoEmpresas from "@/assets/ads/vivo-empresas.png";
 import bradescoSeguros from "@/assets/ads/bradesco-seguros.png";
 import bradesco from "@/assets/ads/bradesco.png";
-import adBoaluz from "@/assets/ad-boaluz.jpg";
-import adAnuncieAqui from "@/assets/ad-anuncie-aqui.png";
 
 interface Ad {
   src: string;
   alt: string;
 }
 
+// Apenas os anúncios que o usuário fez upload
 const allAds: Ad[] = [
   { src: vivoEmpresas, alt: "Vivo Empresas" },
   { src: bradescoSeguros, alt: "Bradesco Seguros" },
   { src: bradesco, alt: "Banco Bradesco" },
-  { src: adBoaluz, alt: "Ótica & Joalheria Boa Luz" },
-  { src: adAnuncieAqui, alt: "Anuncie sua marca aqui" },
 ];
 
 interface SidebarAdsProps {
@@ -27,7 +24,7 @@ const SidebarAds = ({ side }: SidebarAdsProps) => {
   
   useEffect(() => {
     // Randomize starting indices based on side
-    const offset = side === "left" ? 0 : 2;
+    const offset = side === "left" ? 0 : 1;
     setCurrentIndices([
       (offset) % allAds.length,
       (offset + 1) % allAds.length,
@@ -44,18 +41,17 @@ const SidebarAds = ({ side }: SidebarAdsProps) => {
 
   return (
     <div 
-      className={`fixed top-1/2 -translate-y-1/2 ${side === "left" ? "left-2" : "right-2"} hidden 2xl:flex flex-col gap-3 z-40`}
-      style={{ maxWidth: "140px" }}
+      className={`fixed top-1/2 -translate-y-1/2 ${side === "left" ? "left-4" : "right-4"} hidden 2xl:flex flex-col gap-4 z-30`}
     >
       {currentIndices.map((adIndex, i) => (
         <div 
           key={i}
-          className="w-[130px] h-[160px] rounded-lg overflow-hidden bg-background/80 backdrop-blur-sm shadow-lg border border-border/50 flex items-center justify-center transition-all duration-700 hover:scale-105"
+          className="w-[140px] h-[170px] rounded-lg overflow-hidden bg-background/90 backdrop-blur-sm shadow-xl border border-border/50 flex items-center justify-center transition-all duration-700 hover:scale-105"
         >
           <img 
             src={allAds[adIndex].src} 
             alt={allAds[adIndex].alt}
-            className="w-full h-full object-contain p-2"
+            className="w-full h-full object-contain p-3"
           />
         </div>
       ))}
