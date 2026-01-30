@@ -23,12 +23,12 @@ const HorizontalAdsStrip = () => {
           href={ad.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="block w-[180px] h-[120px] rounded-lg overflow-hidden bg-background/90 backdrop-blur-sm shadow-lg border border-border/50 transition-all duration-500 hover:scale-105 hover:shadow-xl"
+          className="block w-[280px] h-[90px] rounded-lg overflow-hidden bg-background/90 backdrop-blur-sm shadow-lg border border-border/50 transition-all duration-500 hover:scale-105 hover:shadow-xl"
         >
           <img 
             src={ad.src} 
             alt={ad.alt}
-            className="w-full h-full object-contain p-3"
+            className="w-full h-full object-cover p-2"
           />
         </a>
       ))}
