@@ -25,11 +25,11 @@ const SidebarAds = ({ side }: SidebarAdsProps) => {
   const location = useLocation();
   const [currentIndices, setCurrentIndices] = useState([0, 1, 2]);
   
-  // Não exibir no painel administrativo
+  // Não exibir no painel administrativo nem na homepage (homepage usa faixa horizontal)
   const isAdminRoute = location.pathname.startsWith("/admin") || location.pathname === "/login";
+  const isHomepage = location.pathname === "/";
   
   useEffect(() => {
-    // Randomize starting indices based on side
     const offset = side === "left" ? 0 : 1;
     setCurrentIndices([
       (offset) % allAds.length,
@@ -45,8 +45,8 @@ const SidebarAds = ({ side }: SidebarAdsProps) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Ocultar no admin
-  if (isAdminRoute) {
+  // Ocultar no admin e na homepage (desktop)
+  if (isAdminRoute || isHomepage) {
     return null;
   }
 
@@ -54,7 +54,8 @@ const SidebarAds = ({ side }: SidebarAdsProps) => {
     <div
       className={`fixed ${side === "left" ? "left-2" : "right-2"} hidden 2xl:flex flex-col gap-3 z-20`}
       style={{
-        top: "calc(var(--portal-header-h, 0px) + var(--portal-top-safe-h, 0px) + 100px)",
+        top: "50%",
+        transform: "translateY(-50%)",
       }}
     >
       {currentIndices.map((adIndex, i) => (
