@@ -216,9 +216,8 @@ const Index = () => {
 
                 {/* Video News Section Link */}
                 <div className="my-8">
-                  <button
-                    type="button"
-                    onClick={() => toast("Em breve")}
+                  <Link
+                    to="/noticias-em-video"
                     className="block w-full text-left"
                   >
                     <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
@@ -239,7 +238,7 @@ const Index = () => {
                         </svg>
                       </div>
                     </div>
-                  </button>
+                  </Link>
                 </div>
 
                 {/* Trocando em Miúdos Section */}
