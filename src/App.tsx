@@ -22,7 +22,6 @@ import VideoNews from "./pages/VideoNews";
 import LoadingScreen from "./components/layout/LoadingScreen";
 import VLibras from "./components/layout/VLibras";
 import AdSense from "./components/layout/AdSense";
-import SidebarAds from "./components/widgets/SidebarAds";
 import ViewportSafeArea from "./components/layout/ViewportSafeArea";
 
 // Create QueryClient outside component to avoid recreation on every render
@@ -65,8 +64,6 @@ const App = () => {
         >
           <AdSense />
           <ViewportSafeArea />
-          <SidebarAds side="left" />
-          <SidebarAds side="right" />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/artigo/:slug" element={<Article />} />
