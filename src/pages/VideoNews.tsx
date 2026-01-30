@@ -287,15 +287,13 @@ const VideoNews = () => {
               ) : (
                 <video
                   className="w-full h-full"
+                  src={normalizeDirectVideoUrl(selectedVideo.url)}
                   controls
+                  playsInline
                   preload="metadata"
                   controlsList="nodownload"
                   onContextMenu={(e) => e.preventDefault()}
                 >
-                  <source
-                    src={normalizeDirectVideoUrl(selectedVideo.url)}
-                    type={getVideoMimeType(selectedVideo.url)}
-                  />
                   Seu navegador não suporta este formato de vídeo.
                 </video>
               )
