@@ -132,13 +132,13 @@ const VideoNews = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {featuredVideos.map((video) => (
-                <div key={video.id} className="aspect-video rounded-xl overflow-hidden shadow-lg">
+                <div key={video.id} className="aspect-video rounded-xl overflow-hidden shadow-lg relative">
                   <iframe
                     className="w-full h-full"
-                    src={`https://www.youtube.com/embed/${video.id}`}
+                    src={`https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`}
                     title={video.title}
                     frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   ></iframe>
                 </div>
