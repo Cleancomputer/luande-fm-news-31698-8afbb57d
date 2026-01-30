@@ -101,10 +101,18 @@ const VideoNews = () => {
     return url;
   };
 
-  // Featured YouTube videos (always shown)
+  // Featured YouTube videos (always shown) with descriptions
   const featuredVideos = [
-    { id: "fizu3ynz-pk", title: "Notícias LuandêFM - Destaque 1" },
-    { id: "SAotJezU9qA", title: "Notícias LuandêFM - Destaque 2" },
+    { 
+      id: "fizu3ynz-pk", 
+      title: "Notícias LuandêFM - Destaque 1",
+      description: "Acompanhe as últimas notícias e acontecimentos da nossa região com a equipe LuandêFM."
+    },
+    { 
+      id: "SAotJezU9qA", 
+      title: "Notícias LuandêFM - Destaque 2",
+      description: "Fique por dentro das principais informações do dia com cobertura completa e análises."
+    },
   ];
 
   return (
@@ -116,31 +124,37 @@ const VideoNews = () => {
           {/* Page Header */}
           <div className="mb-8">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 flex items-center gap-4">
-              <span className="w-2 h-12 bg-red-600 rounded-full"></span>
+              <span className="w-2 h-12 bg-primary rounded-full"></span>
               Notícias em Vídeo
             </h1>
             <p className="text-lg text-muted-foreground">
-              Acompanhe as principais notícias em formato de vídeo
+              Acompanhe as principais notícias em formato de vídeo - apenas para assistir
             </p>
           </div>
 
           {/* Featured Videos Section */}
           <section className="mb-12">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <Play className="w-6 h-6 text-red-600" />
+              <Play className="w-6 h-6 text-primary" />
               Vídeos em Destaque
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {featuredVideos.map((video) => (
-                <div key={video.id} className="aspect-video rounded-xl overflow-hidden shadow-lg relative">
-                  <iframe
-                    className="w-full h-full"
-                    src={`https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`}
-                    title={video.title}
-                    frameBorder="0"
-                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
+                <div key={video.id} className="bg-card rounded-xl overflow-hidden shadow-lg border border-border">
+                  <div className="aspect-video">
+                    <iframe
+                      className="w-full h-full"
+                      src={`https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`}
+                      title={video.title}
+                      frameBorder="0"
+                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-bold text-lg mb-2">{video.title}</h3>
+                    <p className="text-sm text-muted-foreground">{video.description}</p>
+                  </div>
                 </div>
               ))}
             </div>
