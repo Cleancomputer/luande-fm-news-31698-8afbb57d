@@ -101,6 +101,40 @@ const VideoNews = () => {
     return url;
   };
 
+  const isEmbeddableVideo = (url: string) => {
+    return (
+      /youtu\.be|youtube\.com/i.test(url) ||
+      /vimeo\.com/i.test(url)
+    );
+  };
+
+  const normalizeDirectVideoUrl = (url: string) => {
+    // Some storage/CDN URLs may include download-related query params.
+    // We strip common ones so the browser attempts inline playback.
+    try {
+      const u = new URL(url);
+      [
+        "download",
+        "response-content-disposition",
+        "response-content-type",
+      ].forEach((k) => u.searchParams.delete(k));
+      return u.toString();
+    } catch {
+      return url;
+    }
+  };
+
+  const getVideoMimeType = (url: string) => {
+    const lower = url.toLowerCase();
+    if (lower.endsWith(".mp4")) return "video/mp4";
+    if (lower.endsWith(".webm")) return "video/webm";
+    if (lower.endsWith(".mov")) return "video/quicktime";
+    if (lower.endsWith(".m4v")) return "video/x-m4v";
+    if (lower.endsWith(".mkv")) return "video/x-matroska";
+    if (lower.endsWith(".avi")) return "video/x-msvideo";
+    return undefined;
+  };
+
   // Featured YouTube videos (always shown) with descriptions
   const featuredVideos = [
     { 
@@ -241,14 +275,30 @@ const VideoNews = () => {
           </DialogHeader>
           <div className="aspect-video">
             {selectedVideo && (
-              <iframe
-                className="w-full h-full"
-                src={getEmbedUrl(selectedVideo.url)}
-                title={selectedVideo.title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
+              isEmbeddableVideo(selectedVideo.url) ? (
+                <iframe
+                  className="w-full h-full"
+                  src={getEmbedUrl(selectedVideo.url)}
+                  title={selectedVideo.title}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              ) : (
+                <video
+                  className="w-full h-full"
+                  controls
+                  preload="metadata"
+                  controlsList="nodownload"
+                  onContextMenu={(e) => e.preventDefault()}
+                >
+                  <source
+                    src={normalizeDirectVideoUrl(selectedVideo.url)}
+                    type={getVideoMimeType(selectedVideo.url)}
+                  />
+                  Seu navegador não suporta este formato de vídeo.
+                </video>
+              )
             )}
           </div>
         </DialogContent>
