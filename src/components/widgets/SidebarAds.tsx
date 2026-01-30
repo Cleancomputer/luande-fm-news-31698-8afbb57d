@@ -54,8 +54,7 @@ const SidebarAds = ({ side }: SidebarAdsProps) => {
     <div
       className={`fixed ${side === "left" ? "left-2" : "right-2"} hidden 2xl:flex flex-col gap-3 z-20`}
       style={{
-        top: "calc(50% + var(--portal-header-h, 80px) / 2 + var(--portal-top-safe-h, 50px) / 2)",
-        transform: "translateY(-50%)",
+        top: "calc(var(--portal-header-h, 0px) + var(--portal-top-safe-h, 0px) + 100px)",
       }}
     >
       {currentIndices.map((adIndex, i) => (
