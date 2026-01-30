@@ -20,6 +20,7 @@ import AdSpace from "@/components/widgets/AdSpace";
 import InternalAds from "@/components/widgets/InternalAds";
 import FootballResults from "@/components/widgets/FootballResults";
 import TrocandoEmMiudos from "@/components/widgets/TrocandoEmMiudos";
+import HorizontalAdsStrip from "@/components/widgets/HorizontalAdsStrip";
 import appPromo from "@/assets/app-promo.png";
 import { toast } from "sonner";
 
@@ -182,6 +183,9 @@ const Index = () => {
                   <span className="w-1.5 h-10 bg-primary"></span>
                   Últimas Notícias
                 </h2>
+
+                {/* Faixa horizontal de anúncios - apenas desktop */}
+                <HorizontalAdsStrip />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {articles.slice(5, 15).map((article, idx) => (
                     <div key={article.id} className="space-y-6">
