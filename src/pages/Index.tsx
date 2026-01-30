@@ -217,7 +217,7 @@ const Index = () => {
                 {/* Video News Section Link */}
                 <div className="my-8">
                   <Link
-                    to="/noticias-em-video"
+                    to="/videos"
                     className="block w-full text-left"
                   >
                     <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
