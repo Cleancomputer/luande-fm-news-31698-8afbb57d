@@ -17,17 +17,17 @@ interface Ad {
 }
 
 const allAds: Ad[] = [
-  { src: vivoEmpresas, mobileSrc: mobileVivoEmpresas, alt: "Vivo Empresas" },
-  { src: bradescoSeguros, mobileSrc: mobileBradescoSeguros, alt: "Bradesco Seguros" },
-  { src: bradesco, mobileSrc: mobileBradesco, alt: "Banco Bradesco" },
+  { src: vivoEmpresas, mobileSrc: mobileVivoEmpresas, alt: "Vivo Empresas", link: "https://vivo.com.br/para-empresas" },
+  { src: bradescoSeguros, mobileSrc: mobileBradescoSeguros, alt: "Bradesco Seguros", link: "https://www.bradescoseguros.com.br/clientes" },
+  { src: bradesco, mobileSrc: mobileBradesco, alt: "Banco Bradesco", link: "https://banco.bradesco/html/classic/index.shtm" },
   { src: adBoaluz, alt: "Ótica & Joalheria Boa Luz" },
   { src: adAnuncieAqui, alt: "Anuncie sua marca aqui" },
 ];
 
 const uploadedAds: Ad[] = [
-  { src: vivoEmpresas, mobileSrc: mobileVivoEmpresas, alt: "Vivo Empresas" },
-  { src: bradescoSeguros, mobileSrc: mobileBradescoSeguros, alt: "Bradesco Seguros" },
-  { src: bradesco, mobileSrc: mobileBradesco, alt: "Banco Bradesco" },
+  { src: vivoEmpresas, mobileSrc: mobileVivoEmpresas, alt: "Vivo Empresas", link: "https://vivo.com.br/para-empresas" },
+  { src: bradescoSeguros, mobileSrc: mobileBradescoSeguros, alt: "Bradesco Seguros", link: "https://www.bradescoseguros.com.br/clientes" },
+  { src: bradesco, mobileSrc: mobileBradesco, alt: "Banco Bradesco", link: "https://banco.bradesco/html/classic/index.shtm" },
 ];
 
 interface InternalAdsProps {
@@ -96,9 +96,9 @@ const InternalAds = ({ position, source = "all", mobileFormat = "default", class
   }
 
   // Inline/Banner/Article - single rotating ad
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const currentAd = ads[currentAdIndex];
   
-  return (
+  const adContent = (
     <div className={`${getStyles()} ${className} overflow-hidden rounded-lg bg-muted/10 flex items-center justify-center relative`}>
       {ads.map((ad, index) => (
         <img 
@@ -112,6 +112,22 @@ const InternalAds = ({ position, source = "all", mobileFormat = "default", class
       ))}
     </div>
   );
+
+  // Se o anúncio atual tiver link, envolver com <a>
+  if (currentAd?.link) {
+    return (
+      <a 
+        href={currentAd.link} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="block cursor-pointer"
+      >
+        {adContent}
+      </a>
+    );
+  }
+
+  return adContent;
 };
 
 export default InternalAds;
