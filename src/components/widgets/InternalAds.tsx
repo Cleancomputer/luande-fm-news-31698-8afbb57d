@@ -4,6 +4,7 @@ import bradescoSeguros from "@/assets/ads/bradesco-seguros.png";
 import bradesco from "@/assets/ads/bradesco.png";
 import adBoaluz from "@/assets/ad-boaluz.jpg";
 import adAnuncieAqui from "@/assets/ad-anuncie-aqui.png";
+import adLucrilar from "@/assets/ad-lucrilar.png";
 // Mobile horizontal ads
 import mobileVivoEmpresas from "@/assets/ads/mobile-vivo-empresas.png";
 import mobileBradescoSeguros from "@/assets/ads/mobile-bradesco-seguros.png";
@@ -22,6 +23,7 @@ const allAds: Ad[] = [
   { src: bradesco, mobileSrc: mobileBradesco, alt: "Banco Bradesco", link: "https://banco.bradesco/html/classic/index.shtm" },
   { src: adBoaluz, alt: "Ótica & Joalheria Boa Luz" },
   { src: adAnuncieAqui, alt: "Anuncie sua marca aqui" },
+  { src: adLucrilar, alt: "Tintas Lucrilar" },
 ];
 
 const uploadedAds: Ad[] = [
