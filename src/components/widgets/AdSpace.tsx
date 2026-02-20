@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import adBoaluz from "@/assets/ad-boaluz.jpg";
 import adAnuncieAqui from "@/assets/ad-anuncie-aqui.png";
 import adAnuncieAquiFooter from "@/assets/ad-anuncie-aqui-footer.png";
+import adLucrilar from "@/assets/ad-lucrilar.png";
 
 interface AdSpaceProps {
   position: "header" | "sidebar" | "content" | "footer";
@@ -13,7 +14,8 @@ const AdSpace = ({ position, className = "" }: AdSpaceProps) => {
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const ads = [
     { src: adBoaluz, alt: "Ótica & Joalheria Boa Luz" },
-    { src: adAnuncieAqui, alt: "Anuncie sua marca aqui" }
+    { src: adAnuncieAqui, alt: "Anuncie sua marca aqui" },
+    { src: adLucrilar, alt: "Tintas Lucrilar" }
   ];
 
   useEffect(() => {
