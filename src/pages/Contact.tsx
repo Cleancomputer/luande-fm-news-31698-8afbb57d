@@ -54,7 +54,7 @@ const Contact = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-foreground/80">
-                  contato@luandefm.net
+                  comunicacao@luandefm.net
                 </p>
               </CardContent>
             </Card>
