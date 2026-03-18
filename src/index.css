@@ -2,57 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 210 15% 20%;
+    --background: 210 20% 97%;
+    --foreground: 215 25% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 210 15% 20%;
+    --card-foreground: 215 25% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 15% 20%;
+    --popover-foreground: 215 25% 15%;
 
-    --primary: 210 100% 45%;
+    --primary: 215 85% 30%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 95% 55%;
+    --secondary: 215 70% 42%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 15% 95%;
-    --muted-foreground: 210 10% 50%;
+    --muted: 210 15% 93%;
+    --muted-foreground: 215 10% 45%;
 
-    --accent: 45 100% 55%;
-    --accent-foreground: 0 0% 10%;
+    --accent: 215 90% 50%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 85% 55%;
+    --destructive: 0 80% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 20% 90%;
-    --input: 210 20% 90%;
-    --ring: 210 100% 45%;
+    --border: 210 15% 88%;
+    --input: 210 15% 88%;
+    --ring: 215 85% 30%;
 
-    --radius: 0.5rem;
+    --radius: 0.375rem;
 
-    --news-yellow: 45 100% 50%;
-    --news-yellow-dark: 45 100% 45%;
-    --news-red: 0 85% 55%;
-    --news-blue-dark: 210 100% 35%;
-    
-    --gradient-primary: linear-gradient(135deg, hsl(210 100% 45%), hsl(210 95% 55%));
-    --gradient-hero: linear-gradient(135deg, hsl(210 100% 35%), hsl(210 100% 45%));
-    --gradient-yellow: linear-gradient(135deg, hsl(45 100% 55%), hsl(45 100% 45%));
-    --gradient-yellow-glow: linear-gradient(135deg, hsl(45 100% 60%), hsl(45 100% 50%));
-    
-    --shadow-sm: 0 1px 2px 0 hsl(210 20% 0% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(210 20% 0% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(210 20% 0% / 0.1);
-    --shadow-xl: 0 20px 25px -5px hsl(210 20% 0% / 0.1);
-    --shadow-glow: 0 0 30px hsl(45 100% 50% / 0.3);
+    --news-blue: 215 85% 30%;
+    --news-blue-light: 215 70% 42%;
+    --news-blue-accent: 215 90% 50%;
+    --news-red: 0 80% 50%;
+    --news-gray: 210 10% 60%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(215 85% 30%), hsl(215 70% 42%));
+    --gradient-hero: linear-gradient(180deg, hsl(215 85% 25%), hsl(215 85% 35%));
+    --gradient-dark: linear-gradient(180deg, hsl(215 30% 12%), hsl(215 25% 18%));
+
+    --shadow-sm: 0 1px 2px 0 hsl(215 20% 0% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(215 20% 0% / 0.08);
+    --shadow-lg: 0 10px 15px -3px hsl(215 20% 0% / 0.08);
+    --shadow-xl: 0 20px 25px -5px hsl(215 20% 0% / 0.08);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -65,34 +62,34 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 210 20% 10%;
+    --background: 215 25% 10%;
     --foreground: 0 0% 95%;
 
-    --card: 210 20% 12%;
+    --card: 215 25% 13%;
     --card-foreground: 0 0% 95%;
 
-    --popover: 210 20% 12%;
+    --popover: 215 25% 13%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 210 95% 55%;
+    --primary: 215 80% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 100% 45%;
+    --secondary: 215 70% 42%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 20% 15%;
-    --muted-foreground: 210 10% 60%;
+    --muted: 215 20% 18%;
+    --muted-foreground: 215 10% 55%;
 
-    --accent: 45 100% 55%;
-    --accent-foreground: 210 15% 20%;
+    --accent: 215 90% 55%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 85% 55%;
+    --destructive: 0 80% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 20% 20%;
-    --input: 210 20% 20%;
-    --ring: 210 95% 55%;
-    
+    --border: 215 20% 22%;
+    --input: 215 20% 22%;
+    --ring: 215 80% 50%;
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -110,56 +107,70 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Source Sans 3', system-ui, -apple-system, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
+    font-family: 'Merriweather', Georgia, serif;
     @apply font-bold;
   }
 }
 
 @layer utilities {
+  .font-display {
+    font-family: 'Merriweather', Georgia, serif;
+  }
+
+  .font-body {
+    font-family: 'Source Sans 3', system-ui, sans-serif;
+  }
+
   .gradient-primary {
     background: var(--gradient-primary);
   }
-  
+
   .gradient-hero {
     background: var(--gradient-hero);
   }
 
-  .gradient-yellow {
-    background: var(--gradient-yellow);
-  }
-
-  .gradient-yellow-glow {
-    background: var(--gradient-yellow-glow);
+  .gradient-dark {
+    background: var(--gradient-dark);
   }
 
   .shadow-elegant {
     box-shadow: var(--shadow-lg);
   }
 
-  .shadow-glow {
-    box-shadow: var(--shadow-glow);
-  }
-
   .hover-lift {
-    @apply transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl;
+    @apply transition-transform duration-300 hover:-translate-y-0.5;
   }
 
   .smooth-transition {
     @apply transition-all duration-300 ease-in-out;
   }
 
+  .section-title {
+    @apply text-xl md:text-2xl font-bold font-display flex items-center gap-3;
+  }
+
+  .section-divider {
+    @apply w-1 h-7 bg-primary rounded-full;
+  }
+
+  .category-label {
+    @apply text-xs font-semibold uppercase tracking-wider text-primary;
+  }
+
   .animate-fade-in-up {
-    animation: fadeInUp 0.6s ease-out forwards;
+    animation: fadeInUp 0.5s ease-out forwards;
     opacity: 0;
   }
 
   @keyframes fadeInUp {
     from {
       opacity: 0;
-      transform: translateY(30px);
+      transform: translateY(20px);
     }
     to {
       opacity: 1;
@@ -168,12 +179,8 @@ All colors MUST be HSL.
   }
 
   @keyframes slideLeft {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
   }
 
   .animate-slide-left {
@@ -181,15 +188,20 @@ All colors MUST be HSL.
   }
 
   @keyframes marquee {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-33.33%);
-    }
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-33.33%); }
   }
 
   .animate-marquee {
     animation: marquee 8s linear infinite;
+  }
+
+  /* News portal specific utilities */
+  .news-grid-item {
+    @apply border-b border-border pb-4 last:border-b-0 last:pb-0;
+  }
+
+  .news-link {
+    @apply hover:text-primary smooth-transition cursor-pointer;
   }
 }

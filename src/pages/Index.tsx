@@ -1,19 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import BreakingNews from "@/components/layout/BreakingNews";
-import DateTimeBanner from "@/components/layout/DateTimeBanner";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import NewsCard from "@/components/news/NewsCard";
-import NewsCarousel from "@/components/news/NewsCarousel";
 import PopularNews from "@/components/widgets/PopularNews";
 import Poll from "@/components/widgets/Poll";
 import ChatWidget from "@/components/widgets/ChatWidget";
 import ContactForm from "@/components/widgets/ContactForm";
-import VLibras from "@/components/layout/VLibras";
 import WeatherWidget from "@/components/widgets/WeatherWidget";
-import { Button } from "@/components/ui/button";
 import EconomyWidget from "@/components/widgets/EconomyWidget";
 import HoroscopeWidget from "@/components/widgets/HoroscopeWidget";
 import AdSpace from "@/components/widgets/AdSpace";
@@ -21,37 +15,27 @@ import InternalAds from "@/components/widgets/InternalAds";
 import FootballResults from "@/components/widgets/FootballResults";
 import TrocandoEmMiudos from "@/components/widgets/TrocandoEmMiudos";
 import HorizontalAdsStrip from "@/components/widgets/HorizontalAdsStrip";
-import appPromo from "@/assets/app-promo.png";
-import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Clock, ChevronRight, Play } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
   const [articles, setArticles] = useState<any[]>([]);
-  const [featuredArticle, setFeaturedArticle] = useState<any>(null);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadArticles();
+    loadCategories();
 
-    // Realtime subscription for articles
     const articlesChannel = supabase
       .channel('articles-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'articles'
-        },
-        () => {
-          loadArticles();
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'articles' }, () => {
+        loadArticles();
+      })
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(articlesChannel);
-    };
+    return () => { supabase.removeChannel(articlesChannel); };
   }, []);
 
   const loadArticles = async () => {
@@ -60,17 +44,27 @@ const Index = () => {
         .from('articles')
         .select('*')
         .eq('published', true)
-        .order('created_at', { ascending: false});
-
+        .order('created_at', { ascending: false });
       if (error) throw error;
-
-      const featured = data?.find(article => article.featured);
-      setFeaturedArticle(featured);
       setArticles(data || []);
     } catch (error) {
       console.error('Erro ao carregar artigos:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Erro ao carregar categorias:', error);
     }
   };
 
@@ -82,182 +76,260 @@ const Index = () => {
     const now = new Date();
     const articleDate = new Date(date);
     const diffInHours = Math.floor((now.getTime() - articleDate.getTime()) / (1000 * 60 * 60));
-    
     if (diffInHours < 1) return 'Agora mesmo';
-    if (diffInHours < 24) return `Há ${diffInHours} hora${diffInHours > 1 ? 's' : ''}`;
-    
+    if (diffInHours < 24) return `Há ${diffInHours}h`;
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7) return `Há ${diffInDays} dia${diffInDays > 1 ? 's' : ''}`;
-    
+    if (diffInDays < 7) return `Há ${diffInDays}d`;
     return articleDate.toLocaleDateString('pt-BR');
+  };
+
+  const getArticlesByCategory = (categoryName: string) => {
+    return articles.filter(a => a.category === categoryName);
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Carregando notícias...</p>
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent mx-auto mb-4"></div>
+          <p className="text-muted-foreground font-body">Carregando notícias...</p>
         </div>
       </div>
     );
   }
 
+  const featuredArticles = articles.filter(a => a.featured);
+  const heroArticle = featuredArticles[0] || articles[0];
+  const secondaryArticles = (featuredArticles.length > 1 ? featuredArticles.slice(1, 4) : articles.slice(1, 4));
+  const latestArticles = articles.slice(0, 20);
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <BreakingNews />
-      <DateTimeBanner />
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      
+
       <main className="flex-1">
-        {/* Submit News Button */}
-        <section id="portal-top-safe" className="bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 py-4 shadow-lg">
-          <div className="container mx-auto px-4 flex items-center justify-center">
-            <Link to="/enviar-noticia">
-              <Button 
-                size="lg" 
-                className="bg-blue-600 hover:bg-blue-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 text-lg font-bold px-8 py-4"
-              >
-                Nos Envie Sua Notícia
-              </Button>
+        {/* Submit News Banner */}
+        <div className="bg-primary">
+          <div className="container mx-auto px-4 py-2.5 flex items-center justify-center">
+            <Link to="/enviar-noticia" className="text-primary-foreground hover:text-primary-foreground/80 smooth-transition text-sm font-semibold font-body flex items-center gap-2">
+              📰 Nos Envie Sua Notícia
+              <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
-        </section>
-        
-        {/* Top Ad Space */}
-        <div className="container mx-auto px-4 py-4">
+        </div>
+
+        {/* Top Ad */}
+        <div className="container mx-auto px-4 py-3">
           <AdSpace position="header" />
         </div>
 
-        {/* Main Content Grid */}
-        <div className="container mx-auto px-4 mb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Featured Articles */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Featured Carousel */}
-              {articles.length > 0 && (
-                <NewsCarousel 
-                  items={articles.slice(0, 5).map(article => ({
-                    title: article.title,
-                    excerpt: article.subtitle || article.content.substring(0, 150) + '...',
-                    image: article.image_url || '/placeholder.svg',
-                    category: article.category,
-                    author: 'Redação LuandêFM',
-                    date: formatDate(article.created_at),
-                    slug: article.slug
-                  }))}
-                  onArticleClick={handleArticleClick}
+        {/* Hero Section */}
+        {heroArticle && (
+          <section className="container mx-auto px-4 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Main hero */}
+              <div
+                className="lg:col-span-2 relative rounded-lg overflow-hidden cursor-pointer group"
+                onClick={() => handleArticleClick(heroArticle.slug)}
+              >
+                <img
+                  src={heroArticle.image_url || '/placeholder.svg'}
+                  alt={heroArticle.title}
+                  className="w-full h-64 sm:h-80 lg:h-[420px] object-cover group-hover:scale-105 smooth-transition"
                 />
-              )}
-
-              {/* YouTube Mini Player - Mobile Only (below carousel, above latest news) */}
-              <div className="lg:hidden">
-                <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
-                  <span className="w-1 h-6 bg-red-600"></span>
-                  Ao Vivo
-                </h3>
-                <div className="aspect-video rounded-lg overflow-hidden shadow-lg mb-6">
-                  <iframe
-                    className="w-full h-full"
-                    src="https://www.youtube.com/embed/live_stream?channel=UCS35bHapJqRtfG9kcq9f9FA&autoplay=0&mute=0"
-                    title="LuandeFM Ao Vivo - Mobile"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
+                  <span className="category-label text-white/90 bg-primary/80 px-2 py-0.5 rounded text-[11px]">
+                    {heroArticle.category}
+                  </span>
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mt-2 leading-tight font-display line-clamp-3">
+                    {heroArticle.title}
+                  </h1>
+                  {heroArticle.subtitle && (
+                    <p className="text-white/80 text-sm mt-2 line-clamp-2 font-body">
+                      {heroArticle.subtitle}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-2 mt-3 text-white/60 text-xs font-body">
+                    <Clock className="h-3 w-3" />
+                    <span>{formatDate(heroArticle.created_at)}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* App Promo Banner */}
-              <div className="mb-8">
-                <img 
-                  src={appPromo} 
-                  alt="Portal Luandê App - Em breve"
-                  className="w-full h-auto rounded-lg shadow-lg"
-                />
-              </div>
-
-              {/* Latest News Section */}
-              <div>
-                <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
-                  <span className="w-1.5 h-10 bg-primary"></span>
-                  Últimas Notícias
-                </h2>
-
-                {/* Faixa horizontal de anúncios - apenas desktop */}
-                <HorizontalAdsStrip />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {articles.slice(5, 15).map((article, idx) => (
-                    <div key={article.id} className="space-y-6">
-                      <div onClick={() => handleArticleClick(article.slug)} className="cursor-pointer">
-                        <NewsCard
-                          title={article.title}
-                          excerpt={article.subtitle || article.content.substring(0, 150) + '...'}
-                          image={article.image_url || '/placeholder.svg'}
-                          category={article.category}
-                          author="Redação LuandêFM"
-                          date={formatDate(article.created_at)}
-                        />
-                      </div>
-
-                      {/* Mobile ad every 3 news items */}
-                      {(idx + 1) % 3 === 0 && (
-                        <div className="md:hidden">
-                          <InternalAds position="inline" source="uploaded" mobileFormat="horizontal" className="my-2" />
-                        </div>
-                      )}
+              {/* Secondary articles */}
+              <div className="flex flex-col gap-3">
+                {secondaryArticles.map((article: any) => (
+                  <div
+                    key={article.id}
+                    className="relative rounded-lg overflow-hidden cursor-pointer group flex-1 min-h-[120px]"
+                    onClick={() => handleArticleClick(article.slug)}
+                  >
+                    <img
+                      src={article.image_url || '/placeholder.svg'}
+                      alt={article.title}
+                      className="w-full h-full object-cover absolute inset-0 group-hover:scale-105 smooth-transition"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-3">
+                      <span className="category-label text-white/90 text-[10px]">{article.category}</span>
+                      <h3 className="text-sm font-bold text-white mt-1 line-clamp-2 font-display leading-snug">
+                        {article.title}
+                      </h3>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Horizontal Ads Strip */}
+        <HorizontalAdsStrip />
+
+        {/* Main content grid */}
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            {/* Left column - Articles by category */}
+            <div className="lg:col-span-2 space-y-8">
+
+              {/* Últimas Notícias */}
+              <section>
+                <div className="flex items-center justify-between mb-4 border-b-2 border-primary pb-2">
+                  <h2 className="section-title">
+                    <span className="section-divider"></span>
+                    Últimas Notícias
+                  </h2>
+                </div>
+                <div className="space-y-0 divide-y divide-border">
+                  {latestArticles.slice(4, 14).map((article: any, idx: number) => (
+                    <article
+                      key={article.id}
+                      className="flex gap-4 py-4 cursor-pointer group"
+                      onClick={() => handleArticleClick(article.slug)}
+                    >
+                      <img
+                        src={article.image_url || '/placeholder.svg'}
+                        alt={article.title}
+                        className="w-24 h-20 sm:w-32 sm:h-24 object-cover rounded flex-shrink-0 group-hover:opacity-90 smooth-transition"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <span className="category-label">{article.category}</span>
+                        <h3 className="text-sm sm:text-base font-bold mt-1 line-clamp-2 group-hover:text-primary smooth-transition font-display leading-snug">
+                          {article.title}
+                        </h3>
+                        {article.subtitle && (
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-1 font-body hidden sm:block">
+                            {article.subtitle}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-2 mt-1.5 text-xs text-muted-foreground font-body">
+                          <Clock className="h-3 w-3" />
+                          <span>{formatDate(article.created_at)}</span>
+                        </div>
+                      </div>
+                    </article>
                   ))}
                 </div>
-                </div>
+              </section>
 
-                {/* Inline Ad */}
-                <InternalAds position="inline" className="my-8" />
+              {/* Inline Ad */}
+              <InternalAds position="inline" className="my-4" />
 
-                {/* Video News Section Link */}
-                <div className="my-8">
-                  <Link
-                    to="/videos"
-                    className="block w-full text-left"
-                  >
-                    <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                            </svg>
-                          </div>
+              {/* Articles by Category sections */}
+              {categories.slice(0, 6).map((category) => {
+                const catArticles = getArticlesByCategory(category.name);
+                if (catArticles.length === 0) return null;
+
+                return (
+                  <section key={category.id}>
+                    <div className="flex items-center justify-between mb-4 border-b-2 border-primary pb-2">
+                      <h2 className="section-title">
+                        <span className="section-divider"></span>
+                        {category.name}
+                      </h2>
+                      <Link
+                        to={`/categoria/${category.slug}`}
+                        className="text-xs font-semibold text-primary hover:underline font-body flex items-center gap-1"
+                      >
+                        Ver mais <ChevronRight className="h-3 w-3" />
+                      </Link>
+                    </div>
+
+                    {/* First article featured */}
+                    {catArticles[0] && (
+                      <div
+                        className="mb-4 cursor-pointer group"
+                        onClick={() => handleArticleClick(catArticles[0].slug)}
+                      >
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <img
+                            src={catArticles[0].image_url || '/placeholder.svg'}
+                            alt={catArticles[0].title}
+                            className="w-full h-48 object-cover rounded group-hover:opacity-90 smooth-transition"
+                          />
                           <div>
-                            <h3 className="text-2xl font-bold text-white">Notícias em Vídeo</h3>
-                            <p className="text-white/80">Acompanhe as principais notícias em formato de vídeo</p>
+                            <h3 className="text-lg font-bold group-hover:text-primary smooth-transition font-display leading-snug">
+                              {catArticles[0].title}
+                            </h3>
+                            {catArticles[0].subtitle && (
+                              <p className="text-sm text-muted-foreground mt-2 line-clamp-3 font-body">
+                                {catArticles[0].subtitle}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground font-body">
+                              <Clock className="h-3 w-3" />
+                              <span>{formatDate(catArticles[0].created_at)}</span>
+                            </div>
                           </div>
                         </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
                       </div>
-                    </div>
-                  </Link>
-                </div>
+                    )}
 
-                {/* Trocando em Miúdos Section */}
-                <TrocandoEmMiudos />
+                    {/* Rest as list */}
+                    <div className="space-y-0 divide-y divide-border">
+                      {catArticles.slice(1, 5).map((article: any) => (
+                        <div
+                          key={article.id}
+                          className="flex items-start gap-3 py-3 cursor-pointer group"
+                          onClick={() => handleArticleClick(article.slug)}
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0"></span>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-semibold group-hover:text-primary smooth-transition line-clamp-2 font-body">
+                              {article.title}
+                            </h4>
+                            <span className="text-xs text-muted-foreground font-body">{formatDate(article.created_at)}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                );
+              })}
+
+              {/* Trocando em Miúdos */}
+              <TrocandoEmMiudos />
+
+              {/* Mobile Ad */}
+              <div className="lg:hidden">
+                <InternalAds position="inline" source="uploaded" mobileFormat="horizontal" className="my-2" />
+              </div>
             </div>
 
-            {/* Right Column - Widgets + Mini Player */}
-            <div className="space-y-6">
-              {/* YouTube Mini Player - Desktop Only - Fixed Sticky */}
-              <div className="hidden lg:block sticky top-4 z-10">
-                <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
-                  <span className="w-1 h-6 bg-red-600"></span>
-                  Ao Vivo
-                </h3>
-                <div className="aspect-video rounded-lg overflow-hidden shadow-lg mb-6">
+            {/* Right column - Widgets */}
+            <aside className="space-y-5">
+              {/* YouTube Ao Vivo */}
+              <div>
+                <div className="flex items-center gap-2 mb-3 border-b-2 border-destructive pb-2">
+                  <Play className="h-4 w-4 text-destructive" />
+                  <h3 className="text-base font-bold font-display">Ao Vivo</h3>
+                </div>
+                <div className="aspect-video rounded overflow-hidden shadow-md">
                   <iframe
                     className="w-full h-full"
                     src="https://www.youtube.com/embed/live_stream?channel=UCS35bHapJqRtfG9kcq9f9FA&autoplay=0&mute=0"
-                    title="LuandeFM Ao Vivo - Mini"
+                    title="LuandeFM Ao Vivo"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
@@ -265,27 +337,27 @@ const Index = () => {
                 </div>
               </div>
 
-              <FootballResults />
-              <InternalAds position="banner" className="my-4" />
+              <InternalAds position="banner" className="my-2" />
               <PopularNews />
+              <FootballResults />
               <WeatherWidget />
-              <Poll />
-              <HoroscopeWidget />
               <EconomyWidget />
+              <HoroscopeWidget />
+              <Poll />
               <ContactForm />
               <ChatWidget />
-            </div>
+            </aside>
           </div>
         </div>
 
-        {/* YouTube Featured Videos Section */}
-        <section className="container mx-auto px-4 mb-12">
-          <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
-            <span className="w-1.5 h-10 bg-red-600"></span>
-            Vídeos em Destaque
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="aspect-video rounded-lg overflow-hidden shadow-lg">
+        {/* YouTube Featured Videos */}
+        <section className="container mx-auto px-4 my-10">
+          <div className="flex items-center gap-3 mb-5 border-b-2 border-destructive pb-2">
+            <Play className="h-5 w-5 text-destructive" />
+            <h2 className="section-title">Vídeos em Destaque</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="aspect-video rounded overflow-hidden shadow-md">
               <iframe
                 className="w-full h-full"
                 src="https://www.youtube.com/embed/fizu3ynz-pk"
@@ -295,7 +367,7 @@ const Index = () => {
                 allowFullScreen
               ></iframe>
             </div>
-            <div className="aspect-video rounded-lg overflow-hidden shadow-lg">
+            <div className="aspect-video rounded overflow-hidden shadow-md">
               <iframe
                 className="w-full h-full"
                 src="https://www.youtube.com/embed/SAotJezU9qA"
@@ -308,14 +380,13 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Bottom Ad Space */}
+        {/* Bottom Ad */}
         <div className="container mx-auto px-4 py-4">
           <AdSpace position="footer" />
         </div>
       </main>
 
       <Footer />
-      <VLibras />
     </div>
   );
 };

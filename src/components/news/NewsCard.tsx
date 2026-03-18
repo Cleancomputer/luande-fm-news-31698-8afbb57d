@@ -1,6 +1,5 @@
 import { Clock, User } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 interface NewsCardProps {
@@ -27,30 +26,29 @@ const NewsCard = ({
   return (
     <Card 
       ref={elementRef}
-      className={`overflow-hidden hover-lift smooth-transition group cursor-pointer h-full ${
+      className={`overflow-hidden hover-lift smooth-transition group cursor-pointer h-full border-0 shadow-sm hover:shadow-md ${
         isVisible ? 'animate-fade-in-up' : 'opacity-0'
       }`}
     >
-      <div className={`relative overflow-hidden ${featured ? 'h-80' : 'h-48'}`}>
+      <div className={`relative overflow-hidden ${featured ? 'h-72' : 'h-44'}`}>
         <img 
           src={image} 
           alt={title}
-          className="w-full h-full object-cover group-hover:scale-110 smooth-transition"
+          className="w-full h-full object-cover group-hover:scale-105 smooth-transition"
         />
-        <Badge 
-          className="absolute top-4 left-4 bg-primary text-primary-foreground"
-        >
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <span className="absolute top-3 left-3 category-label bg-primary/90 text-primary-foreground px-2 py-0.5 rounded text-[11px]">
           {category}
-        </Badge>
+        </span>
       </div>
       <CardContent className="p-4">
-        <h3 className={`font-bold mb-2 line-clamp-2 group-hover:text-primary smooth-transition ${featured ? 'text-2xl' : 'text-lg'}`}>
+        <h3 className={`font-bold mb-2 line-clamp-2 group-hover:text-primary smooth-transition font-display leading-snug ${featured ? 'text-xl' : 'text-base'}`}>
           {title}
         </h3>
-        <p className={`text-muted-foreground mb-4 ${featured ? 'line-clamp-3 text-base' : 'line-clamp-2 text-sm'}`}>
+        <p className={`text-muted-foreground mb-3 font-body ${featured ? 'line-clamp-3 text-sm' : 'line-clamp-2 text-xs'}`}>
           {excerpt}
         </p>
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground font-body">
           <div className="flex items-center gap-1">
             <User className="h-3 w-3" />
             <span>{author}</span>
