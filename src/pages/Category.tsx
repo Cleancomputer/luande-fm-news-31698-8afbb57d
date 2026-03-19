@@ -6,13 +6,12 @@ import DateTimeBanner from "@/components/layout/DateTimeBanner";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import NewsCard from "@/components/news/NewsCard";
-import VLibras from "@/components/layout/VLibras";
 
 const Category = () => {
   const { category } = useParams();
   const navigate = useNavigate();
   const [articles, setArticles] = useState<any[]>([]);
-  const [categoryName, setCategoryName] = useState<string>('');
+  const [categoryName, setCategoryName] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,33 +21,31 @@ const Category = () => {
   const loadArticles = async () => {
     try {
       setLoading(true);
-      
-      // First, get the category name from the slug
+
       const { data: categoryData, error: categoryError } = await supabaseClient
-        .from('categories')
-        .select('name')
-        .eq('slug', category)
+        .from("categories")
+        .select("name")
+        .eq("slug", category)
         .single();
 
       if (categoryError) {
-        console.error('Erro ao carregar categoria:', categoryError);
+        console.error("Erro ao carregar categoria:", categoryError);
       }
-      
+
       const catName = categoryData?.name || category;
       setCategoryName(catName);
 
-      // Then, get articles using the category name
       const { data, error } = await supabaseClient
-        .from('articles')
-        .select('*')
-        .eq('published', true)
-        .eq('category', catName)
-        .order('created_at', { ascending: false });
+        .from("articles")
+        .select("*")
+        .eq("published", true)
+        .eq("category", catName)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setArticles(data || []);
     } catch (error) {
-      console.error('Erro ao carregar artigos:', error);
+      console.error("Erro ao carregar artigos:", error);
     } finally {
       setLoading(false);
     }
@@ -62,14 +59,14 @@ const Category = () => {
     const now = new Date();
     const articleDate = new Date(date);
     const diffInHours = Math.floor((now.getTime() - articleDate.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Agora mesmo';
-    if (diffInHours < 24) return `Há ${diffInHours} hora${diffInHours > 1 ? 's' : ''}`;
-    
+
+    if (diffInHours < 1) return "Agora mesmo";
+    if (diffInHours < 24) return `Há ${diffInHours} hora${diffInHours > 1 ? "s" : ""}`;
+
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7) return `Há ${diffInDays} dia${diffInDays > 1 ? 's' : ''}`;
-    
-    return articleDate.toLocaleDateString('pt-BR');
+    if (diffInDays < 7) return `Há ${diffInDays} dia${diffInDays > 1 ? "s" : ""}`;
+
+    return articleDate.toLocaleDateString("pt-BR");
   };
 
   if (loading) {
@@ -88,7 +85,7 @@ const Category = () => {
       <BreakingNews />
       <DateTimeBanner />
       <Header />
-      
+
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
@@ -96,7 +93,7 @@ const Category = () => {
             {categoryName || category}
           </h1>
           <p className="text-muted-foreground ml-5">
-            {articles.length} {articles.length === 1 ? 'notícia encontrada' : 'notícias encontradas'}
+            {articles.length} {articles.length === 1 ? "notícia encontrada" : "notícias encontradas"}
           </p>
         </div>
 
@@ -112,8 +109,8 @@ const Category = () => {
               <div key={article.id} onClick={() => handleArticleClick(article.slug)} className="cursor-pointer">
                 <NewsCard
                   title={article.title}
-                  excerpt={article.subtitle || article.content.substring(0, 150) + '...'}
-                  image={article.image_url || '/placeholder.svg'}
+                  excerpt={article.subtitle || article.content.substring(0, 150) + "..."}
+                  image={article.image_url || "/placeholder.svg"}
                   category={article.category}
                   author="Redação LuandêFM"
                   date={formatDate(article.created_at)}
@@ -125,7 +122,6 @@ const Category = () => {
       </main>
 
       <Footer />
-      <VLibras />
     </div>
   );
 };

@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, User, ArrowLeft, Share2 } from "lucide-react";
 import { toast } from "sonner";
-import VLibras from "@/components/layout/VLibras";
 import { MediaGalleryCarousel } from "@/components/article/MediaGalleryCarousel";
 import { ShareDialog } from "@/components/article/ShareDialog";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,68 +38,73 @@ const Article = () => {
     loadArticle();
   }, [slug]);
 
-  // Dynamic OG meta tags for sharing
   useEffect(() => {
     if (!article) return;
-    
+
     const setMeta = (property: string, content: string) => {
       let el = document.querySelector(`meta[property="${property}"]`) || document.querySelector(`meta[name="${property}"]`);
       if (el) {
-        el.setAttribute('content', content);
+        el.setAttribute("content", content);
       } else {
-        el = document.createElement('meta');
-        el.setAttribute(property.startsWith('og:') ? 'property' : 'name', property);
-        el.setAttribute('content', content);
+        el = document.createElement("meta");
+        el.setAttribute(property.startsWith("og:") ? "property" : "name", property);
+        el.setAttribute("content", content);
         document.head.appendChild(el);
       }
     };
 
-    const articleUrl = `https://luandefm.net/artigo/${article.slug}`;
-    
+    const articleUrl = `${window.location.origin}/artigo/${article.slug}`;
+
     document.title = `${article.title} - Portal Luandê Notícias`;
-    setMeta('og:title', article.title);
-    setMeta('og:description', article.subtitle || article.title);
-    setMeta('og:image', article.image_url || 'https://storage.googleapis.com/gpt-engineer-file-uploads/j5I1wDmykQduHQAkT4lnKyPxmha2/social-images/social-1763673242461-4444.png');
-    setMeta('og:url', articleUrl);
-    setMeta('og:type', 'article');
-    setMeta('twitter:title', article.title);
-    setMeta('twitter:description', article.subtitle || article.title);
-    setMeta('twitter:image', article.image_url || 'https://storage.googleapis.com/gpt-engineer-file-uploads/j5I1wDmykQduHQAkT4lnKyPxmha2/social-images/social-1763673242461-4444.png');
-    setMeta('twitter:card', 'summary_large_image');
+    setMeta("og:title", article.title);
+    setMeta("og:description", article.subtitle || article.title);
+    setMeta(
+      "og:image",
+      article.image_url ||
+        "https://storage.googleapis.com/gpt-engineer-file-uploads/j5I1wDmykQduHQAkT4lnKyPxmha2/social-images/social-1763673242461-4444.png",
+    );
+    setMeta("og:url", articleUrl);
+    setMeta("og:type", "article");
+    setMeta("twitter:title", article.title);
+    setMeta("twitter:description", article.subtitle || article.title);
+    setMeta(
+      "twitter:image",
+      article.image_url ||
+        "https://storage.googleapis.com/gpt-engineer-file-uploads/j5I1wDmykQduHQAkT4lnKyPxmha2/social-images/social-1763673242461-4444.png",
+    );
+    setMeta("twitter:card", "summary_large_image");
 
     return () => {
-      document.title = 'Portal Luandê Notícias - Portal de Notícias | Política, Esportes, Entretenimento';
+      document.title = "Portal Luandê Notícias - Portal de Notícias | Política, Esportes, Entretenimento";
     };
   }, [article]);
 
   const loadArticle = async () => {
     try {
       const { data, error } = await supabase
-        .from('articles')
-        .select('*')
-        .eq('slug', slug)
-        .eq('published', true)
+        .from("articles")
+        .select("*")
+        .eq("slug", slug)
+        .eq("published", true)
         .single();
 
       if (error) throw error;
       setArticle(data);
-      
-      // Registrar visualização
+
       if (data?.id) {
-        await supabase.rpc('register_article_view', {
+        await supabase.rpc("register_article_view", {
           p_article_id: data.id,
-          p_traffic_source: 'direct'
+          p_traffic_source: "direct",
         });
       }
 
-      // Carregar artigos relacionados
       if (data?.category && data?.id) {
         loadRelatedArticles(data.category, data.id);
       }
     } catch (error) {
-      console.error('Erro ao carregar artigo:', error);
-      toast.error('Artigo não encontrado');
-      navigate('/');
+      console.error("Erro ao carregar artigo:", error);
+      toast.error("Artigo não encontrado");
+      navigate("/");
     } finally {
       setLoading(false);
     }
@@ -109,18 +113,18 @@ const Article = () => {
   const loadRelatedArticles = async (category: string, currentArticleId: string) => {
     try {
       const { data, error } = await supabase
-        .from('articles')
-        .select('*')
-        .eq('category', category)
-        .eq('published', true)
-        .neq('id', currentArticleId)
-        .order('created_at', { ascending: false })
+        .from("articles")
+        .select("*")
+        .eq("category", category)
+        .eq("published", true)
+        .neq("id", currentArticleId)
+        .order("created_at", { ascending: false })
         .limit(3);
 
       if (error) throw error;
       setRelatedArticles(data || []);
     } catch (error) {
-      console.error('Erro ao carregar artigos relacionados:', error);
+      console.error("Erro ao carregar artigos relacionados:", error);
     }
   };
 
@@ -144,41 +148,33 @@ const Article = () => {
   }
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(date).toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
+
+  const shareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/article-share?slug=${encodeURIComponent(article.slug)}&origin=${encodeURIComponent(window.location.origin)}`;
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1 bg-background">
         <article className="container mx-auto px-4 py-8 max-w-4xl">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/')}
-            className="mb-6"
-          >
+          <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar
           </Button>
 
           <div className="mb-6">
             <Badge className="mb-4">{article.category}</Badge>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-              {article.title}
-            </h1>
-            {article.subtitle && (
-              <p className="text-xl text-muted-foreground mb-6">
-                {article.subtitle}
-              </p>
-            )}
-            
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{article.title}</h1>
+            {article.subtitle && <p className="text-xl text-muted-foreground mb-6">{article.subtitle}</p>}
+
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4" />
@@ -188,12 +184,7 @@ const Article = () => {
                 <Clock className="w-4 h-4" />
                 <span>{formatDate(article.created_at)}</span>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleShare}
-                className="ml-auto"
-              >
+              <Button variant="outline" size="sm" onClick={handleShare} className="ml-auto">
                 <Share2 className="w-4 h-4 mr-2" />
                 Compartilhar
               </Button>
@@ -201,29 +192,22 @@ const Article = () => {
           </div>
 
           {article.media_gallery && article.media_gallery.length > 0 ? (
-            <MediaGalleryCarousel 
-              media={article.media_gallery} 
-              title={article.title} 
-            />
-          ) : article.image_url && (
-            <div className="mb-8 rounded-lg overflow-hidden">
-              <img
-                src={article.image_url}
-                alt={article.title}
-                className="w-full h-auto object-cover"
-              />
-            </div>
+            <MediaGalleryCarousel media={article.media_gallery} title={article.title} />
+          ) : (
+            article.image_url && (
+              <div className="mb-8 rounded-lg overflow-hidden">
+                <img src={article.image_url} alt={article.title} className="w-full h-auto object-cover" />
+              </div>
+            )
           )}
 
-          {/* Ad before content */}
           <InternalAds position="article" className="my-6" />
 
-          <div 
+          <div
             className="prose prose-lg max-w-none mb-8 [&>p]:mb-4 [&>p]:leading-relaxed [&>h1]:mb-4 [&>h1]:mt-6 [&>h2]:mb-4 [&>h2]:mt-6 [&>h3]:mb-4 [&>h3]:mt-6 [&>ul]:mb-4 [&>ol]:mb-4 [&>blockquote]:mb-4 [&>blockquote]:pl-4 [&>blockquote]:border-l-4"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
 
-          {/* Ad after content */}
           <InternalAds position="inline" className="my-6" />
           {article.tags && article.tags.length > 0 && (
             <div className="mb-8">
@@ -243,7 +227,7 @@ const Article = () => {
               <h2 className="text-2xl font-bold mb-6">Matérias Relacionadas</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {relatedArticles.map((related) => (
-                  <Card 
+                  <Card
                     key={related.id}
                     className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
                     onClick={() => navigate(`/artigo/${related.slug}`)}
@@ -255,9 +239,7 @@ const Article = () => {
                           alt={related.title}
                           className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
                         />
-                        <Badge className="absolute top-2 left-2">
-                          {related.category}
-                        </Badge>
+                        <Badge className="absolute top-2 left-2">{related.category}</Badge>
                       </div>
                     )}
                     <CardContent className="p-4">
@@ -265,9 +247,7 @@ const Article = () => {
                         {related.title}
                       </h3>
                       {related.subtitle && (
-                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                          {related.subtitle}
-                        </p>
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{related.subtitle}</p>
                       )}
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Clock className="w-3 h-3" />
@@ -283,14 +263,8 @@ const Article = () => {
       </main>
 
       <Footer />
-      <VLibras />
-      
-      <ShareDialog
-        open={shareDialogOpen}
-        onOpenChange={setShareDialogOpen}
-        title={article.title}
-        url={window.location.href}
-      />
+
+      <ShareDialog open={shareDialogOpen} onOpenChange={setShareDialogOpen} title={article.title} url={shareUrl} />
     </div>
   );
 };

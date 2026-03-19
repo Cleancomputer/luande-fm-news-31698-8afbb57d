@@ -6,12 +6,11 @@ import DateTimeBanner from "@/components/layout/DateTimeBanner";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import NewsCard from "@/components/news/NewsCard";
-import VLibras from "@/components/layout/VLibras";
 
 const Search = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const query = searchParams.get('q') || '';
+  const query = searchParams.get("q") || "";
   const [articles, setArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,16 +26,16 @@ const Search = () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('articles')
-        .select('*')
-        .eq('published', true)
+        .from("articles")
+        .select("*")
+        .eq("published", true)
         .or(`title.ilike.%${query}%,content.ilike.%${query}%,subtitle.ilike.%${query}%`)
-        .order('created_at', { ascending: false });
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setArticles(data || []);
     } catch (error) {
-      console.error('Erro ao buscar artigos:', error);
+      console.error("Erro ao buscar artigos:", error);
     } finally {
       setLoading(false);
     }
@@ -50,14 +49,14 @@ const Search = () => {
     const now = new Date();
     const articleDate = new Date(date);
     const diffInHours = Math.floor((now.getTime() - articleDate.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Agora mesmo';
-    if (diffInHours < 24) return `Há ${diffInHours} hora${diffInHours > 1 ? 's' : ''}`;
-    
+
+    if (diffInHours < 1) return "Agora mesmo";
+    if (diffInHours < 24) return `Há ${diffInHours} hora${diffInHours > 1 ? "s" : ""}`;
+
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7) return `Há ${diffInDays} dia${diffInDays > 1 ? 's' : ''}`;
-    
-    return articleDate.toLocaleDateString('pt-BR');
+    if (diffInDays < 7) return `Há ${diffInDays} dia${diffInDays > 1 ? "s" : ""}`;
+
+    return articleDate.toLocaleDateString("pt-BR");
   };
 
   if (loading) {
@@ -76,7 +75,7 @@ const Search = () => {
       <BreakingNews />
       <DateTimeBanner />
       <Header />
-      
+
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
@@ -87,11 +86,11 @@ const Search = () => {
             {query ? (
               <>
                 Buscando por: <span className="font-semibold text-foreground">"{query}"</span>
-                {' - '}
-                {articles.length} {articles.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
+                {" - "}
+                {articles.length} {articles.length === 1 ? "resultado encontrado" : "resultados encontrados"}
               </>
             ) : (
-              'Digite algo para buscar notícias'
+              "Digite algo para buscar notícias"
             )}
           </p>
         </div>
@@ -114,8 +113,8 @@ const Search = () => {
               <div key={article.id} onClick={() => handleArticleClick(article.slug)} className="cursor-pointer">
                 <NewsCard
                   title={article.title}
-                  excerpt={article.subtitle || article.content.substring(0, 150) + '...'}
-                  image={article.image_url || '/placeholder.svg'}
+                  excerpt={article.subtitle || article.content.substring(0, 150) + "..."}
+                  image={article.image_url || "/placeholder.svg"}
                   category={article.category}
                   author="Redação LuandêFM"
                   date={formatDate(article.created_at)}
@@ -127,7 +126,6 @@ const Search = () => {
       </main>
 
       <Footer />
-      <VLibras />
     </div>
   );
 };

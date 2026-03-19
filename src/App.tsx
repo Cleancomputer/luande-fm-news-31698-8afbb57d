@@ -20,11 +20,9 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
 import VideoNews from "./pages/VideoNews";
 import LoadingScreen from "./components/layout/LoadingScreen";
-import VLibras from "./components/layout/VLibras";
 import AdSense from "./components/layout/AdSense";
 import ViewportSafeArea from "./components/layout/ViewportSafeArea";
 
-// Create QueryClient outside component to avoid recreation on every render
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -55,7 +53,6 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <VLibras />
         <BrowserRouter
           future={{
             v7_startTransition: true,
