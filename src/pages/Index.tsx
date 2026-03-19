@@ -16,7 +16,8 @@ import FootballResults from "@/components/widgets/FootballResults";
 import TrocandoEmMiudos from "@/components/widgets/TrocandoEmMiudos";
 import HorizontalAdsStrip from "@/components/widgets/HorizontalAdsStrip";
 import { Badge } from "@/components/ui/badge";
-import { Clock, ChevronRight, Play } from "lucide-react";
+import { Clock, ChevronRight, Play, GraduationCap, ExternalLink } from "lucide-react";
+import sergipeMap from "@/assets/sergipe-map.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -104,7 +105,19 @@ const Index = () => {
   const latestArticles = articles.slice(0, 20);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background relative">
+      {/* Sergipe watermark background */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center"
+        aria-hidden="true"
+      >
+        <img
+          src={sergipeMap}
+          alt=""
+          className="w-[600px] h-[600px] object-contain opacity-[0.03]"
+        />
+      </div>
+
       <Header />
 
       <main className="flex-1">
@@ -172,7 +185,7 @@ const Index = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-3">
-                      <span className="category-label text-white/90 text-[10px]">{article.category}</span>
+                      <span className="bg-primary/90 text-primary-foreground px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider">{article.category}</span>
                       <h3 className="text-sm font-bold text-white mt-1 line-clamp-2 font-display leading-snug">
                         {article.title}
                       </h3>
@@ -376,6 +389,34 @@ const Index = () => {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               ></iframe>
+            </div>
+          </div>
+        </section>
+
+        {/* Senac Courses Section */}
+        <section className="container mx-auto px-4 my-10">
+          <div className="bg-gradient-to-r from-primary to-secondary rounded-lg p-6 sm:p-8 text-primary-foreground">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+              <div className="w-16 h-16 rounded-full bg-primary-foreground/20 flex items-center justify-center flex-shrink-0">
+                <GraduationCap className="h-8 w-8" />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <h2 className="text-xl sm:text-2xl font-bold font-display mb-1">
+                  Cursos Grátis do Senac
+                </h2>
+                <p className="text-primary-foreground/80 text-sm sm:text-base font-body">
+                  Disponíveis em todo o estado de Sergipe. Capacite-se gratuitamente!
+                </p>
+              </div>
+              <a
+                href="https://psg.se.senac.br/cursos"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-primary-foreground text-primary font-bold px-6 py-3 rounded-lg hover:bg-primary-foreground/90 smooth-transition text-sm font-body flex-shrink-0"
+              >
+                Acessar Cursos Grátis
+                <ExternalLink className="h-4 w-4" />
+              </a>
             </div>
           </div>
         </section>

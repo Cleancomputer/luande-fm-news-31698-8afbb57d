@@ -39,6 +39,40 @@ const Article = () => {
     loadArticle();
   }, [slug]);
 
+  // Dynamic OG meta tags for sharing
+  useEffect(() => {
+    if (!article) return;
+    
+    const setMeta = (property: string, content: string) => {
+      let el = document.querySelector(`meta[property="${property}"]`) || document.querySelector(`meta[name="${property}"]`);
+      if (el) {
+        el.setAttribute('content', content);
+      } else {
+        el = document.createElement('meta');
+        el.setAttribute(property.startsWith('og:') ? 'property' : 'name', property);
+        el.setAttribute('content', content);
+        document.head.appendChild(el);
+      }
+    };
+
+    const articleUrl = `https://luandefm.net/artigo/${article.slug}`;
+    
+    document.title = `${article.title} - Portal Luandê Notícias`;
+    setMeta('og:title', article.title);
+    setMeta('og:description', article.subtitle || article.title);
+    setMeta('og:image', article.image_url || 'https://storage.googleapis.com/gpt-engineer-file-uploads/j5I1wDmykQduHQAkT4lnKyPxmha2/social-images/social-1763673242461-4444.png');
+    setMeta('og:url', articleUrl);
+    setMeta('og:type', 'article');
+    setMeta('twitter:title', article.title);
+    setMeta('twitter:description', article.subtitle || article.title);
+    setMeta('twitter:image', article.image_url || 'https://storage.googleapis.com/gpt-engineer-file-uploads/j5I1wDmykQduHQAkT4lnKyPxmha2/social-images/social-1763673242461-4444.png');
+    setMeta('twitter:card', 'summary_large_image');
+
+    return () => {
+      document.title = 'Portal Luandê Notícias - Portal de Notícias | Política, Esportes, Entretenimento';
+    };
+  }, [article]);
+
   const loadArticle = async () => {
     try {
       const { data, error } = await supabase
