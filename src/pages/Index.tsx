@@ -172,7 +172,7 @@ const Index = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-3">
-                      <span className="category-label text-white/90 text-[10px]">{article.category}</span>
+                      <span className="bg-primary/90 text-primary-foreground px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider">{article.category}</span>
                       <h3 className="text-sm font-bold text-white mt-1 line-clamp-2 font-display leading-snug">
                         {article.title}
                       </h3>
