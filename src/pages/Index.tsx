@@ -105,7 +105,19 @@ const Index = () => {
   const latestArticles = articles.slice(0, 20);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background relative">
+      {/* Sergipe watermark background */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center"
+        aria-hidden="true"
+      >
+        <img
+          src={sergipeMap}
+          alt=""
+          className="w-[600px] h-[600px] object-contain opacity-[0.03]"
+        />
+      </div>
+
       <Header />
 
       <main className="flex-1">
