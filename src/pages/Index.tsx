@@ -16,7 +16,8 @@ import FootballResults from "@/components/widgets/FootballResults";
 import TrocandoEmMiudos from "@/components/widgets/TrocandoEmMiudos";
 import HorizontalAdsStrip from "@/components/widgets/HorizontalAdsStrip";
 import { Badge } from "@/components/ui/badge";
-import { Clock, ChevronRight, Play } from "lucide-react";
+import { Clock, ChevronRight, Play, GraduationCap, ExternalLink } from "lucide-react";
+import sergipeMap from "@/assets/sergipe-map.png";
 
 const Index = () => {
   const navigate = useNavigate();
