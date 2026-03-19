@@ -15,8 +15,7 @@ import InternalAds from "@/components/widgets/InternalAds";
 import FootballResults from "@/components/widgets/FootballResults";
 import TrocandoEmMiudos from "@/components/widgets/TrocandoEmMiudos";
 import HorizontalAdsStrip from "@/components/widgets/HorizontalAdsStrip";
-import { Badge } from "@/components/ui/badge";
-import { Clock, ChevronRight, Play, GraduationCap, ExternalLink } from "lucide-react";
+import { Clock, ChevronRight, Play } from "lucide-react";
 import sergipeMap from "@/assets/sergipe-map.png";
 
 const Index = () => {
@@ -30,26 +29,28 @@ const Index = () => {
     loadCategories();
 
     const articlesChannel = supabase
-      .channel('articles-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'articles' }, () => {
+      .channel("articles-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "articles" }, () => {
         loadArticles();
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(articlesChannel); };
+    return () => {
+      supabase.removeChannel(articlesChannel);
+    };
   }, []);
 
   const loadArticles = async () => {
     try {
       const { data, error } = await supabase
-        .from('articles')
-        .select('*')
-        .eq('published', true)
-        .order('created_at', { ascending: false });
+        .from("articles")
+        .select("*")
+        .eq("published", true)
+        .order("created_at", { ascending: false });
       if (error) throw error;
       setArticles(data || []);
     } catch (error) {
-      console.error('Erro ao carregar artigos:', error);
+      console.error("Erro ao carregar artigos:", error);
     } finally {
       setLoading(false);
     }
@@ -58,14 +59,14 @@ const Index = () => {
   const loadCategories = async () => {
     try {
       const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true });
+        .from("categories")
+        .select("*")
+        .eq("is_active", true)
+        .order("display_order", { ascending: true });
       if (error) throw error;
       setCategories(data || []);
     } catch (error) {
-      console.error('Erro ao carregar categorias:', error);
+      console.error("Erro ao carregar categorias:", error);
     }
   };
 
@@ -77,15 +78,15 @@ const Index = () => {
     const now = new Date();
     const articleDate = new Date(date);
     const diffInHours = Math.floor((now.getTime() - articleDate.getTime()) / (1000 * 60 * 60));
-    if (diffInHours < 1) return 'Agora mesmo';
+    if (diffInHours < 1) return "Agora mesmo";
     if (diffInHours < 24) return `Há ${diffInHours}h`;
     const diffInDays = Math.floor(diffInHours / 24);
     if (diffInDays < 7) return `Há ${diffInDays}d`;
-    return articleDate.toLocaleDateString('pt-BR');
+    return articleDate.toLocaleDateString("pt-BR");
   };
 
   const getArticlesByCategory = (categoryName: string) => {
-    return articles.filter(a => a.category === categoryName);
+    return articles.filter((a) => a.category === categoryName);
   };
 
   if (loading) {
@@ -99,18 +100,14 @@ const Index = () => {
     );
   }
 
-  const featuredArticles = articles.filter(a => a.featured);
+  const featuredArticles = articles.filter((a) => a.featured);
   const heroArticle = featuredArticles[0] || articles[0];
-  const secondaryArticles = (featuredArticles.length > 1 ? featuredArticles.slice(1, 4) : articles.slice(1, 4));
+  const secondaryArticles = featuredArticles.length > 1 ? featuredArticles.slice(1, 4) : articles.slice(1, 4);
   const latestArticles = articles.slice(0, 20);
 
   return (
     <div className="min-h-screen flex flex-col bg-background relative">
-      {/* Sergipe watermark background */}
-      <div
-        className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center"
-        aria-hidden="true"
-      >
+      <div className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center" aria-hidden="true">
         <img
           src={sergipeMap}
           alt=""
@@ -121,40 +118,37 @@ const Index = () => {
       <Header />
 
       <main className="flex-1">
-        {/* Submit News Banner */}
         <div className="bg-primary">
           <div className="container mx-auto px-4 py-2.5 flex items-center justify-center">
-            <Link to="/enviar-noticia" className="text-primary-foreground hover:text-primary-foreground/80 smooth-transition text-sm font-semibold font-body flex items-center gap-2">
+            <Link
+              to="/enviar-noticia"
+              className="text-primary-foreground hover:text-primary-foreground/80 smooth-transition text-sm font-semibold font-body flex items-center gap-2"
+            >
               📰 Nos Envie Sua Notícia
               <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
 
-        {/* Top Ad */}
         <div className="container mx-auto px-4 py-3">
           <AdSpace position="header" />
         </div>
 
-        {/* Hero Section */}
         {heroArticle && (
           <section className="container mx-auto px-4 mb-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              {/* Main hero */}
               <div
                 className="lg:col-span-2 relative rounded-lg overflow-hidden cursor-pointer group"
                 onClick={() => handleArticleClick(heroArticle.slug)}
               >
                 <img
-                  src={heroArticle.image_url || '/placeholder.svg'}
+                  src={heroArticle.image_url || "/placeholder.svg"}
                   alt={heroArticle.title}
                   className="w-full h-64 sm:h-80 lg:h-[420px] object-cover group-hover:scale-105 smooth-transition"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
-                  <span className="category-label text-white/90 bg-primary/80 px-2 py-0.5 rounded text-[11px]">
-                    {heroArticle.category}
-                  </span>
+                  <span className="category-label">{heroArticle.category}</span>
                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mt-2 leading-tight font-display line-clamp-3">
                     {heroArticle.title}
                   </h1>
@@ -170,7 +164,6 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Secondary articles */}
               <div className="flex flex-col gap-3">
                 {secondaryArticles.map((article: any) => (
                   <div
@@ -179,13 +172,13 @@ const Index = () => {
                     onClick={() => handleArticleClick(article.slug)}
                   >
                     <img
-                      src={article.image_url || '/placeholder.svg'}
+                      src={article.image_url || "/placeholder.svg"}
                       alt={article.title}
                       className="w-full h-full object-cover absolute inset-0 group-hover:scale-105 smooth-transition"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-3">
-                      <span className="bg-primary/90 text-primary-foreground px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider">{article.category}</span>
+                      <span className="category-label">{article.category}</span>
                       <h3 className="text-sm font-bold text-white mt-1 line-clamp-2 font-display leading-snug">
                         {article.title}
                       </h3>
@@ -197,16 +190,11 @@ const Index = () => {
           </section>
         )}
 
-        {/* Horizontal Ads Strip */}
         <HorizontalAdsStrip />
 
-        {/* Main content grid */}
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-            {/* Left column - Articles by category */}
             <div className="lg:col-span-2 space-y-8">
-
-              {/* Últimas Notícias */}
               <section>
                 <div className="flex items-center justify-between mb-4 border-b-2 border-primary pb-2">
                   <h2 className="section-title">
@@ -215,14 +203,14 @@ const Index = () => {
                   </h2>
                 </div>
                 <div className="space-y-0 divide-y divide-border">
-                  {latestArticles.slice(4, 14).map((article: any, idx: number) => (
+                  {latestArticles.slice(4, 14).map((article: any) => (
                     <article
                       key={article.id}
                       className="flex gap-4 py-4 cursor-pointer group"
                       onClick={() => handleArticleClick(article.slug)}
                     >
                       <img
-                        src={article.image_url || '/placeholder.svg'}
+                        src={article.image_url || "/placeholder.svg"}
                         alt={article.title}
                         className="w-24 h-20 sm:w-32 sm:h-24 object-cover rounded flex-shrink-0 group-hover:opacity-90 smooth-transition"
                       />
@@ -246,10 +234,8 @@ const Index = () => {
                 </div>
               </section>
 
-              {/* Inline Ad */}
               <InternalAds position="inline" className="my-4" />
 
-              {/* Articles by Category sections */}
               {categories.slice(0, 6).map((category) => {
                 const catArticles = getArticlesByCategory(category.name);
                 if (catArticles.length === 0) return null;
@@ -269,7 +255,6 @@ const Index = () => {
                       </Link>
                     </div>
 
-                    {/* First article featured */}
                     {catArticles[0] && (
                       <div
                         className="mb-4 cursor-pointer group"
@@ -277,7 +262,7 @@ const Index = () => {
                       >
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <img
-                            src={catArticles[0].image_url || '/placeholder.svg'}
+                            src={catArticles[0].image_url || "/placeholder.svg"}
                             alt={catArticles[0].title}
                             className="w-full h-48 object-cover rounded group-hover:opacity-90 smooth-transition"
                           />
@@ -299,7 +284,6 @@ const Index = () => {
                       </div>
                     )}
 
-                    {/* Rest as list */}
                     <div className="space-y-0 divide-y divide-border">
                       {catArticles.slice(1, 5).map((article: any) => (
                         <div
@@ -321,18 +305,14 @@ const Index = () => {
                 );
               })}
 
-              {/* Trocando em Miúdos */}
               <TrocandoEmMiudos />
 
-              {/* Mobile Ad */}
               <div className="lg:hidden">
                 <InternalAds position="inline" source="uploaded" mobileFormat="horizontal" className="my-2" />
               </div>
             </div>
 
-            {/* Right column - Widgets */}
             <aside className="space-y-5">
-              {/* YouTube Ao Vivo */}
               <div>
                 <div className="flex items-center gap-2 mb-3 border-b-2 border-destructive pb-2">
                   <Play className="h-4 w-4 text-destructive" />
@@ -363,7 +343,6 @@ const Index = () => {
           </div>
         </div>
 
-        {/* YouTube Featured Videos */}
         <section className="container mx-auto px-4 my-10">
           <div className="flex items-center gap-3 mb-5 border-b-2 border-destructive pb-2">
             <Play className="h-5 w-5 text-destructive" />
@@ -393,35 +372,6 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Senac Courses Section */}
-        <section className="container mx-auto px-4 my-10">
-          <div className="bg-gradient-to-r from-primary to-secondary rounded-lg p-6 sm:p-8 text-primary-foreground">
-            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-              <div className="w-16 h-16 rounded-full bg-primary-foreground/20 flex items-center justify-center flex-shrink-0">
-                <GraduationCap className="h-8 w-8" />
-              </div>
-              <div className="flex-1 text-center sm:text-left">
-                <h2 className="text-xl sm:text-2xl font-bold font-display mb-1">
-                  Cursos Grátis do Senac
-                </h2>
-                <p className="text-primary-foreground/80 text-sm sm:text-base font-body">
-                  Disponíveis em todo o estado de Sergipe. Capacite-se gratuitamente!
-                </p>
-              </div>
-              <a
-                href="https://psg.se.senac.br/cursos"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-primary-foreground text-primary font-bold px-6 py-3 rounded-lg hover:bg-primary-foreground/90 smooth-transition text-sm font-body flex-shrink-0"
-              >
-                Acessar Cursos Grátis
-                <ExternalLink className="h-4 w-4" />
-              </a>
-            </div>
-          </div>
-        </section>
-
-        {/* Bottom Ad */}
         <div className="container mx-auto px-4 py-4">
           <AdSpace position="footer" />
         </div>

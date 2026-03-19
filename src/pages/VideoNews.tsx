@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import VLibras from "@/components/layout/VLibras";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Play, Calendar } from "lucide-react";
@@ -34,56 +33,55 @@ const VideoNews = () => {
   const loadVideos = async () => {
     try {
       const { data, error } = await supabase
-        .from('articles')
-        .select('id, title, subtitle, category, created_at, media_gallery')
-        .eq('published', true)
-        .not('media_gallery', 'is', null)
-        .order('created_at', { ascending: false });
+        .from("articles")
+        .select("id, title, subtitle, category, created_at, media_gallery")
+        .eq("published", true)
+        .not("media_gallery", "is", null)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
 
-      // Filter articles that have video content
-      const articlesWithVideos = (data || []).filter(article => {
+      const articlesWithVideos = (data || []).filter((article) => {
         if (!article.media_gallery || !Array.isArray(article.media_gallery)) return false;
-        return article.media_gallery.some((media: any) => 
-          media.type === 'video' || 
-          (media.url && (media.url.includes('youtube') || media.url.includes('vimeo') || media.url.endsWith('.mp4')))
+        return article.media_gallery.some(
+          (media: any) =>
+            media.type === "video" ||
+            (media.url && (media.url.includes("youtube") || media.url.includes("vimeo") || media.url.endsWith(".mp4"))),
         );
       });
 
       setVideos(articlesWithVideos);
     } catch (error) {
-      console.error('Erro ao carregar vídeos:', error);
+      console.error("Erro ao carregar vídeos:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
+    return new Date(date).toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
     });
   };
 
   const getVideoUrl = (article: VideoArticle): string | null => {
     if (!article.media_gallery || !Array.isArray(article.media_gallery)) return null;
-    const video = article.media_gallery.find((media: any) => 
-      media.type === 'video' || 
-      (media.url && (media.url.includes('youtube') || media.url.includes('vimeo') || media.url.endsWith('.mp4')))
+    const video = article.media_gallery.find(
+      (media: any) =>
+        media.type === "video" ||
+        (media.url && (media.url.includes("youtube") || media.url.includes("vimeo") || media.url.endsWith(".mp4"))),
     );
     return video?.url || null;
   };
 
   const getVideoThumbnail = (url: string): string => {
-    // Extract YouTube video ID and return thumbnail
     const youtubeMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
     if (youtubeMatch) {
       return `https://img.youtube.com/vi/${youtubeMatch[1]}/maxresdefault.jpg`;
     }
-    // Default placeholder for non-YouTube videos
-    return '/placeholder.svg';
+    return "/placeholder.svg";
   };
 
   const handleVideoClick = (article: VideoArticle) => {
@@ -102,60 +100,38 @@ const VideoNews = () => {
   };
 
   const isEmbeddableVideo = (url: string) => {
-    return (
-      /youtu\.be|youtube\.com/i.test(url) ||
-      /vimeo\.com/i.test(url)
-    );
+    return /youtu\.be|youtube\.com/i.test(url) || /vimeo\.com/i.test(url);
   };
 
   const normalizeDirectVideoUrl = (url: string) => {
-    // Some storage/CDN URLs may include download-related query params.
-    // We strip common ones so the browser attempts inline playback.
     try {
       const u = new URL(url);
-      [
-        "download",
-        "response-content-disposition",
-        "response-content-type",
-      ].forEach((k) => u.searchParams.delete(k));
+      ["download", "response-content-disposition", "response-content-type"].forEach((k) => u.searchParams.delete(k));
       return u.toString();
     } catch {
       return url;
     }
   };
 
-  const getVideoMimeType = (url: string) => {
-    const lower = url.toLowerCase();
-    if (lower.endsWith(".mp4")) return "video/mp4";
-    if (lower.endsWith(".webm")) return "video/webm";
-    if (lower.endsWith(".mov")) return "video/quicktime";
-    if (lower.endsWith(".m4v")) return "video/x-m4v";
-    if (lower.endsWith(".mkv")) return "video/x-matroska";
-    if (lower.endsWith(".avi")) return "video/x-msvideo";
-    return undefined;
-  };
-
-  // Featured YouTube videos (always shown) with descriptions
   const featuredVideos = [
-    { 
-      id: "fizu3ynz-pk", 
+    {
+      id: "fizu3ynz-pk",
       title: "Notícias LuandêFM - Destaque 1",
-      description: "Acompanhe as últimas notícias e acontecimentos da nossa região com a equipe LuandêFM."
+      description: "Acompanhe as últimas notícias e acontecimentos da nossa região com a equipe LuandêFM.",
     },
-    { 
-      id: "SAotJezU9qA", 
+    {
+      id: "SAotJezU9qA",
       title: "Notícias LuandêFM - Destaque 2",
-      description: "Fique por dentro das principais informações do dia com cobertura completa e análises."
+      description: "Fique por dentro das principais informações do dia com cobertura completa e análises.",
     },
   ];
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1 bg-background">
         <div className="container mx-auto px-4 py-8">
-          {/* Page Header */}
           <div className="mb-8">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 flex items-center gap-4">
               <span className="w-2 h-12 bg-primary rounded-full"></span>
@@ -166,7 +142,6 @@ const VideoNews = () => {
             </p>
           </div>
 
-          {/* Featured Videos Section */}
           <section className="mb-12">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
               <Play className="w-6 h-6 text-primary" />
@@ -194,7 +169,6 @@ const VideoNews = () => {
             </div>
           </section>
 
-          {/* Videos from Articles */}
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
@@ -212,9 +186,9 @@ const VideoNews = () => {
                 {videos.map((article) => {
                   const videoUrl = getVideoUrl(article);
                   if (!videoUrl) return null;
-                  
+
                   return (
-                    <Card 
+                    <Card
                       key={article.id}
                       className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group"
                       onClick={() => handleVideoClick(article)}
@@ -265,17 +239,15 @@ const VideoNews = () => {
       </main>
 
       <Footer />
-      <VLibras />
 
-      {/* Video Player Dialog */}
       <Dialog open={!!selectedVideo} onOpenChange={() => setSelectedVideo(null)}>
         <DialogContent className="max-w-4xl p-0 overflow-hidden">
           <DialogHeader className="p-4 pb-0">
             <DialogTitle className="line-clamp-2">{selectedVideo?.title}</DialogTitle>
           </DialogHeader>
           <div className="aspect-video">
-            {selectedVideo && (
-              isEmbeddableVideo(selectedVideo.url) ? (
+            {selectedVideo &&
+              (isEmbeddableVideo(selectedVideo.url) ? (
                 <iframe
                   className="w-full h-full"
                   src={getEmbedUrl(selectedVideo.url)}
@@ -296,8 +268,7 @@ const VideoNews = () => {
                 >
                   Seu navegador não suporta este formato de vídeo.
                 </video>
-              )
-            )}
+              ))}
           </div>
         </DialogContent>
       </Dialog>

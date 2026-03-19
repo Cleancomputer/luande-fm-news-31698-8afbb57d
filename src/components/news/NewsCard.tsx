@@ -37,7 +37,7 @@ const NewsCard = ({
           className="w-full h-full object-cover group-hover:scale-105 smooth-transition"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-        <span className="absolute top-3 left-3 category-label bg-primary/90 text-primary-foreground px-2 py-0.5 rounded text-[11px]">
+        <span className="absolute top-3 left-3 category-label">
           {category}
         </span>
       </div>
