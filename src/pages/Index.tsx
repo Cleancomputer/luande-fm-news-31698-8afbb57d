@@ -393,6 +393,34 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Senac Courses Section */}
+        <section className="container mx-auto px-4 my-10">
+          <div className="bg-gradient-to-r from-primary to-secondary rounded-lg p-6 sm:p-8 text-primary-foreground">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+              <div className="w-16 h-16 rounded-full bg-primary-foreground/20 flex items-center justify-center flex-shrink-0">
+                <GraduationCap className="h-8 w-8" />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <h2 className="text-xl sm:text-2xl font-bold font-display mb-1">
+                  Cursos Grátis do Senac
+                </h2>
+                <p className="text-primary-foreground/80 text-sm sm:text-base font-body">
+                  Disponíveis em todo o estado de Sergipe. Capacite-se gratuitamente!
+                </p>
+              </div>
+              <a
+                href="https://psg.se.senac.br/cursos"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-primary-foreground text-primary font-bold px-6 py-3 rounded-lg hover:bg-primary-foreground/90 smooth-transition text-sm font-body flex-shrink-0"
+              >
+                Acessar Cursos Grátis
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* Bottom Ad */}
         <div className="container mx-auto px-4 py-4">
           <AdSpace position="footer" />
