@@ -101,7 +101,9 @@ export type Database = {
           created_at: string | null
           created_by: string | null
           id: string
+          image_description: string | null
           image_url: string | null
+          journalist_name: string | null
           media_gallery: Json | null
           subtitle: string | null
           tags: string[] | null
@@ -115,7 +117,9 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           id?: string
+          image_description?: string | null
           image_url?: string | null
+          journalist_name?: string | null
           media_gallery?: Json | null
           subtitle?: string | null
           tags?: string[] | null
@@ -129,7 +133,9 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           id?: string
+          image_description?: string | null
           image_url?: string | null
+          journalist_name?: string | null
           media_gallery?: Json | null
           subtitle?: string | null
           tags?: string[] | null
@@ -156,7 +162,9 @@ export type Database = {
           featured: boolean | null
           featured_position: string | null
           id: string
+          image_description: string | null
           image_url: string | null
+          journalist_name: string | null
           media_gallery: Json | null
           published: boolean | null
           scheduled_at: string | null
@@ -177,7 +185,9 @@ export type Database = {
           featured?: boolean | null
           featured_position?: string | null
           id?: string
+          image_description?: string | null
           image_url?: string | null
+          journalist_name?: string | null
           media_gallery?: Json | null
           published?: boolean | null
           scheduled_at?: string | null
@@ -198,7 +208,9 @@ export type Database = {
           featured?: boolean | null
           featured_position?: string | null
           id?: string
+          image_description?: string | null
           image_url?: string | null
+          journalist_name?: string | null
           media_gallery?: Json | null
           published?: boolean | null
           scheduled_at?: string | null
