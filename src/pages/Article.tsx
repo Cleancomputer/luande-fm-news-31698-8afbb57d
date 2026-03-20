@@ -180,7 +180,7 @@ const Article = () => {
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                <span>Redação LuandêFM</span>
+                <span>{article.journalist_name || 'Redação LuandêFM'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4" />
