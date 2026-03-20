@@ -98,14 +98,7 @@ const Header = () => {
                 <span className="hidden sm:inline text-sm font-body">Ao Vivo</span>
               </a>
 
-              <Link
-                to="/login"
-                className="flex items-center gap-1.5 text-primary-foreground hover:text-primary-foreground/80 smooth-transition p-2"
-                title="Acesso Administrativo"
-              >
-                <Shield className="h-5 w-5" />
-                <span className="hidden sm:inline text-sm font-body">Admin</span>
-              </Link>
+              {/* Admin link hidden for security - access via /login directly */}
             </div>
           </div>
         </div>
