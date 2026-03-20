@@ -171,9 +171,10 @@ const ContentManager = ({ userRole = 'admin' }: ContentManagerProps) => {
       author_id: user?.id,
       image_url: coverImageUrl,
       media_gallery: formData.media_gallery || [],
-      // Se for editor e quiser publicar, vai para pending_approval
+      image_description: formData.image_description || null,
+      journalist_name: formData.journalist_name || null,
       status: isEditor && formData.published ? 'pending_approval' : (formData.published ? 'published' : 'draft'),
-      published: isEditor ? false : formData.published // Editor nunca publica diretamente
+      published: isEditor ? false : formData.published
     };
 
     try {
