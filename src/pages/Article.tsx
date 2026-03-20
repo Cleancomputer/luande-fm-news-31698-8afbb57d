@@ -194,11 +194,19 @@ const Article = () => {
           </div>
 
           {article.media_gallery && article.media_gallery.length > 0 ? (
-            <MediaGalleryCarousel media={article.media_gallery} title={article.title} />
+            <div className="mb-8">
+              <MediaGalleryCarousel media={article.media_gallery} title={article.title} />
+              {article.image_description && (
+                <p className="text-sm text-muted-foreground mt-2 italic">{article.image_description}</p>
+              )}
+            </div>
           ) : (
             article.image_url && (
               <div className="mb-8 rounded-lg overflow-hidden">
                 <img src={article.image_url} alt={article.title} className="w-full h-auto object-cover" />
+                {article.image_description && (
+                  <p className="text-sm text-muted-foreground mt-2 italic">{article.image_description}</p>
+                )}
               </div>
             )
           )}
