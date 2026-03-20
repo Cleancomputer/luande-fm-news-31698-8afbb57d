@@ -393,6 +393,26 @@ const ContentManager = ({ userRole = 'admin' }: ContentManagerProps) => {
             </div>
 
             <div>
+              <Label htmlFor="image_description">Descrição da Imagem (legenda abaixo da imagem)</Label>
+              <Input
+                id="image_description"
+                value={formData.image_description}
+                onChange={(e) => setFormData({ ...formData, image_description: e.target.value })}
+                placeholder="Ex: Foto: João Silva / Agência XYZ"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="journalist_name">Jornalista / Escritor</Label>
+              <Input
+                id="journalist_name"
+                value={formData.journalist_name}
+                onChange={(e) => setFormData({ ...formData, journalist_name: e.target.value })}
+                placeholder="Nome do jornalista ou escritor da matéria"
+              />
+            </div>
+
+            <div>
               <Label htmlFor="content">Conteúdo *</Label>
               <RichTextEditor
                 content={formData.content}
