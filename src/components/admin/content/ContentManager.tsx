@@ -52,7 +52,9 @@ const ContentManager = ({ userRole = 'admin' }: ContentManagerProps) => {
     tags: [] as string[],
     slug: '',
     media_gallery: [] as any[],
-    cover_image_index: 0
+    cover_image_index: 0,
+    image_description: '',
+    journalist_name: '',
   });
 
   useEffect(() => {
