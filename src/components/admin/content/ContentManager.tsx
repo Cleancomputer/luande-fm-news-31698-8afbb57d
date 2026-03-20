@@ -256,7 +256,9 @@ const ContentManager = ({ userRole = 'admin' }: ContentManagerProps) => {
       tags: [],
       slug: '',
       media_gallery: [],
-      cover_image_index: 0
+      cover_image_index: 0,
+      image_description: '',
+      journalist_name: '',
     });
   };
 
