@@ -74,7 +74,9 @@ const ContentManager = ({ userRole = 'admin' }: ContentManagerProps) => {
         tags: article.tags || [],
         slug: article.slug,
         media_gallery: article.media_gallery || [],
-        cover_image_index: 0
+        cover_image_index: 0,
+        image_description: (article as any).image_description || '',
+        journalist_name: (article as any).journalist_name || '',
       });
       localStorage.removeItem('editingArticle');
     }
