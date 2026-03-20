@@ -52,7 +52,9 @@ const ContentManager = ({ userRole = 'admin' }: ContentManagerProps) => {
     tags: [] as string[],
     slug: '',
     media_gallery: [] as any[],
-    cover_image_index: 0
+    cover_image_index: 0,
+    image_description: '',
+    journalist_name: '',
   });
 
   useEffect(() => {
@@ -72,7 +74,9 @@ const ContentManager = ({ userRole = 'admin' }: ContentManagerProps) => {
         tags: article.tags || [],
         slug: article.slug,
         media_gallery: article.media_gallery || [],
-        cover_image_index: 0
+        cover_image_index: 0,
+        image_description: (article as any).image_description || '',
+        journalist_name: (article as any).journalist_name || '',
       });
       localStorage.removeItem('editingArticle');
     }
@@ -167,9 +171,10 @@ const ContentManager = ({ userRole = 'admin' }: ContentManagerProps) => {
       author_id: user?.id,
       image_url: coverImageUrl,
       media_gallery: formData.media_gallery || [],
-      // Se for editor e quiser publicar, vai para pending_approval
+      image_description: formData.image_description || null,
+      journalist_name: formData.journalist_name || null,
       status: isEditor && formData.published ? 'pending_approval' : (formData.published ? 'published' : 'draft'),
-      published: isEditor ? false : formData.published // Editor nunca publica diretamente
+      published: isEditor ? false : formData.published
     };
 
     try {
@@ -233,7 +238,9 @@ const ContentManager = ({ userRole = 'admin' }: ContentManagerProps) => {
       tags: article.tags || [],
       slug: article.slug,
       media_gallery: article.media_gallery || [],
-      cover_image_index: 0
+      cover_image_index: 0,
+      image_description: (article as any).image_description || '',
+      journalist_name: (article as any).journalist_name || '',
     });
   };
 
@@ -250,7 +257,9 @@ const ContentManager = ({ userRole = 'admin' }: ContentManagerProps) => {
       tags: [],
       slug: '',
       media_gallery: [],
-      cover_image_index: 0
+      cover_image_index: 0,
+      image_description: '',
+      journalist_name: '',
     });
   };
 
@@ -382,6 +391,26 @@ const ContentManager = ({ userRole = 'admin' }: ContentManagerProps) => {
                   </div>
                 )}
               </div>
+            </div>
+
+            <div>
+              <Label htmlFor="image_description">Descrição da Imagem (legenda abaixo da imagem)</Label>
+              <Input
+                id="image_description"
+                value={formData.image_description}
+                onChange={(e) => setFormData({ ...formData, image_description: e.target.value })}
+                placeholder="Ex: Foto: João Silva / Agência XYZ"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="journalist_name">Jornalista / Escritor</Label>
+              <Input
+                id="journalist_name"
+                value={formData.journalist_name}
+                onChange={(e) => setFormData({ ...formData, journalist_name: e.target.value })}
+                placeholder="Nome do jornalista ou escritor da matéria"
+              />
             </div>
 
             <div>

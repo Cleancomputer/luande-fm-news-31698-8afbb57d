@@ -24,6 +24,8 @@ interface Article {
   tags: string[] | null;
   media_gallery: any;
   slug: string;
+  image_description: string | null;
+  journalist_name: string | null;
 }
 
 const Article = () => {
@@ -178,7 +180,7 @@ const Article = () => {
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                <span>Redação LuandêFM</span>
+                <span>{article.journalist_name || 'Redação LuandêFM'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4" />
@@ -192,11 +194,19 @@ const Article = () => {
           </div>
 
           {article.media_gallery && article.media_gallery.length > 0 ? (
-            <MediaGalleryCarousel media={article.media_gallery} title={article.title} />
+            <div className="mb-8">
+              <MediaGalleryCarousel media={article.media_gallery} title={article.title} />
+              {article.image_description && (
+                <p className="text-sm text-muted-foreground mt-2 italic">{article.image_description}</p>
+              )}
+            </div>
           ) : (
             article.image_url && (
               <div className="mb-8 rounded-lg overflow-hidden">
                 <img src={article.image_url} alt={article.title} className="w-full h-auto object-cover" />
+                {article.image_description && (
+                  <p className="text-sm text-muted-foreground mt-2 italic">{article.image_description}</p>
+                )}
               </div>
             )
           )}

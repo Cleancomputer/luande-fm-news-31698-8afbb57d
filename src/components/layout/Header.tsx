@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Search, Shield, Radio, ChevronRight } from "lucide-react";
+import { Menu, X, Search, Radio, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -98,14 +98,7 @@ const Header = () => {
                 <span className="hidden sm:inline text-sm font-body">Ao Vivo</span>
               </a>
 
-              <Link
-                to="/login"
-                className="flex items-center gap-1.5 text-primary-foreground hover:text-primary-foreground/80 smooth-transition p-2"
-                title="Acesso Administrativo"
-              >
-                <Shield className="h-5 w-5" />
-                <span className="hidden sm:inline text-sm font-body">Admin</span>
-              </Link>
+              {/* Admin link hidden for security - access via /login directly */}
             </div>
           </div>
         </div>
