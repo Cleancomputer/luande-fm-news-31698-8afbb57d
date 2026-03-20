@@ -24,6 +24,8 @@ interface Article {
   tags: string[] | null;
   media_gallery: any;
   slug: string;
+  image_description: string | null;
+  journalist_name: string | null;
 }
 
 const Article = () => {
