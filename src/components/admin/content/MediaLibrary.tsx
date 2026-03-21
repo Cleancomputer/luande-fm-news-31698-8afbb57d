@@ -311,10 +311,22 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
                 />
               ) : item.file_type.startsWith('video/') ? (
                 <div
-                  className="w-full h-32 bg-muted rounded flex items-center justify-center cursor-pointer relative"
+                  className="w-full h-32 rounded cursor-pointer relative overflow-hidden bg-black"
                   onClick={() => handleSelect(item)}
                 >
-                  <Film className="h-8 w-8 text-muted-foreground" />
+                  <video
+                    src={item.file_path}
+                    className="w-full h-full object-cover"
+                    muted
+                    preload="metadata"
+                    onLoadedMetadata={(e) => {
+                      const video = e.currentTarget;
+                      video.currentTime = 1;
+                    }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                    <Film className="h-8 w-8 text-white drop-shadow-lg" />
+                  </div>
                   <span className="absolute bottom-1 left-1 text-[10px] bg-black/70 text-white px-1 rounded">Vídeo</span>
                 </div>
               ) : (
