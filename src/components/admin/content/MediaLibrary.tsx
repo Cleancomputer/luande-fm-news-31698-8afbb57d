@@ -292,7 +292,7 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
             )}
 
             <p className="text-xs text-muted-foreground text-center">
-              Suporta imagens, vídeos (qualquer formato/duração) e áudio
+              Suporta imagens, vídeos até 150MB (qualquer formato/duração) e áudio
             </p>
           </div>
         </CardContent>
