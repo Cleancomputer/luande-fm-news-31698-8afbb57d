@@ -116,6 +116,15 @@ export const MediaLibrary = ({ onSelect, allowMultiple = false }: MediaLibraryPr
     if (!user) return;
 
     const fileArray = Array.from(files);
+    
+    // Validate file size (150MB max for videos)
+    for (const file of fileArray) {
+      if (file.size > 150 * 1024 * 1024) {
+        toast.error(`O arquivo "${file.name}" excede o limite de 150MB.`);
+        return;
+      }
+    }
+    
     setUploading(true);
     setUploadProgress(0);
 

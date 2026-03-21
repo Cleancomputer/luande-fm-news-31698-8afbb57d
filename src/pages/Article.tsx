@@ -159,7 +159,7 @@ const Article = () => {
     });
   };
 
-  const shareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/article-share?slug=${encodeURIComponent(article.slug)}&origin=${encodeURIComponent(window.location.origin)}`;
+  const shareUrl = `https://www.luandefm.net/artigo/${encodeURIComponent(article.slug)}`;
 
   return (
     <div className="min-h-screen flex flex-col">
