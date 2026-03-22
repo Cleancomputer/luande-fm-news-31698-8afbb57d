@@ -40,6 +40,10 @@ export const ShareDialog = ({ open, onOpenChange, title, url, slug }: ShareDialo
     }
   };
 
+  const whatsappUrl = slug
+    ? `https://iyijnxplswxeezhkowpn.supabase.co/functions/v1/article-share?slug=${encodeURIComponent(slug)}&origin=https%3A%2F%2Fwww.luandefm.net`
+    : url;
+
   const shareOptions = [
     {
       name: "WhatsApp",
@@ -47,7 +51,7 @@ export const ShareDialog = ({ open, onOpenChange, title, url, slug }: ShareDialo
       color: "hover:bg-green-500/10 hover:text-green-600",
       action: () => {
         window.open(
-          `https://wa.me/?text=${encodeURIComponent(title + " - " + url)}`,
+          `https://wa.me/?text=${encodeURIComponent(title + " - " + whatsappUrl)}`,
           "_blank"
         );
       },
