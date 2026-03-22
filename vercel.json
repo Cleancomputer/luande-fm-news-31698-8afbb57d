@@ -17,6 +17,17 @@
       "destination": "/favicon.png"
     },
     {
+      "source": "/artigo/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|TelegramBot|Googlebot|bingbot|Pinterest|bot|crawler|spider).*"
+        }
+      ],
+      "destination": "https://iyijnxplswxeezhkowpn.supabase.co/functions/v1/article-share?slug=:slug&origin=https%3A%2F%2Fwww.luandefm.net"
+    },
+    {
       "source": "/((?!.*\\.).*)",
       "destination": "/index.html"
     }
