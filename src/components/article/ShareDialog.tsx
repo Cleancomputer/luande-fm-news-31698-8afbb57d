@@ -40,9 +40,7 @@ export const ShareDialog = ({ open, onOpenChange, title, url, slug }: ShareDialo
     }
   };
 
-  const whatsappUrl = slug
-    ? `https://iyijnxplswxeezhkowpn.supabase.co/functions/v1/article-share?slug=${encodeURIComponent(slug)}&origin=https%3A%2F%2Fwww.luandefm.net`
-    : url;
+  const whatsappUrl = url;
 
   const shareOptions = [
     {
