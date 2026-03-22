@@ -29,6 +29,25 @@ interface ShareDialogProps {
 export const ShareDialog = ({ open, onOpenChange, title, url, slug }: ShareDialogProps) => {
   const [copied, setCopied] = useState(false);
 
+  const normalizedWhatsappUrl = (() => {
+    if (slug) {
+      return `https://www.luandefm.net/artigo/${encodeURIComponent(slug)}`;
+    }
+
+    try {
+      const parsed = new URL(url);
+      const previewSlug = parsed.searchParams.get("slug");
+
+      if (previewSlug) {
+        return `https://www.luandefm.net/artigo/${encodeURIComponent(previewSlug)}`;
+      }
+
+      return url;
+    } catch {
+      return url;
+    }
+  })();
+
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(url);
@@ -40,8 +59,6 @@ export const ShareDialog = ({ open, onOpenChange, title, url, slug }: ShareDialo
     }
   };
 
-  const whatsappUrl = url;
-
   const shareOptions = [
     {
       name: "WhatsApp",
@@ -49,7 +66,7 @@ export const ShareDialog = ({ open, onOpenChange, title, url, slug }: ShareDialo
       color: "hover:bg-green-500/10 hover:text-green-600",
       action: () => {
         window.open(
-          `https://wa.me/?text=${encodeURIComponent(title + " - " + whatsappUrl)}`,
+          `https://wa.me/?text=${encodeURIComponent(title + " - " + normalizedWhatsappUrl)}`,
           "_blank"
         );
       },
