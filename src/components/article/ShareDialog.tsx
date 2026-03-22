@@ -23,9 +23,10 @@ interface ShareDialogProps {
   onOpenChange: (open: boolean) => void;
   title: string;
   url: string;
+  slug?: string;
 }
 
-export const ShareDialog = ({ open, onOpenChange, title, url }: ShareDialogProps) => {
+export const ShareDialog = ({ open, onOpenChange, title, url, slug }: ShareDialogProps) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = async () => {
