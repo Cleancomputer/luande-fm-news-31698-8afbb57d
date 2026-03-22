@@ -274,7 +274,7 @@ const Article = () => {
 
       <Footer />
 
-      <ShareDialog open={shareDialogOpen} onOpenChange={setShareDialogOpen} title={article.title} url={shareUrl} />
+      <ShareDialog open={shareDialogOpen} onOpenChange={setShareDialogOpen} title={article.title} url={shareUrl} slug={article.slug} />
     </div>
   );
 };

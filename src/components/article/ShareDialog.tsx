@@ -23,9 +23,10 @@ interface ShareDialogProps {
   onOpenChange: (open: boolean) => void;
   title: string;
   url: string;
+  slug?: string;
 }
 
-export const ShareDialog = ({ open, onOpenChange, title, url }: ShareDialogProps) => {
+export const ShareDialog = ({ open, onOpenChange, title, url, slug }: ShareDialogProps) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = async () => {
@@ -39,6 +40,10 @@ export const ShareDialog = ({ open, onOpenChange, title, url }: ShareDialogProps
     }
   };
 
+  const whatsappUrl = slug
+    ? `https://iyijnxplswxeezhkowpn.supabase.co/functions/v1/article-share?slug=${encodeURIComponent(slug)}&origin=https%3A%2F%2Fwww.luandefm.net`
+    : url;
+
   const shareOptions = [
     {
       name: "WhatsApp",
@@ -46,7 +51,7 @@ export const ShareDialog = ({ open, onOpenChange, title, url }: ShareDialogProps
       color: "hover:bg-green-500/10 hover:text-green-600",
       action: () => {
         window.open(
-          `https://wa.me/?text=${encodeURIComponent(title + " - " + url)}`,
+          `https://wa.me/?text=${encodeURIComponent(title + " - " + whatsappUrl)}`,
           "_blank"
         );
       },
