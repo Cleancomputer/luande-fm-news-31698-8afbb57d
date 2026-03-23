@@ -65,11 +65,20 @@ export const ShareDialog = ({ open, onOpenChange, title, url, slug }: ShareDialo
       icon: Send,
       color: "hover:bg-green-500/10 hover:text-green-600",
       action: () => {
-        const whatsappText = encodeURIComponent(title + " - " + normalizedWhatsappUrl);
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        const whatsappMessage = isIOS
+          ? normalizedWhatsappUrl
+          : `${title} - ${normalizedWhatsappUrl}`;
         const whatsappUrl = isIOS
-          ? `https://api.whatsapp.com/send?text=${whatsappText}`
-          : `https://wa.me/?text=${whatsappText}`;
+          ? `https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappMessage)}`
+          : `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
+
+        if (isIOS) {
+          window.location.href = whatsappUrl;
+          return;
+        }
+
         window.open(whatsappUrl, "_blank");
       },
     },
