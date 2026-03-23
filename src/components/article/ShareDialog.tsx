@@ -64,9 +64,23 @@ export const ShareDialog = ({ open, onOpenChange, title, url, slug }: ShareDialo
       name: "WhatsApp",
       icon: Send,
       color: "hover:bg-green-500/10 hover:text-green-600",
-      action: () => {
+      action: async () => {
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
           (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+        if (isIOS && typeof navigator.share === "function") {
+          try {
+            await navigator.share({
+              url: normalizedWhatsappUrl,
+            });
+            return;
+          } catch (error) {
+            if (error instanceof DOMException && error.name === "AbortError") {
+              return;
+            }
+          }
+        }
+
         const whatsappMessage = isIOS
           ? normalizedWhatsappUrl
           : `${title} - ${normalizedWhatsappUrl}`;
