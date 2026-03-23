@@ -29,23 +29,32 @@ interface ShareDialogProps {
 export const ShareDialog = ({ open, onOpenChange, title, url, slug }: ShareDialogProps) => {
   const [copied, setCopied] = useState(false);
 
-  const normalizedWhatsappUrl = (() => {
+  const siteOrigin = "https://www.luandefm.net";
+
+  const resolvedSlug = (() => {
     if (slug) {
-      return `https://www.luandefm.net/artigo/${encodeURIComponent(slug)}`;
+      return slug;
     }
 
     try {
-      const parsed = new URL(url);
-      const previewSlug = parsed.searchParams.get("slug");
-
-      if (previewSlug) {
-        return `https://www.luandefm.net/artigo/${encodeURIComponent(previewSlug)}`;
-      }
-
-      return url;
+      return new URL(url).searchParams.get("slug") ?? undefined;
     } catch {
-      return url;
+      return undefined;
     }
+  })();
+
+  const normalizedWhatsappUrl = resolvedSlug
+    ? `${siteOrigin}/artigo/${encodeURIComponent(resolvedSlug)}`
+    : url;
+
+  const iosWhatsappPreviewUrl = (() => {
+    const backendUrl = import.meta.env.VITE_SUPABASE_URL;
+
+    if (!backendUrl || !resolvedSlug) {
+      return normalizedWhatsappUrl;
+    }
+
+    return `${backendUrl}/functions/v1/article-share?slug=${encodeURIComponent(resolvedSlug)}&origin=${encodeURIComponent(siteOrigin)}`;
   })();
 
   const handleCopyLink = async () => {
@@ -64,25 +73,12 @@ export const ShareDialog = ({ open, onOpenChange, title, url, slug }: ShareDialo
       name: "WhatsApp",
       icon: Send,
       color: "hover:bg-green-500/10 hover:text-green-600",
-      action: async () => {
+      action: () => {
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
           (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-        if (isIOS && typeof navigator.share === "function") {
-          try {
-            await navigator.share({
-              url: normalizedWhatsappUrl,
-            });
-            return;
-          } catch (error) {
-            if (error instanceof DOMException && error.name === "AbortError") {
-              return;
-            }
-          }
-        }
-
         const whatsappMessage = isIOS
-          ? normalizedWhatsappUrl
+          ? iosWhatsappPreviewUrl
           : `${title} - ${normalizedWhatsappUrl}`;
         const whatsappUrl = isIOS
           ? `https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappMessage)}`
