@@ -15,6 +15,9 @@ import InternalAds from "@/components/widgets/InternalAds";
 import FootballResults from "@/components/widgets/FootballResults";
 import TrocandoEmMiudos from "@/components/widgets/TrocandoEmMiudos";
 import HorizontalAdsStrip from "@/components/widgets/HorizontalAdsStrip";
+import DateTimeBanner from "@/components/layout/DateTimeBanner";
+import YouTubeVideos from "@/components/widgets/YouTubeVideos";
+import DailyImages from "@/components/widgets/DailyImages";
 import { Clock, ChevronRight, Play } from "lucide-react";
 import sergipeMap from "@/assets/sergipe-map.png";
 
@@ -91,11 +94,10 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent mx-auto mb-4"></div>
-          <p className="text-muted-foreground font-body">Carregando notícias...</p>
-        </div>
+      <div className="min-h-screen flex flex-col bg-background relative">
+        <Header />
+        <main className="flex-1" />
+        <Footer />
       </div>
     );
   }
@@ -115,6 +117,7 @@ const Index = () => {
         />
       </div>
 
+      <DateTimeBanner />
       <Header />
 
       <main className="flex-1">
@@ -307,6 +310,8 @@ const Index = () => {
 
               <TrocandoEmMiudos />
 
+              <DailyImages />
+
               <div className="lg:hidden">
                 <InternalAds position="inline" source="uploaded" mobileFormat="horizontal" className="my-2" />
               </div>
@@ -343,34 +348,7 @@ const Index = () => {
           </div>
         </div>
 
-        <section className="container mx-auto px-4 my-10">
-          <div className="flex items-center gap-3 mb-5 border-b-2 border-destructive pb-2">
-            <Play className="h-5 w-5 text-destructive" />
-            <h2 className="section-title">Vídeos em Destaque</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="aspect-video rounded overflow-hidden shadow-md">
-              <iframe
-                className="w-full h-full"
-                src="https://www.youtube.com/embed/fizu3ynz-pk"
-                title="Vídeo em Destaque 1"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            </div>
-            <div className="aspect-video rounded overflow-hidden shadow-md">
-              <iframe
-                className="w-full h-full"
-                src="https://www.youtube.com/embed/SAotJezU9qA"
-                title="Vídeo em Destaque 2"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            </div>
-          </div>
-        </section>
+        <YouTubeVideos />
 
         <div className="container mx-auto px-4 py-4">
           <AdSpace position="footer" />

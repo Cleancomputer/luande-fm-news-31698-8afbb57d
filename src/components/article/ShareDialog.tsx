@@ -47,15 +47,6 @@ export const ShareDialog = ({ open, onOpenChange, title, url, slug }: ShareDialo
     ? `${siteOrigin}/artigo/${encodeURIComponent(resolvedSlug)}`
     : url;
 
-  const iosWhatsappPreviewUrl = (() => {
-    const backendUrl = import.meta.env.VITE_SUPABASE_URL;
-
-    if (!backendUrl || !resolvedSlug) {
-      return normalizedWhatsappUrl;
-    }
-
-    return `${backendUrl}/functions/v1/article-share?slug=${encodeURIComponent(resolvedSlug)}&origin=${encodeURIComponent(siteOrigin)}`;
-  })();
 
   const handleCopyLink = async () => {
     try {
@@ -74,21 +65,8 @@ export const ShareDialog = ({ open, onOpenChange, title, url, slug }: ShareDialo
       icon: Send,
       color: "hover:bg-green-500/10 hover:text-green-600",
       action: () => {
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-
-        const whatsappMessage = isIOS
-          ? iosWhatsappPreviewUrl
-          : `${title} - ${normalizedWhatsappUrl}`;
-        const whatsappUrl = isIOS
-          ? `https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappMessage)}`
-          : `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
-
-        if (isIOS) {
-          window.location.href = whatsappUrl;
-          return;
-        }
-
+        const whatsappMessage = `${title} - ${normalizedWhatsappUrl}`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
         window.open(whatsappUrl, "_blank");
       },
     },
