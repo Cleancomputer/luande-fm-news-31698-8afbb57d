@@ -47,15 +47,6 @@ export const ShareDialog = ({ open, onOpenChange, title, url, slug }: ShareDialo
     ? `${siteOrigin}/artigo/${encodeURIComponent(resolvedSlug)}`
     : url;
 
-  const iosWhatsappPreviewUrl = (() => {
-    const backendUrl = import.meta.env.VITE_SUPABASE_URL;
-
-    if (!backendUrl || !resolvedSlug) {
-      return normalizedWhatsappUrl;
-    }
-
-    return `${backendUrl}/functions/v1/article-share?slug=${encodeURIComponent(resolvedSlug)}&origin=${encodeURIComponent(siteOrigin)}`;
-  })();
 
   const handleCopyLink = async () => {
     try {
