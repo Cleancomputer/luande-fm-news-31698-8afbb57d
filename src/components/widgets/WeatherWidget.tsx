@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Cloud, Search, MapPin } from "lucide-react";
+import { Cloud, Sun, CloudRain, CloudLightning, Snowflake, Search, MapPin, Droplets, Wind } from "lucide-react";
 
 const WeatherWidget = () => {
   const [city, setCity] = useState("Aracaju");
@@ -16,31 +16,23 @@ const WeatherWidget = () => {
 
   const fetchWeatherByCity = async (searchCity: string) => {
     if (!searchCity.trim()) return;
-    
     setLoading(true);
     setError(null);
-    
     try {
-      // First, get coordinates from city name using Open-Meteo Geocoding API
       const geoResponse = await fetch(
         `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchCity)}&count=1&language=pt&format=json`
       );
       const geoData = await geoResponse.json();
-      
       if (!geoData.results || geoData.results.length === 0) {
         setError("Cidade não encontrada");
         setLoading(false);
         return;
       }
-      
       const { latitude, longitude, name, admin1 } = geoData.results[0];
-      
-      // Then fetch weather data
       const weatherResponse = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code&timezone=America/Sao_Paulo`
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=America/Sao_Paulo`
       );
       const weatherData = await weatherResponse.json();
-      
       setWeather(weatherData);
       setCity(admin1 ? `${name}, ${admin1}` : name);
     } catch (err) {
@@ -59,58 +51,82 @@ const WeatherWidget = () => {
     }
   };
 
+  const getWeatherIcon = (code: number) => {
+    if (code === 0) return <Sun className="h-10 w-10 text-amber-400" />;
+    if (code <= 3) return <Cloud className="h-10 w-10 text-gray-400" />;
+    if (code <= 48) return <Cloud className="h-10 w-10 text-gray-500" />;
+    if (code <= 67) return <CloudRain className="h-10 w-10 text-blue-400" />;
+    if (code <= 77) return <Snowflake className="h-10 w-10 text-blue-200" />;
+    return <CloudLightning className="h-10 w-10 text-yellow-500" />;
+  };
+
   const getWeatherDescription = (code: number) => {
     if (code === 0) return "Céu limpo";
     if (code <= 3) return "Parcialmente nublado";
     if (code <= 48) return "Nublado";
     if (code <= 67) return "Chuva";
+    if (code <= 77) return "Neve";
     return "Tempestade";
   };
 
+  const getBgGradient = (code: number) => {
+    if (code === 0) return "from-amber-400 to-orange-500";
+    if (code <= 3) return "from-blue-400 to-blue-500";
+    if (code <= 48) return "from-gray-400 to-gray-500";
+    if (code <= 67) return "from-blue-500 to-blue-700";
+    return "from-gray-600 to-gray-800";
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <Card className="overflow-hidden border-0 shadow-md">
+      <CardHeader className={`bg-gradient-to-r ${weather?.current ? getBgGradient(weather.current.weather_code) : 'from-sky-500 to-blue-600'} pb-3`}>
+        <CardTitle className="flex items-center gap-2 text-white">
           <Cloud className="h-5 w-5" />
           Previsão do Tempo
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="pt-4 space-y-4">
         <form onSubmit={handleSearch} className="flex gap-2">
           <Input
             type="text"
             value={inputCity}
             onChange={(e) => setInputCity(e.target.value)}
-            placeholder="Digite o nome da cidade"
+            placeholder="Buscar cidade..."
             className="flex-1"
           />
           <button type="submit" className="p-2 hover:bg-muted rounded-md transition-colors">
             <Search className="h-5 w-5 text-muted-foreground" />
           </button>
         </form>
-        
+
         {loading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          </div>
+          <div className="text-center py-6 text-sm text-muted-foreground">Carregando...</div>
         ) : error ? (
-          <div className="text-center py-4 text-destructive">
-            {error}
-          </div>
+          <div className="text-center py-4 text-destructive text-sm">{error}</div>
         ) : weather?.current && (
-          <div className="text-center space-y-2">
-            <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4" />
-              {city}
+          <div className="bg-gradient-to-br from-muted/50 to-muted rounded-xl p-4">
+            <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground mb-3">
+              <MapPin className="h-4 w-4 text-primary" />
+              <span className="font-medium">{city}</span>
             </div>
-            <div className="text-4xl font-bold">
-              {Math.round(weather.current.temperature_2m)}°C
+            <div className="flex items-center justify-center gap-4">
+              {getWeatherIcon(weather.current.weather_code)}
+              <div>
+                <div className="text-4xl font-bold">{Math.round(weather.current.temperature_2m)}°C</div>
+                <div className="text-sm text-muted-foreground">{getWeatherDescription(weather.current.weather_code)}</div>
+              </div>
             </div>
-            <div className="text-muted-foreground">
-              {getWeatherDescription(weather.current.weather_code)}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Umidade: {weather.current.relative_humidity_2m}%
+            <div className="flex justify-center gap-6 mt-3 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <Droplets className="h-3.5 w-3.5 text-blue-400" />
+                <span>{weather.current.relative_humidity_2m}%</span>
+              </div>
+              {weather.current.wind_speed_10m && (
+                <div className="flex items-center gap-1">
+                  <Wind className="h-3.5 w-3.5 text-gray-400" />
+                  <span>{Math.round(weather.current.wind_speed_10m)} km/h</span>
+                </div>
+              )}
             </div>
           </div>
         )}
