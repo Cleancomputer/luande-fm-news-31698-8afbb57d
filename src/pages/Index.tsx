@@ -91,11 +91,10 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent mx-auto mb-4"></div>
-          <p className="text-muted-foreground font-body">Carregando notícias...</p>
-        </div>
+      <div className="min-h-screen flex flex-col bg-background relative">
+        <Header />
+        <main className="flex-1" />
+        <Footer />
       </div>
     );
   }
