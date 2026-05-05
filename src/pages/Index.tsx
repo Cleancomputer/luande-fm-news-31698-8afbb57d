@@ -17,7 +17,7 @@ import TrocandoEmMiudos from "@/components/widgets/TrocandoEmMiudos";
 import HorizontalAdsStrip from "@/components/widgets/HorizontalAdsStrip";
 import DateTimeBanner from "@/components/layout/DateTimeBanner";
 import YouTubeVideos from "@/components/widgets/YouTubeVideos";
-import DailyImages from "@/components/widgets/DailyImages";
+
 import { Clock, ChevronRight, Play } from "lucide-react";
 import sergipeMap from "@/assets/sergipe-map.png";
 
@@ -309,9 +309,6 @@ const Index = () => {
               })}
 
               <TrocandoEmMiudos />
-
-              <DailyImages />
-
               <div className="lg:hidden">
                 <InternalAds position="inline" source="uploaded" mobileFormat="horizontal" className="my-2" />
               </div>
