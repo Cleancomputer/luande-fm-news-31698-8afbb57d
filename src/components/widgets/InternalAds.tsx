@@ -18,18 +18,15 @@ interface Ad {
 }
 
 const allAds: Ad[] = [
-  { src: vivoEmpresas, mobileSrc: mobileVivoEmpresas, alt: "Vivo Empresas", link: "https://vivo.com.br/para-empresas" },
-  { src: bradescoSeguros, mobileSrc: mobileBradescoSeguros, alt: "Bradesco Seguros", link: "https://www.bradescoseguros.com.br/clientes" },
-  { src: bradesco, mobileSrc: mobileBradesco, alt: "Banco Bradesco", link: "https://banco.bradesco/html/classic/index.shtm" },
   { src: adBoaluz, alt: "Ótica & Joalheria Boa Luz" },
   { src: adAnuncieAqui, alt: "Anuncie sua marca aqui" },
   { src: adLucrilar, alt: "Tintas Lucrilar" },
 ];
 
 const uploadedAds: Ad[] = [
-  { src: vivoEmpresas, mobileSrc: mobileVivoEmpresas, alt: "Vivo Empresas", link: "https://vivo.com.br/para-empresas" },
-  { src: bradescoSeguros, mobileSrc: mobileBradescoSeguros, alt: "Bradesco Seguros", link: "https://www.bradescoseguros.com.br/clientes" },
-  { src: bradesco, mobileSrc: mobileBradesco, alt: "Banco Bradesco", link: "https://banco.bradesco/html/classic/index.shtm" },
+  { src: adBoaluz, alt: "Ótica & Joalheria Boa Luz" },
+  { src: adAnuncieAqui, alt: "Anuncie sua marca aqui" },
+  { src: adLucrilar, alt: "Tintas Lucrilar" },
 ];
 
 interface InternalAdsProps {
