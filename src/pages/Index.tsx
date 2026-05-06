@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import LoadingScreen from "@/components/layout/LoadingScreen";
 import PopularNews from "@/components/widgets/PopularNews";
 import Poll from "@/components/widgets/Poll";
 import ChatWidget from "@/components/widgets/ChatWidget";
@@ -92,13 +93,7 @@ const Index = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background relative">
-        <Header />
-        <main className="flex-1" />
-        <Footer />
-      </div>
-    );
+    return <LoadingScreen onLoadingComplete={() => {}} />;
   }
 
   const featuredArticles = articles.filter((a) => a.featured);
