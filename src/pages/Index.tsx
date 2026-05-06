@@ -92,13 +92,7 @@ const Index = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background relative">
-        <Header />
-        <main className="flex-1" />
-        <Footer />
-      </div>
-    );
+    return <LoadingScreen onLoadingComplete={() => {}} />;
   }
 
   const featuredArticles = articles.filter((a) => a.featured);
