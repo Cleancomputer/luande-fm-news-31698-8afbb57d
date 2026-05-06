@@ -1,14 +1,7 @@
 import { useState, useEffect } from "react";
-import vivoEmpresas from "@/assets/ads/vivo-empresas.png";
-import bradescoSeguros from "@/assets/ads/bradesco-seguros.png";
-import bradesco from "@/assets/ads/bradesco.png";
 import adBoaluz from "@/assets/ad-boaluz.jpg";
 import adAnuncieAqui from "@/assets/ad-anuncie-aqui.png";
 import adLucrilar from "@/assets/ad-lucrilar.png";
-// Mobile horizontal ads
-import mobileVivoEmpresas from "@/assets/ads/mobile-vivo-empresas.png";
-import mobileBradescoSeguros from "@/assets/ads/mobile-bradesco-seguros.png";
-import mobileBradesco from "@/assets/ads/mobile-bradesco.png";
 
 interface Ad {
   src: string;
