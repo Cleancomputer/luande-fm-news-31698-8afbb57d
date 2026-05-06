@@ -116,7 +116,6 @@ const Index = () => {
         />
       </div>
 
-      <DateTimeBanner />
       <Header />
 
       <main className="flex-1">
