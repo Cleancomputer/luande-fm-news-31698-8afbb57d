@@ -52,12 +52,12 @@ const WeatherWidget = () => {
   };
 
   const getWeatherIcon = (code: number) => {
-    if (code === 0) return <Sun className="h-10 w-10 text-amber-400" />;
-    if (code <= 3) return <Cloud className="h-10 w-10 text-gray-400" />;
-    if (code <= 48) return <Cloud className="h-10 w-10 text-gray-500" />;
-    if (code <= 67) return <CloudRain className="h-10 w-10 text-blue-400" />;
-    if (code <= 77) return <Snowflake className="h-10 w-10 text-blue-200" />;
-    return <CloudLightning className="h-10 w-10 text-yellow-500" />;
+    if (code === 0) return <Sun className="h-10 w-10 text-primary" />;
+    if (code <= 3) return <Cloud className="h-10 w-10 text-muted-foreground" />;
+    if (code <= 48) return <Cloud className="h-10 w-10 text-muted-foreground" />;
+    if (code <= 67) return <CloudRain className="h-10 w-10 text-primary" />;
+    if (code <= 77) return <Snowflake className="h-10 w-10 text-muted-foreground" />;
+    return <CloudLightning className="h-10 w-10 text-primary" />;
   };
 
   const getWeatherDescription = (code: number) => {
@@ -69,18 +69,10 @@ const WeatherWidget = () => {
     return "Tempestade";
   };
 
-  const getBgGradient = (code: number) => {
-    if (code === 0) return "from-amber-400 to-orange-500";
-    if (code <= 3) return "from-blue-400 to-blue-500";
-    if (code <= 48) return "from-gray-400 to-gray-500";
-    if (code <= 67) return "from-blue-500 to-blue-700";
-    return "from-gray-600 to-gray-800";
-  };
-
   return (
-    <Card className="overflow-hidden border-0 shadow-md">
-      <CardHeader className={`bg-gradient-to-r ${weather?.current ? getBgGradient(weather.current.weather_code) : 'from-sky-500 to-blue-600'} pb-3`}>
-        <CardTitle className="flex items-center gap-2 text-white">
+    <Card className="overflow-hidden border border-border shadow-md">
+      <CardHeader className="bg-primary pb-3">
+        <CardTitle className="flex items-center gap-2 text-primary-foreground">
           <Cloud className="h-5 w-5" />
           Previsão do Tempo
         </CardTitle>
@@ -104,7 +96,7 @@ const WeatherWidget = () => {
         ) : error ? (
           <div className="text-center py-4 text-destructive text-sm">{error}</div>
         ) : weather?.current && (
-          <div className="bg-gradient-to-br from-muted/50 to-muted rounded-xl p-4">
+          <div className="bg-muted rounded-xl p-4 border border-border">
             <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground mb-3">
               <MapPin className="h-4 w-4 text-primary" />
               <span className="font-medium">{city}</span>
@@ -112,18 +104,18 @@ const WeatherWidget = () => {
             <div className="flex items-center justify-center gap-4">
               {getWeatherIcon(weather.current.weather_code)}
               <div>
-                <div className="text-4xl font-bold">{Math.round(weather.current.temperature_2m)}°C</div>
+                <div className="text-4xl font-bold text-foreground">{Math.round(weather.current.temperature_2m)}°C</div>
                 <div className="text-sm text-muted-foreground">{getWeatherDescription(weather.current.weather_code)}</div>
               </div>
             </div>
             <div className="flex justify-center gap-6 mt-3 text-xs text-muted-foreground">
               <div className="flex items-center gap-1">
-                <Droplets className="h-3.5 w-3.5 text-blue-400" />
+                <Droplets className="h-3.5 w-3.5" />
                 <span>{weather.current.relative_humidity_2m}%</span>
               </div>
               {weather.current.wind_speed_10m && (
                 <div className="flex items-center gap-1">
-                  <Wind className="h-3.5 w-3.5 text-gray-400" />
+                  <Wind className="h-3.5 w-3.5" />
                   <span>{Math.round(weather.current.wind_speed_10m)} km/h</span>
                 </div>
               )}
