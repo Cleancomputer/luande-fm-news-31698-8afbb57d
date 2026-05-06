@@ -47,9 +47,9 @@ const HoroscopeWidget = () => {
   };
 
   return (
-    <Card className="overflow-hidden border-0 shadow-md">
-      <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-500 pb-3">
-        <CardTitle className="flex items-center gap-2 text-white">
+    <Card className="overflow-hidden border border-border shadow-md">
+      <CardHeader className="bg-primary pb-3">
+        <CardTitle className="flex items-center gap-2 text-primary-foreground">
           <Sparkles className="h-5 w-5" />
           Horóscopo
         </CardTitle>
@@ -62,7 +62,7 @@ const HoroscopeWidget = () => {
             getHoroscope(value);
           }}
         >
-          <SelectTrigger className="border-purple-200 focus:ring-purple-400">
+          <SelectTrigger>
             <SelectValue placeholder="✨ Selecione seu signo" />
           </SelectTrigger>
           <SelectContent>
@@ -75,7 +75,7 @@ const HoroscopeWidget = () => {
         </Select>
 
         {horoscope && (
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 rounded-xl p-4 border border-purple-100 dark:border-purple-800">
+          <div className="bg-muted rounded-xl p-4 border border-border">
             <div className="text-3xl text-center mb-2">{selectedEmoji}</div>
             <p className="text-sm leading-relaxed text-center italic">{horoscope}</p>
           </div>
