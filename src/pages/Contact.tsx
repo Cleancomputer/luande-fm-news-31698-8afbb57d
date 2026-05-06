@@ -1,15 +1,11 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import BreakingNews from "@/components/layout/BreakingNews";
-import DateTimeBanner from "@/components/layout/DateTimeBanner";
 import { MapPin, Phone, Mail, Facebook, Instagram, Youtube } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Contact = () => {
   return (
     <div className="min-h-screen bg-background">
-      <BreakingNews />
-      <DateTimeBanner />
       <Header />
       
       <main className="container mx-auto px-4 py-12">
