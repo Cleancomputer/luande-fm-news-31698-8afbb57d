@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import LoadingScreen from "@/components/layout/LoadingScreen";
 import PopularNews from "@/components/widgets/PopularNews";
 import Poll from "@/components/widgets/Poll";
 import ChatWidget from "@/components/widgets/ChatWidget";
