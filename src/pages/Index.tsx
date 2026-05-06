@@ -15,7 +15,6 @@ import InternalAds from "@/components/widgets/InternalAds";
 import FootballResults from "@/components/widgets/FootballResults";
 import TrocandoEmMiudos from "@/components/widgets/TrocandoEmMiudos";
 import HorizontalAdsStrip from "@/components/widgets/HorizontalAdsStrip";
-import DateTimeBanner from "@/components/layout/DateTimeBanner";
 import YouTubeVideos from "@/components/widgets/YouTubeVideos";
 
 import { Clock, ChevronRight, Play } from "lucide-react";
