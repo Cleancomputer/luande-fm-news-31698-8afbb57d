@@ -1,13 +1,9 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import BreakingNews from "@/components/layout/BreakingNews";
-import DateTimeBanner from "@/components/layout/DateTimeBanner";
 
 const AboutUs = () => {
   return (
     <div className="min-h-screen bg-background">
-      <BreakingNews />
-      <DateTimeBanner />
       <Header />
       
       <main className="container mx-auto px-4 py-12">
