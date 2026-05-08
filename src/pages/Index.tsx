@@ -91,23 +91,6 @@ const Index = () => {
     return articles.filter((a) => a.category === categoryName);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background relative">
-        <Header />
-        <main className="flex-1 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-lg font-body text-muted-foreground animate-pulse">
-              Carregando notícias...
-            </p>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
   const featuredArticles = articles.filter((a) => a.featured);
   const heroArticle = featuredArticles[0] || articles[0];
   const secondaryArticles = featuredArticles.length > 1 ? featuredArticles.slice(1, 4) : articles.slice(1, 4);
