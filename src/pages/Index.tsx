@@ -22,9 +22,23 @@ import sergipeMap from "@/assets/sergipe-map.png";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [articles, setArticles] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [articles, setArticles] = useState<any[]>(() => {
+    try {
+      const cached = localStorage.getItem("cached_articles");
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [categories, setCategories] = useState<any[]>(() => {
+    try {
+      const cached = localStorage.getItem("cached_categories");
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadArticles();
