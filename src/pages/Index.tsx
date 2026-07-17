@@ -22,9 +22,23 @@ import sergipeMap from "@/assets/sergipe-map.png";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [articles, setArticles] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [articles, setArticles] = useState<any[]>(() => {
+    try {
+      const cached = localStorage.getItem("cached_articles");
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [categories, setCategories] = useState<any[]>(() => {
+    try {
+      const cached = localStorage.getItem("cached_categories");
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadArticles();
@@ -50,7 +64,9 @@ const Index = () => {
         .eq("published", true)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      setArticles(data || []);
+      const list = data || [];
+      setArticles(list);
+      try { localStorage.setItem("cached_articles", JSON.stringify(list)); } catch {}
     } catch (error) {
       console.error("Erro ao carregar artigos:", error);
     } finally {
@@ -66,7 +82,9 @@ const Index = () => {
         .eq("is_active", true)
         .order("display_order", { ascending: true });
       if (error) throw error;
-      setCategories(data || []);
+      const list = data || [];
+      setCategories(list);
+      try { localStorage.setItem("cached_categories", JSON.stringify(list)); } catch {}
     } catch (error) {
       console.error("Erro ao carregar categorias:", error);
     }
