@@ -45,13 +45,70 @@ const PrivacyPolicy = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4 text-foreground">4. Cookies</h2>
               <p>
-                Utilizamos cookies para melhorar a experiência de navegação. Você pode configurar seu 
-                navegador para recusar cookies, mas isso pode afetar algumas funcionalidades do site.
+                Utilizamos cookies para melhorar a experiência de navegação, analisar o uso do site e
+                exibir publicidade. Você pode configurar seu navegador para recusar cookies, mas isso
+                pode afetar algumas funcionalidades do site.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold mb-4 text-foreground">5. Segurança</h2>
+              <h2 className="text-2xl font-semibold mb-4 text-foreground">5. Publicidade e Google AdSense</h2>
+              <p>
+                Este site utiliza o Google AdSense, um serviço de publicidade fornecido pelo Google.
+                O Google e seus parceiros, como fornecedores terceiros, utilizam cookies para veicular
+                anúncios com base em suas visitas anteriores a este e a outros sites na internet.
+              </p>
+              <ul className="list-disc pl-6 space-y-2 mt-4">
+                <li>
+                  O uso de cookies de publicidade pelo Google permite que ele e seus parceiros veiculem
+                  anúncios para os usuários com base nas visitas a este site e/ou a outros sites na internet.
+                </li>
+                <li>
+                  Você pode desativar a publicidade personalizada acessando as{" "}
+                  <a
+                    href="https://adssettings.google.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline"
+                  >
+                    Configurações de anúncios do Google
+                  </a>.
+                </li>
+                <li>
+                  Também é possível desativar cookies de fornecedores terceiros para publicidade
+                  personalizada visitando{" "}
+                  <a
+                    href="https://www.aboutads.info/choices"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline"
+                  >
+                    www.aboutads.info
+                  </a>.
+                </li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold mb-4 text-foreground">6. Google Analytics</h2>
+              <p>
+                Utilizamos o Google Analytics para coletar informações estatísticas anônimas sobre o uso
+                do site, como páginas visitadas, tempo de permanência e origem do acesso. Esses dados nos
+                ajudam a melhorar o conteúdo e a experiência de navegação. Para mais informações, consulte
+                a{" "}
+                <a
+                  href="https://policies.google.com/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline"
+                >
+                  Política de Privacidade do Google
+                </a>.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold mb-4 text-foreground">7. Segurança</h2>
               <p>
                 Implementamos medidas de segurança para proteger suas informações pessoais contra acesso 
                 não autorizado, alteração, divulgação ou destruição.
@@ -59,7 +116,7 @@ const PrivacyPolicy = () => {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold mb-4 text-foreground">6. Links Externos</h2>
+              <h2 className="text-2xl font-semibold mb-4 text-foreground">8. Links Externos</h2>
               <p>
                 Nosso site pode conter links para sites externos. Não somos responsáveis pelas práticas 
                 de privacidade de outros sites.
@@ -67,7 +124,7 @@ const PrivacyPolicy = () => {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold mb-4 text-foreground">7. Seus Direitos</h2>
+              <h2 className="text-2xl font-semibold mb-4 text-foreground">9. Seus Direitos</h2>
               <p>Você tem o direito de:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Acessar suas informações pessoais</li>
@@ -78,7 +135,7 @@ const PrivacyPolicy = () => {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold mb-4 text-foreground">8. Contato</h2>
+              <h2 className="text-2xl font-semibold mb-4 text-foreground">10. Contato</h2>
               <p>
                 Para questões sobre esta política de privacidade, entre em contato através do e-mail: 
                 contato@luandefm.com
@@ -86,7 +143,7 @@ const PrivacyPolicy = () => {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold mb-4 text-foreground">9. Alterações</h2>
+              <h2 className="text-2xl font-semibold mb-4 text-foreground">11. Alterações</h2>
               <p>
                 Esta política pode ser atualizada periodicamente. Recomendamos que você revise esta 
                 página regularmente para se manter informado sobre como protegemos suas informações.

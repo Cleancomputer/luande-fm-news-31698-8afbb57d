@@ -14,4 +14,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://luandefm.net/sitemap.xml
+Sitemap: https://www.luandefm.net/sitemap.xml
