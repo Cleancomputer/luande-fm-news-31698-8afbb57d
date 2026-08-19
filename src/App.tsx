@@ -19,6 +19,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
 import VideoNews from "./pages/VideoNews";
 import AdSense from "./components/layout/AdSense";
+import CanonicalUrl from "./components/layout/CanonicalUrl";
 import ViewportSafeArea from "./components/layout/ViewportSafeArea";
 
 const queryClient = new QueryClient({
@@ -44,6 +45,7 @@ const App = () => {
           }}
         >
           <AdSense />
+          <CanonicalUrl />
           <ViewportSafeArea />
           <Routes>
             <Route path="/" element={<Index />} />

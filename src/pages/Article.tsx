@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import { SITE_URL } from "@/lib/site";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Badge } from "@/components/ui/badge";
@@ -55,7 +56,7 @@ const Article = () => {
       }
     };
 
-    const articleUrl = `${window.location.origin}/artigo/${article.slug}`;
+    const articleUrl = `${SITE_URL}/artigo/${article.slug}`;
 
     document.title = `${article.title} - Portal Luandê Notícias`;
     setMeta("og:title", article.title);
